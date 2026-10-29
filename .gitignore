@@ -1,0 +1,37 @@
+# Python / ferramentas
+.venv/
+__pycache__/
+*.pyc
+.ruff_cache/
+.pytest_cache/
+.DS_Store
+.claude/settings.local.json
+
+# Dados: bronze, silver e gold vivem no GCP (ver README e docs/FONTES-BRONZE.md).
+# Ficam no git só os READMEs de procedimento e as seeds curadas.
+data/bronze/**
+!data/bronze/**/
+!data/bronze/**/README.md
+data/silver/**
+!data/silver/README.md
+
+# Saídas geradas do painel (gold): reconstruídas por `make site` e `collect.vereadores --fotos`.
+site/data/
+site/fotos/
+
+# Evidências do spike: binários e dumps vão para o bucket do bronze; o git guarda textos e scripts.
+docs/spike/evidence/**/*.pdf
+docs/spike/evidence/**/*.html
+docs/spike/evidence/**/*.bin
+docs/spike/evidence/**/*.json
+docs/spike/evidence/**/*.csv
+docs/spike/evidence/**/*.tsv
+docs/spike/evidence/**/*.gz
+docs/spike/evidence/**/*.js
+docs/spike/evidence/**/*.pages
+docs/spike/evidence/**/*.xlsx
+docs/spike/evidence/**/*.xlsm
+docs/spike/evidence/**/*_
+# Cópias do DOM com CPF de terceiros
+docs/spike/evidence/custo-verify/dom2022/dom-8235-03-03-2022.txt
+docs/spike/evidence/custo-verify/dol/dom-8976.txt
