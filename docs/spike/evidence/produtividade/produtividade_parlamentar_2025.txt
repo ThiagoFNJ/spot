@@ -1,0 +1,46 @@
+Ano | Parlamentar/Autor | Emenda | Mensagem | Parecer | Relatoria | Substitutivo | Vistas | Voto do Relator | Voto em Separado | Total
+2025 | Aladilce | 1 |  | 23 | 99 |  | 45 | 1 | 18 | 187
+2025 | Alexandre Aleluia |  |  | 15 | 35 |  | 4 |  | 2 | 56
+2025 | Anderson Ninho |  |  | 3 | 5 |  |  |  | 1 | 9
+2025 | André Fraga |  | 3 |  | 2 |  |  |  |  | 5
+2025 | Beca | 1 |  |  |  |  |  |  |  | 1
+2025 | Carlos Muniz | 4 |  |  |  |  |  |  |  | 4
+2025 | Cezar Leite |  |  | 1 | 3 |  | 1 |  |  | 5
+2025 | Claudio Tinoco | 1 |  |  |  |  |  |  |  | 1
+2025 | Comissão de Constituição e Justiça e Redação Final | 1 |  | 2 | 1 |  |  |  |  | 4
+2025 | Cris Correia |  |  | 1 | 2 |  |  |  |  | 3
+2025 | Daniel Alves | 1 |  | 169 | 165 |  | 14 |  |  | 349
+2025 | David Rios |  |  | 24 | 32 |  |  | 1 | 1 | 58
+2025 | Duda Sanches |  |  | 38 | 108 |  | 6 |  |  | 152
+2025 | Débora Santana | 1 | 1 | 12 | 13 |  |  |  |  | 27
+2025 | Eliete Paraguassu Silva | 2 |  |  |  |  |  |  |  | 2
+2025 | Executivo Municipal |  | 25 |  |  |  |  |  |  | 25
+2025 | Fábio Souza |  |  | 5 | 8 |  | 2 |  |  | 15
+2025 | George O Gordinho da Favela |  |  | 1 | 2 |  |  |  |  | 3
+2025 | Hélio Lula Ferreira | 2 |  | 1 | 3 |  |  |  |  | 6
+2025 | Ireuda Silva |  |  |  | 2 |  |  |  |  | 2
+2025 | Isabela Sousa |  |  | 3 | 3 |  |  |  |  | 6
+2025 | Jorge Araújo |  |  | 2 | 3 |  |  |  |  | 5
+2025 | João Cláudio Bacelar |  | 1 | 1 | 1 |  |  |  | 1 | 4
+2025 | Júlio Santos |  |  | 47 | 130 |  | 9 | 4 | 1 | 191
+2025 | Kel Torres |  |  | 18 | 34 |  | 1 |  | 2 | 55
+2025 | Kiki Bispo | 4 |  |  |  |  |  |  |  | 4
+2025 | Kênio Rezende |  | 4 | 8 | 8 |  |  |  |  | 20
+2025 | Marcelle Moraes |  |  | 1 | 2 |  |  |  |  | 3
+2025 | Marcelo Guimarães Neto |  |  | 1 | 4 |  |  |  |  | 5
+2025 | Marta Lula Rodrigues | 13 |  | 28 | 43 |  | 9 |  | 16 | 109
+2025 | Maurício Trindade |  |  | 44 | 97 |  | 3 |  |  | 144
+2025 | Omarzinho Gordilho | 1 |  | 54 | 115 |  | 9 | 1 |  | 180
+2025 | Orlando Palhinha |  |  |  | 4 |  |  |  |  | 4
+2025 | Paulo Magalhães Júnior |  |  | 28 | 51 |  | 1 |  | 2 | 82
+2025 | Professor Hamilton |  | 1 | 2 | 7 |  | 1 |  | 5 | 16
+2025 | Randerson Leal |  |  | 1 | 5 |  |  |  |  | 6
+2025 | Roberta Caires |  |  | 31 | 44 |  |  |  |  | 75
+2025 | Rodrigo Amaral |  |  | 84 | 109 |  | 2 | 2 |  | 197
+2025 | Sandro Filho |  | 1 | 7 | 5 |  | 1 |  |  | 14
+2025 | Sidninho | 1 | 1 | 954 | 1.018 |  | 17 | 3 | 1 | 1.995
+2025 | Silvio Humberto | 2 |  | 4 | 8 |  | 1 |  |  | 15
+2025 | Super. de Análise e Pesq. |  |  |  |  | 2 |  |  |  | 2
+2025 | Téo Senna |  |  | 7 | 5 |  | 1 |  |  | 13
+Total | 35 | 37 | 1.620 | 2.176 | 2 | 127 | 12 | 50 | 4.059
+Total Geral | 35 | 37 | 1.620 | 2.176 | 2 | 127 | 12 | 50 | 4.059

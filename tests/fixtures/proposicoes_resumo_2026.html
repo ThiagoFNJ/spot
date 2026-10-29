@@ -1,0 +1,728 @@
+<td class="scGridTabelaTd">
+<table class="scGridTabela" id="sc-ui-summary-body" style="padding: 0px; border-spacing: 0px; border-width: 0px; vertical-align: top; width: 100%;">
+    <script type="text/javascript">
+        function sc_session_redir(url_redir)
+        {
+            if (window.parent && window.parent.document != window.document && typeof window.parent.sc_session_redir === 'function')
+            {
+                window.parent.sc_session_redir(url_redir);
+            }
+            else
+            {
+                if (window.opener && typeof window.opener.sc_session_redir === 'function')
+                {
+                    window.close();
+                    window.opener.sc_session_redir(url_redir);
+                }
+                else
+                {
+                    window.location = url_redir;
+                }
+            }
+        }
+        $(function() {
+            $(".sc-ui-sort").mouseover(function() {
+                $(this).css("cursor", "pointer");
+            }).click(function() {
+                var newOrder, colOrder;
+                if ($(this).hasClass("sc-ui-sort-desc")) {
+                    $(this).removeClass("sc-ui-sort-desc").addClass("sc-ui-sort-asc");
+                    newOrder = "asc";
+                }
+                else {
+                    $(this).removeClass("sc-ui-sort-asc").addClass("sc-ui-sort-desc");
+                    newOrder = "desc";
+                }
+                colOrder = $(this).attr("id").substr(11);
+                changeSort(colOrder, newOrder, false);
+            });
+        });
+    </script>
+ <tr class="sc-ui-summary-header-row">
+  <td class="scGridSummaryLabel sc-col-title sc-col-fld sc-col-fld-0" rowspan="2">
+   Ano
+  </td>
+  <td class="scGridSummaryLabel sc-col-title sc-col-fld sc-col-fld-1" rowspan="2">
+   Parlamentar/Autor
+  </td>
+  <td class="scGridSummaryLabel"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">MOC</span></td>
+  <td class="scGridSummaryLabel"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">PDL</span></td>
+  <td class="scGridSummaryLabel"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">PIN</span></td>
+  <td class="scGridSummaryLabel"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">PLC</span></td>
+  <td class="scGridSummaryLabel"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">PLE</span></td>
+  <td class="scGridSummaryLabel"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">PRE</span></td>
+  <td class="scGridSummaryLabel"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">REP</span></td>
+  <td class="scGridSummaryLabel"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">RUP</span></td>
+  <td class="scGridSummaryLabel"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">Total</span></td>
+ </tr>
+ <tr class="sc-ui-summary-header-row">
+  <td class="scGridSummaryLabel css_tra_mod_codigo_cnt_label"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">&nbsp</span></td>
+  <td class="scGridSummaryLabel css_tra_mod_codigo_cnt_label"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">&nbsp</span></td>
+  <td class="scGridSummaryLabel css_tra_mod_codigo_cnt_label"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">&nbsp</span></td>
+  <td class="scGridSummaryLabel css_tra_mod_codigo_cnt_label"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">&nbsp</span></td>
+  <td class="scGridSummaryLabel css_tra_mod_codigo_cnt_label"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">&nbsp</span></td>
+  <td class="scGridSummaryLabel css_tra_mod_codigo_cnt_label"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">&nbsp</span></td>
+  <td class="scGridSummaryLabel css_tra_mod_codigo_cnt_label"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">&nbsp</span></td>
+  <td class="scGridSummaryLabel css_tra_mod_codigo_cnt_label"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">&nbsp</span></td>
+  <td class="scGridSummaryLabel css_tra_mod_codigo_cnt_label"><span style="display: flex;flex-direction: row;align-items: center;justify-content: left">&nbsp</span></td>
+ </tr>
+    <script type="text/javascript">
+        $(function() {
+            $(".scGridSummaryLine").click(function() {
+              var bHasClicked = $(this).find(".scGridSummaryLineOdd").hasClass("scGridSummaryClickedLine") || $(this).find(".scGridSummaryLineEven").hasClass("scGridSummaryClickedLine") || $(this).find(".scGridSummarySubtotal").hasClass("scGridSummaryClickedSubtotal") || $(this).find(".scGridSummaryTotal").hasClass("scGridSummaryClickedTotal");
+              $(".scGridSummaryLineOdd").removeClass("scGridSummaryClickedLine");
+              $(".scGridSummaryLineEven").removeClass("scGridSummaryClickedLine");
+              $(".scGridSummaryGroupbyVisible").removeClass("scGridSummaryClickedGroupbyVisible");
+              $(".scGridSummaryGroupbyInvisible").removeClass("scGridSummaryClickedGroupbyInvisible");
+              $(".scGridSummaryGroupbyInvisibleDisplay").removeClass("scGridSummaryClickedGroupbyInvisibleDisplay");
+              $(".scGridSummarySubtotal").removeClass("scGridSummaryClickedSubtotal");
+              $(".scGridSummaryTotal").removeClass("scGridSummaryClickedTotal");
+              if (!bHasClicked) {
+                $(this).find(".scGridSummaryLineOdd").addClass("scGridSummaryClickedLine");
+                $(this).find(".scGridSummaryLineEven").addClass("scGridSummaryClickedLine");
+                $(this).find(".scGridSummaryGroupbyVisible").addClass("scGridSummaryClickedGroupbyVisible");
+                $(this).find(".scGridSummaryGroupbyInvisible").addClass("scGridSummaryClickedGroupbyInvisible");
+                $(this).find(".scGridSummaryGroupbyInvisibleDisplay").addClass("scGridSummaryClickedGroupbyInvisibleDisplay");
+                $(this).find(".scGridSummarySubtotal").addClass("scGridSummaryClickedSubtotal");
+                $(this).find(".scGridSummaryTotal").addClass("scGridSummaryClickedTotal");
+              }
+            });
+        });
+    </script>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-0">2026</td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Aladilce</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">36</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">11</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">4</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">21</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td style="text-align: right" class="scGridSummaryTotal">75</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Alex Alemão</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">16</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">8</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">3</td>
+  <td style="text-align: right" class="scGridSummaryTotal">30</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Alexandre Aleluia</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">4</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">7</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Anderson Ninho</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">6</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">André Fraga</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">116</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">28</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">148</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Carlos Kleber</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">4</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">7</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Carlos Muniz</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">26</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">27</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Cezar Leite</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">5</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">10</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">2</td>
+  <td style="text-align: right" class="scGridSummaryTotal">21</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Comissão de Legislação Participativa</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">3</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Cris Correia</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">2</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Daniel Alves</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">7</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td style="text-align: right" class="scGridSummaryTotal">11</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">David Rios</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">11</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">11</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Duda Sanches</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">5</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Débora Santana</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">7</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Eliete Paraguassu Silva</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">7</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">19</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">5</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td style="text-align: right" class="scGridSummaryTotal">35</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Executivo Municipal</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">9</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">11</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Felipe Santana</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">35</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">137</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">25</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">41</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td style="text-align: right" class="scGridSummaryTotal">240</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Fábio Souza</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">4</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">George O Gordinho da Favela</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">7</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Hélio Lula Ferreira</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">6</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td style="text-align: right" class="scGridSummaryTotal">10</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Ireuda Silva</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td style="text-align: right" class="scGridSummaryTotal">4</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Isabela Sousa</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">33</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">31</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">66</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Jorge Araújo</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">4</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">7</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">João Cláudio Bacelar</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">6</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">26</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">15</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">3</td>
+  <td style="text-align: right" class="scGridSummaryTotal">51</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Júlio Santos</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td style="text-align: right" class="scGridSummaryTotal">1</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Kel Torres</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">20</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">4</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">7</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td style="text-align: right" class="scGridSummaryTotal">35</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Kiki Bispo</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">4</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td style="text-align: right" class="scGridSummaryTotal">9</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Kênio Rezende</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">2</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Luiz Carlos</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td style="text-align: right" class="scGridSummaryTotal">14</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Marcelle Moraes</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">10</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">12</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Marcelo Guimarães Neto</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">10</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">9</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">25</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Marta Lula Rodrigues</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">29</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">10</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">7</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">29</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">5</td>
+  <td style="text-align: right" class="scGridSummaryTotal">80</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Maurício Trindade</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">7</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td style="text-align: right" class="scGridSummaryTotal">10</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Mesa Executiva</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">14</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">18</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Omarzinho Gordilho</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">8</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">5</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td style="text-align: right" class="scGridSummaryTotal">17</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Orlando Palhinha</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">5</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Paulo Magalhães Júnior</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">2</td>
+  <td style="text-align: right" class="scGridSummaryTotal">7</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Professor Hamilton</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">32</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">17</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">12</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">13</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">77</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Randerson  Leal</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">6</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">13</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">11</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">2</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td style="text-align: right" class="scGridSummaryTotal">33</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Ricardo Almeida</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">6</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">13</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">2</td>
+  <td style="text-align: right" class="scGridSummaryTotal">27</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Roberta Caires</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">2</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Rodrigo Amaral</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">2</td>
+  <td style="text-align: right" class="scGridSummaryTotal">5</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Sandro Bahiense</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">7</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">11</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Sandro Filho</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">116</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">153</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">272</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Silvio Humberto</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">4</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">12</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">8</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">3</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">8</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">2</td>
+  <td style="text-align: right" class="scGridSummaryTotal">37</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Tiago Queiroz</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">28</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">5</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineEven css_tra_mod_codigo_cnt_field"></td>
+  <td style="text-align: right" class="scGridSummaryTotal">34</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryGroupbyInvisible sc-col-fld sc-col-fld-0"><span class="scGridSummaryGroupbyInvisibleDisplay">2026</span></td>
+  <td class="scGridSummaryGroupbyVisible sc-col-fld sc-col-fld-1">Téo Senna</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">4</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field"></td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">4</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">11</td>
+  <td class="scGridSummaryLineOdd css_tra_mod_codigo_cnt_field">1</td>
+  <td style="text-align: right" class="scGridSummaryTotal">22</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummarySubtotal sc-col-fld sc-col-fld-0" colspan="2">2026</td>
+  <td class="scGridSummarySubtotal css_tra_mod_codigo_cnt_field">351</td>
+  <td class="scGridSummarySubtotal css_tra_mod_codigo_cnt_field">1</td>
+  <td class="scGridSummarySubtotal css_tra_mod_codigo_cnt_field">635</td>
+  <td class="scGridSummarySubtotal css_tra_mod_codigo_cnt_field">4</td>
+  <td class="scGridSummarySubtotal css_tra_mod_codigo_cnt_field">295</td>
+  <td class="scGridSummarySubtotal css_tra_mod_codigo_cnt_field">86</td>
+  <td class="scGridSummarySubtotal css_tra_mod_codigo_cnt_field">143</td>
+  <td class="scGridSummarySubtotal css_tra_mod_codigo_cnt_field">35</td>
+  <td style="text-align: right" class="scGridSummaryTotal">1.550</td>
+ </tr>
+ <tr  class="scGridSummaryLine">
+  <td class="scGridSummaryTotal sc-col-fld sc-col-fld-0" colspan="2">Total Geral</td>
+  <td style="text-align: right" class="scGridSummaryTotal">351</td>
+  <td style="text-align: right" class="scGridSummaryTotal">1</td>
+  <td style="text-align: right" class="scGridSummaryTotal">635</td>
+  <td style="text-align: right" class="scGridSummaryTotal">4</td>
+  <td style="text-align: right" class="scGridSummaryTotal">295</td>
+  <td style="text-align: right" class="scGridSummaryTotal">86</td>
+  <td style="text-align: right" class="scGridSummaryTotal">143</td>
+  <td style="text-align: right" class="scGridSummaryTotal">35</td>
+  <td style="text-align: right" class="scGridSummaryTotal">1.550</td>
+ </tr>
+</table>
+</td>

@@ -1,0 +1,33 @@
+[01] GET /leg/salvador/LEG_SYS_frequencia/ -> 200 264107B 1.25s
+     script_case_init: {'1876'} grid total: [('1', '43', '23516')]
+[02] POST /leg/salvador/LEG_SYS_frequencia/index.php -> 200 75793B 0.51s
+     starts with '{': True; total regex: [('1', '43', '430')] -> 430
+[03] POST /leg/salvador/LEG_SYS_frequencia/index.php -> 200 76267B 0.45s
+     starts with '{': True; total regex: [('1', '43', '430')] -> 430
+[04] POST /leg/salvador/LEG_SYS_frequencia/LEG_SYS_frequencia_export_ctrl.php -> 200 6737B 0.04s
+     iframe src: index.php?nmgp_opcao=csv&nmgp_tp_xls=&nmgp_tot_xls=&SC_module_export=grid&nm_delim_line=1&nm_delim_col=1&nm_delim_dados=1&nm_label_csv=N&nm_xml_tag=&nm_xml_label=&nm_json_format=&nm_json_label=&nmgp_password=&script_case_init=1876&pbmd5=4c486cc3796cee51821a7337d3e378ea
+[05] GET /leg/salvador/LEG_SYS_frequencia/index.php?nmgp_opcao=csv&nmgp_tp_xls=&nmgp_tot_xls=&SC_module_export=grid&nm_delim_line=1&nm_delim_col=1&nm_delim_dados=1&nm_label_csv=N&nm_xml_tag=&nm_xml_label=&nm_json_format=&nm_json_label=&nmgp_password=&script_case_init=1876&pbmd5=4c486cc3796cee51821a7337d3e378ea -> 200 0B 0.17s
+[06] GET /producao/tmp/sc_pb_4c486cc3796cee51821a7337d3e378ea.txt -> 200 242B 0.07s
+     pb: {"steps": 438, "count": 438, "message": "Arquivo gerado com sucesso", "link": "/producao/tmp/sc_csv_20261027180005_573_LEG_SYS_frequencia.csv", "md5": "632134634832ea25266e80d9ebd659ff", "returnUrl": "./", "returnOption": "volta_grid", "complete": true}
+[07] GET /producao/tmp/sc_csv_20261027180005_573_LEG_SYS_frequencia.csv -> 200 17705B 0.15s
+     csv: {"lines": 430, "data_rows": 430, "other_rows": 0, "other_sample": [], "crlf": true, "first": ["\"18\";\"2025\";\"Aladilce\";\"Presente\"", "\"18\";\"2025\";\"Alex Alemão\";\"Presente\""], "last": ["\"9\";\"2025\";\"Téo Senna\";\"Presente\""], "sessions": ["2025/10", "2025/11", "2025/12", "2025/13", "2025/14", "2025/15", "2025/16", "2025/17", "2025/18", "2025/9"], "status": {"Presente": 377, "Ausente": 16, "Licenciado": 37}, "distinct_parl": 43, "rows_per_session": {"2025/18": 43, "2025/17": 43, "2025/16": 43, "2025/15": 43, "2025/14": 43, "2025/13": 43, "2025/12": 43, "2025/11": 43, "2025/10":
+[08] POST /leg/salvador/LEG_SYS_frequencia/LEG_SYS_frequencia_export_ctrl.php -> 200 6737B 0.12s
+     iframe src: index.php?nmgp_opcao=csv&nmgp_tp_xls=&nmgp_tot_xls=&SC_module_export=grid&nm_delim_line=1&nm_delim_col=1&nm_delim_dados=1&nm_label_csv=S&nm_xml_tag=&nm_xml_label=&nm_json_format=&nm_json_label=&nmgp_password=&script_case_init=1876&pbmd5=cc849311435fa428f2e456ad42cdc07b
+[09] GET /leg/salvador/LEG_SYS_frequencia/index.php?nmgp_opcao=csv&nmgp_tp_xls=&nmgp_tot_xls=&SC_module_export=grid&nm_delim_line=1&nm_delim_col=1&nm_delim_dados=1&nm_label_csv=S&nm_xml_tag=&nm_xml_label=&nm_json_format=&nm_json_label=&nmgp_password=&script_case_init=1876&pbmd5=cc849311435fa428f2e456ad42cdc07b -> 200 0B 0.18s
+[10] GET /producao/tmp/sc_pb_cc849311435fa428f2e456ad42cdc07b.txt -> 200 242B 0.04s
+     pb: {"steps": 438, "count": 438, "message": "Arquivo gerado com sucesso", "link": "/producao/tmp/sc_csv_20261027180009_633_LEG_SYS_frequencia.csv", "md5": "80bc3292f80de6c638494df44904cf71", "returnUrl": "./", "returnOption": "volta_grid", "complete": true}
+[11] GET /producao/tmp/sc_csv_20261027180009_633_LEG_SYS_frequencia.csv -> 200 17761B 0.07s
+     csv: {"lines": 431, "data_rows": 430, "other_rows": 1, "other_sample": ["\"No. da Sessão\";\"Ano da Sessão\";\"Parlamentar\";\"Status\""], "crlf": true, "first": ["\"No. da Sessão\";\"Ano da Sessão\";\"Parlamentar\";\"Status\"", "\"18\";\"2025\";\"Aladilce\";\"Presente\""], "last": ["\"9\";\"2025\";\"Téo Senna\";\"Presente\""], "sessions": ["2025/10", "2025/11", "2025/12", "2025/13", "2025/14", "2025/15", "2025/16", "2025/17", "2025/18", "2025/9"], "status": {"Presente": 377, "Ausente": 16, "Licenciado": 37}, "distinct_parl": 43, "rows_per_session": {"2025/18": 43, "2025/17": 43, "2025/16": 43, "20
+[12] POST /leg/salvador/LEG_SYS_frequencia/index.php -> 200 572928B 0.38s
+     dump total regex [('1', '430', '430')], parsed rows 0, group-break cells 0
+     compare: {"csv_rows": 430, "dump_rows": 0, "only_in_csv": [["18", "2025", "Aladilce", "Presente"], ["18", "2025", "Alex Alemão", "Presente"], ["18", "2025", "Alexandre Aleluia", "Ausente"], ["18", "2025", "Anderson Ninho", "Presente"], ["18", "2025", "André Fraga", "Licenciado"], ["18", "2025", "Beca", "Presente"], ["18", "2025", "Carlos Muniz", "Presente"], ["18", "2025", "Cezar Leite", "Presente"], ["18", "2025", "Claudio Tinoco", "Presente"], ["18", "2025", "Cris Correia", "Presente"], ["18", "2025", 
+[13] GET /leg/salvador/LEG_SYS_frequencia/ -> 200 264107B 0.58s
+     script_case_init: {'7824'} grid total: [('1', '43', '23516')]
+[14] POST /leg/salvador/LEG_SYS_frequencia/LEG_SYS_frequencia_export_ctrl.php -> 200 6737B 0.04s
+     iframe src: index.php?nmgp_opcao=csv&nmgp_tp_xls=&nmgp_tot_xls=&SC_module_export=grid&nm_delim_line=1&nm_delim_col=1&nm_delim_dados=1&nm_label_csv=N&nm_xml_tag=&nm_xml_label=&nm_json_format=&nm_json_label=&nmgp_password=&script_case_init=1876&pbmd5=b8ca83a9d40a5cc05e0558d187061b23
+[15] GET /leg/salvador/LEG_SYS_frequencia/index.php?nmgp_opcao=csv&nmgp_tp_xls=&nmgp_tot_xls=&SC_module_export=grid&nm_delim_line=1&nm_delim_col=1&nm_delim_dados=1&nm_label_csv=N&nm_xml_tag=&nm_xml_label=&nm_json_format=&nm_json_label=&nmgp_password=&script_case_init=1876&pbmd5=b8ca83a9d40a5cc05e0558d187061b23 -> 200 0B 0.16s
+[16] GET /producao/tmp/sc_pb_b8ca83a9d40a5cc05e0558d187061b23.txt -> 200 242B 0.03s
+     pb: {"steps": 438, "count": 438, "message": "Arquivo gerado com sucesso", "link": "/producao/tmp/sc_csv_20261027180015_901_LEG_SYS_frequencia.csv", "md5": "541f9ee0e50dd18916bb95c23f78ae23", "returnUrl": "./", "returnOption": "volta_grid", "complete": true}
+[17] GET /producao/tmp/sc_csv_20261027180015_901_LEG_SYS_frequencia.csv -> 200 17705B 0.06s
+     csv: {"lines": 430, "data_rows": 430, "other_rows": 0, "other_sample": [], "crlf": true, "first": ["\"18\";\"2025\";\"Aladilce\";\"Presente\"", "\"18\";\"2025\";\"Alex Alemão\";\"Presente\""], "last": ["\"9\";\"2025\";\"Téo Senna\";\"Presente\""], "sessions": ["2025/10", "2025/11", "2025/12", "2025/13", "2025/14", "2025/15", "2025/16", "2025/17", "2025/18", "2025/9"], "status": {"Presente": 377, "Ausente": 16, "Licenciado": 37}, "distinct_parl": 43, "rows_per_session": {"2025/18": 43, "2025/17": 43, "2025/16": 43, "2025/15": 43, "2025/14": 43, "2025/13": 43, "2025/12": 43, "2025/11": 43, "2025/10":
+DONE, requests: 17

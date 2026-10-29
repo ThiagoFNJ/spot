@@ -1,0 +1,13 @@
+[01] GET /leg/salvador/LEG_SYS_frequencia/ -> 200 264107B 0.64s
+     script_case_init: {'2253'} grid total: [('1', '43', '23516')]
+[02] POST /leg/salvador/LEG_SYS_frequencia/index.php -> 200 75793B 0.21s
+     starts with '{': True; total regex: [('1', '43', '430')] -> 430
+[03] POST /leg/salvador/LEG_SYS_frequencia/index.php -> 200 217441B 0.92s
+     starts with '{': True; total regex: [('1', '0', '0')] -> 0
+[04] GET /leg/salvador/LEG_SYS_frequencia/ -> 200 264107B 0.62s
+     script_case_init: {'1734'} grid total: [('1', '43', '23516')]
+[05] POST /leg/salvador/LEG_SYS_frequencia/index.php -> 200 75793B 0.19s
+     starts with '{': True; total regex: [('1', '43', '430')] -> 430
+[06] POST /leg/salvador/LEG_SYS_frequencia/index.php -> 200 217441B 0.90s
+     starts with '{': True; total regex: [('1', '0', '0')] -> 0
+DONE, requests: 6

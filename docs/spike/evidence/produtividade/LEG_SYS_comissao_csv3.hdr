@@ -1,0 +1,10 @@
+HTTP/1.1 200 OK
+Date: Fri, 16 Oct 2026 17:02:36 GMT
+Server: Apache/2.4.25 (Debian)
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Set-Cookie: PHPSESSID_=bmV0bWFrZT9hNDJmYjM1OGYxMzVkMzQ5; expires=Sat, 17-Oct-2026 17:02:36 GMT; Max-Age=86400
+Content-Length: 0
+Content-Type: text/html; charset=ISO-8859-1
+

@@ -1,0 +1,38 @@
+name: Daily Crawl of Enabled Spiders
+
+on:
+  schedule:
+    # Execute once a day at 6PM (BRT)
+    - cron: "0 21 * * *"
+  workflow_dispatch:
+
+jobs:
+  daily-crawl:
+    runs-on: ubuntu-latest
+    env:
+      SHUB_APIKEY: ${{ secrets.SHUB_APIKEY }}
+      SCRAPY_CLOUD_PROJECT_ID: ${{ secrets.SCRAPY_CLOUD_PROJECT_ID }}
+      FILES_STORE: ${{ secrets.FILES_STORE }}
+      QUERIDODIARIO_DATABASE_URL: ${{ secrets.QUERIDODIARIO_DATABASE_URL }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_ENDPOINT_URL: ${{ secrets.AWS_ENDPOINT_URL }}
+      AWS_REGION_NAME: ${{ secrets.AWS_REGION_NAME }}
+      SPIDERMON_DISCORD_FAKE: ${{ secrets.SPIDERMON_DISCORD_FAKE }}
+      SPIDERMON_DISCORD_WEBHOOK_URL: ${{ secrets.SPIDERMON_DISCORD_WEBHOOK_URL }}
+      ZYTE_SMARTPROXY_APIKEY: ${{ secrets.ZYTE_SMARTPROXY_APIKEY }}
+      QUERIDODIARIO_API_URL: ${{ secrets.QUERIDODIARIO_API_URL }}
+      QUERIDODIARIO_API_KEY: ${{ secrets.QUERIDODIARIO_API_KEY }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+    - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
+      with:
+        python-version: "3.13"
+    - name: Prepare environment
+      run: |
+        cd querido_diario_raspadores/
+        uv sync
+    - name: Schedule jobs
+      run: |
+        cd querido_diario_raspadores/
+        uv run python scheduler.py schedule-enabled-spiders

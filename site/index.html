@@ -1,0 +1,1873 @@
+<meta charset="utf-8">
+<title>Vereadores de Salvador</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+  /* Layout: barra de filtros fixa (ano, partido, vereador) + três abas (produtividade, presença, custo).
+     Cada aba: indicadores do recorte, detalhe do vereador selecionado, ranking em barras, série da Casa, tabela. */
+  :root {
+    --bg: #f6f5f0; --surface: #ffffff; --surface-2: #efede6;
+    --fg: #18181b; --fg-2: #5b5a55; --fg-3: #6b6a63;
+    --line: #e2e0d8; --line-2: #cfcdc4;
+    --accent: #1c5cab; --accent-ink: #ffffff; --hl: #fff3c4;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4;
+    --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --sans: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+    --shadow: 0 1px 2px rgba(20,20,20,.06), 0 8px 24px -12px rgba(20,20,20,.18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15161a; --surface: #1e1f24; --surface-2: #26272d; --fg: #f0efec; --fg-2: #b4b3ab; --fg-3: #9c9b93;
+      --line: #2e2f36; --line-2: #3d3e46; --accent: #5598e7; --accent-ink: #0b0b0b; --hl: #3a3420;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #15161a; --surface: #1e1f24; --surface-2: #26272d; --fg: #f0efec; --fg-2: #b4b3ab; --fg-3: #9c9b93;
+    --line: #2e2f36; --line-2: #3d3e46; --accent: #5598e7; --accent-ink: #0b0b0b; --hl: #3a3420;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 var(--sans); padding-block: 0 56px;
+         padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); -webkit-font-smoothing: antialiased; }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1, h2, h3 { font-family: var(--display); font-weight: 500; text-wrap: balance; margin: 0; letter-spacing: -.01em; }
+  h1 { font-size: clamp(26px, 4vw, 36px); line-height: 1.05; }
+  h2 { font-size: 24px; line-height: 1.15; }
+  h3 { font-size: 16px; font-family: var(--sans); font-weight: 600; }
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-2); font-weight: 600; }
+  .muted { color: var(--fg-2); } .small { font-size: 13px; } .num { font-variant-numeric: tabular-nums; }
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  header.top { padding-block: 26px 14px; display: flex; flex-wrap: wrap; gap: 8px 32px; align-items: flex-end; justify-content: space-between; }
+  header.top p { margin: 6px 0 0; max-width: 64ch; color: var(--fg-2); font-size: 14px; }
+
+  /* Barra de filtros fixa */
+  .filters { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding-block: 10px; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-end; }
+  @media (max-width: 600px) {
+    .filters { position: static; gap: 8px 10px; padding-block: 8px; }
+    .filters .field { flex: 1 1 45%; } .filters .field.ver { flex: 1 1 100%; }
+    .field select { min-width: 0; width: 100%; padding: 7px 28px 7px 9px; font-size: 13.5px; }
+    .filters .btn { padding: 6px 10px; font-size: 12.5px; }
+  }
+  .field { display: grid; gap: 3px; min-width: 0; }
+  .field label { font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-2); font-weight: 600; }
+  .field select { font: 500 14px var(--sans); color: var(--fg); background: var(--surface); border: 1px solid var(--line-2); border-radius: 8px; padding: 8px 32px 8px 11px; min-width: 150px; max-width: 100%;
+                  appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--fg-2) 50%), linear-gradient(135deg, var(--fg-2) 50%, transparent 50%); background-position: calc(100% - 16px) 55%, calc(100% - 11px) 55%; background-size: 5px 5px; background-repeat: no-repeat; }
+  .field.ver select { min-width: 220px; }
+  .filters .reset { margin-left: auto; align-self: flex-end; }
+  .btn { appearance: none; border: 1px solid var(--line-2); background: var(--surface); color: var(--fg); font: 500 13px var(--sans); border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+  .btn:hover { border-color: var(--fg-3); }
+  .btn[disabled] { opacity: .5; cursor: default; }
+
+  /* Abas */
+  .tabs { display: flex; gap: 4px; margin-top: 18px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+  .tabs button { appearance: none; border: 0; background: transparent; color: var(--fg-2); font: 600 14.5px var(--sans); padding: 12px 16px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+  .tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
+  .panel { padding-top: 22px; }
+  .panel-head { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; justify-content: space-between; }
+  .panel-head > div { flex: 1 1 auto; min-width: 0; }
+  .panel-head p { margin: 6px 0 0; color: var(--fg-2); max-width: none; font-size: 14px; }
+
+  .seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 2px; }
+  .seg button { appearance: none; border: 0; background: transparent; color: var(--fg-2); font: 600 13px var(--sans); padding: 6px 13px; border-radius: 999px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: var(--shadow); }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 18px; }
+  .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px 10px; min-width: 0; }
+  .kpi .label { font-size: 12.5px; color: var(--fg-2); }
+  .kpi .value { font-family: var(--display); font-size: 30px; line-height: 1.1; margin-top: 3px; }
+  .kpi .sub { font-size: 12px; color: var(--fg-3); margin-top: 3px; }
+
+  .grid-2 { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; margin-top: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+  @media (max-width: 900px) { .grid-3 { grid-template-columns: 1fr; } }
+  .pf-head { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 18px 22px; align-items: start; margin-top: 18px; }
+  @media (max-width: 600px) { .pf-head { grid-template-columns: 96px minmax(0, 1fr); gap: 12px; } }
+  .pf-foto { width: 132px; height: 132px; border-radius: 14px; object-fit: cover; background: var(--surface-2); border: 1px solid var(--line); display: block; }
+  @media (max-width: 600px) { .pf-foto { width: 96px; height: 96px; } }
+  .pf-foto.ini { display: grid; place-items: center; font-size: 40px; font-weight: 600; color: var(--fg-3); }
+  .pf-head h2 { margin: 0; font-size: 26px; } .pf-meta { color: var(--fg-2); margin: 4px 0 8px; font-size: 14px; }
+  .pf-links { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 10px; } .pf-links a { font-size: 13px; padding: 5px 11px; border: 1px solid var(--line-2); border-radius: 999px; color: var(--fg); text-decoration: none; } .pf-links a:hover { border-color: var(--accent); color: var(--accent); }
+  .pf-bio { font-size: 14.5px; line-height: 1.55; max-width: 72ch; color: var(--fg); } .pf-bio.clip { max-height: 7.8em; overflow: hidden; position: relative; }
+  .pf-bio.clip::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2.4em; background: linear-gradient(transparent, var(--bg)); }
+  .pf-more { font-size: 13px; margin-top: 4px; } .pf-more button { background: none; border: 0; color: var(--accent); cursor: pointer; font: inherit; padding: 0; text-decoration: underline; }
+  .pf-facts { margin-top: 18px; } .pf-facts .fact .value { font-size: 22px; } .pf-facts .fact .pos { font-size: 12px; color: var(--fg-2); }
+  .pf-big { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 18px; margin: 4px 0 10px; } .pf-big b { font-size: 34px; font-weight: 600; font-variant-numeric: tabular-nums; } .pf-big span { color: var(--fg-2); font-size: 13.5px; }
+  .pf-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 18px; margin-top: 16px; } .pf-list a { display: flex; justify-content: space-between; gap: 8px; padding: 7px 4px; border-bottom: 1px solid var(--line); color: var(--fg); text-decoration: none; cursor: pointer; } .pf-list a:hover { color: var(--accent); } .pf-list a .pt { color: var(--fg-3); }
+  ol.pf-props { margin: 0; padding-left: 0; list-style: none; } ol.pf-props li { padding: 8px 0; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.45; } ol.pf-props li:first-child { border-top: 0; } ol.pf-props .cod { color: var(--fg-3); font-size: 12px; display: block; } ol.pf-props a { color: var(--fg); }
+  .tops h3 { margin: 0 0 2px; font-size: 15px; } .tops .sub { color: var(--fg-2); font-size: 12.5px; margin-bottom: 8px; }
+  .tops ol { margin: 0; padding-left: 0; list-style: none; } .tops li { display: flex; justify-content: space-between; gap: 8px; padding: 4px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+  .tops li:first-child { border-top: 0; } .tops li .n { cursor: pointer; } .tops li .n:hover { color: var(--accent); text-decoration: underline; } .tops li .v { font-variant-numeric: tabular-nums; color: var(--fg-2); white-space: nowrap; }
+  .tops .split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; } .tops .lbl { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-3); margin: 6px 0 2px; }
+  ul.alerts { margin: 0; padding-left: 0; list-style: none; } ul.alerts li { padding: 7px 0; border-top: 1px solid var(--line); font-size: 13.5px; display: flex; gap: 10px; align-items: baseline; } ul.alerts li:first-child { border-top: 0; }
+  ul.alerts .tag { flex: 0 0 auto; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--s1); color: var(--s1); }
+  ul.alerts .tag.neutral { border-color: var(--line-2); color: var(--fg-2); } ul.alerts .n { cursor: pointer; } ul.alerts .n:hover { text-decoration: underline; color: var(--accent); }
+  table.cob { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 720px; } table.cob th, table.cob td { padding: 5px 6px; text-align: center; border-top: 1px solid var(--line); white-space: nowrap; }
+  table.cob th:first-child, table.cob td:first-child { text-align: left; } table.cob thead th { border-top: 0; color: var(--fg-2); font-weight: 500; }
+  table.cob td.ok { background: color-mix(in srgb, var(--s2) 22%, transparent); } table.cob td.parcial { background: color-mix(in srgb, var(--s4) 35%, transparent); } table.cob td.ausente { color: var(--fg-3); }
+  .cob-legend span { font-size: 12px; padding: 1px 8px; border-radius: 999px; } .cob-legend .ok { background: color-mix(in srgb, var(--s2) 22%, transparent); } .cob-legend .parcial { background: color-mix(in srgb, var(--s4) 35%, transparent); } .cob-legend .ausente { color: var(--fg-3); border: 1px solid var(--line); }
+  table.plain { width: 100%; min-width: 0; table-layout: fixed; border-collapse: collapse; font-size: 13.5px; } table.plain td.v { width: 48%; } table.plain td { padding: 6px 0; border-top: 1px solid var(--line); vertical-align: top; } table.plain tr:first-child td { border-top: 0; } table.plain td.v { text-align: right; color: var(--fg-2); font-variant-numeric: tabular-nums; } table.plain td { word-break: break-word; }
+  @media (max-width: 820px) { .grid-2 { grid-template-columns: 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px 14px; min-width: 0; }
+  .card-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: center; margin-bottom: 10px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--fg-2); }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+
+  /* Detalhe do vereador selecionado */
+  .detail { margin-top: 16px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 12px; padding: 16px 18px; }
+  .detail .who { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; }
+  .detail h2 { font-size: 28px; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 12px; }
+  .fact { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+  .fact .label { font-size: 12px; color: var(--fg-2); }
+  .fact .value { font-family: var(--display); font-size: 26px; line-height: 1.1; margin-top: 2px; }
+  .fact .sub { font-size: 11.5px; color: var(--fg-3); }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .strip { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 8px; } .strip a { display: block; width: 11px; height: 16px; border-radius: 2px; background: var(--line-2); }
+  .strip a.P { background: var(--s2); } .strip a.A { background: var(--s1); } .strip a.L { background: var(--line-2); } .strip a:hover, .strip a:focus { outline: 2px solid var(--fg); outline-offset: 1px; }
+  .strip-legend { display: flex; gap: 14px; font-size: 12px; color: var(--fg-2); margin-top: 6px; } .strip-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+  .chip { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--fg-2); }
+  .detail .sub-chart { margin-top: 12px; max-width: 620px; }
+
+  /* Barras horizontais */
+  .bars { display: grid; grid-template-columns: minmax(120px, 170px) minmax(0, 1fr) auto; gap: 0 10px; align-items: center; }
+  .bars .row { display: contents; }
+  .bars .name { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 5px 6px; margin-left: -6px; cursor: pointer; border-radius: 6px; }
+  .bars .name:hover, .bars .name:focus-visible { color: var(--accent); }
+  .bars .name.plain { cursor: default; } .bars .name.plain:hover { color: inherit; }
+  .bars .name .pt { color: var(--fg-3); font-size: 11.5px; margin-left: 4px; }
+  .bars .track { height: 22px; position: relative; }
+  .bars .track svg { display: block; width: 100%; height: 22px; overflow: visible; }
+  .bars .val { font-size: 13px; text-align: right; white-space: nowrap; }
+  .bars .val small { color: var(--fg-3); margin-left: 6px; }
+  .bars .nd .val, .bars .nd .name { color: var(--fg-3); }
+  .bars .dim .name, .bars .dim .val { opacity: .45; } .bars .dim svg { opacity: .35; }
+  .bars .hl .name { background: var(--hl); color: var(--fg); font-weight: 600; }
+  .more { margin-top: 10px; display: flex; justify-content: center; }
+  .empty { padding: 20px; text-align: center; color: var(--fg-3); }
+
+  .chart { width: 100%; height: auto; display: block; font-family: var(--sans); }
+  .chart text { fill: var(--fg-2); font-size: 11.5px; }
+  .chart .grid line { stroke: var(--line); stroke-width: 1; }
+  .chart .area { fill: var(--s1); opacity: .1; }
+  .chart .line { fill: none; stroke: var(--s1); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .chart .dot { fill: var(--s1); stroke: var(--surface); stroke-width: 2; }
+  .chart .hit { fill: transparent; }
+  .chart .cross { stroke: var(--fg-3); stroke-width: 1; display: none; }
+
+  .tip { position: fixed; z-index: 50; pointer-events: none; background: var(--fg); color: var(--bg); font-size: 12.5px; line-height: 1.4; padding: 7px 10px; border-radius: 6px; max-width: 280px; box-shadow: var(--shadow); display: none; }
+  .tip b { font-weight: 600; }
+
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); margin-top: 16px; }
+  .tbl-tools { display: flex; justify-content: flex-end; margin-top: 16px; }
+  .cols-wrap { margin-top: 6px; } svg.cols { width: 100%; height: auto; display: block; font-size: 11px; } svg.cols .grid line { stroke: var(--line); } svg.cols text { fill: var(--fg-2); }
+  svg.cols .vlabel { font-size: 10.5px; fill: var(--fg); font-variant-numeric: tabular-nums; } svg.cols .flagmark { fill: var(--s1); } svg.cols .yr { font-size: 10px; fill: var(--fg-3); }
+  svg.cols .ref { fill: none; stroke: var(--fg); stroke-width: 1.5; stroke-dasharray: 5 4; opacity: .75; } svg.cols .reflabel { font-size: 10.5px; fill: var(--fg); }
+  svg.cols rect:hover { opacity: .85; } .tbl-tools + .tablewrap { margin-top: 6px; }
+  table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 13.5px; }
+  th, td { padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { font-size: 12px; color: var(--fg-2); font-weight: 600; letter-spacing: .02em; cursor: pointer; user-select: none; background: var(--surface); }
+  th[aria-sort="descending"]::after { content: " ↓"; } th[aria-sort="ascending"]::after { content: " ↑"; }
+  tbody tr:hover { background: var(--surface-2); }
+  tbody tr.hl { background: var(--hl); }
+  td.name { cursor: pointer; font-weight: 500; }
+  td .pt { color: var(--fg-3); font-size: 11.5px; margin-left: 6px; font-weight: 400; }
+  tr:last-child td { border-bottom: 0; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: var(--surface-2); color: var(--fg-2); margin-left: 6px; vertical-align: 1px; }
+  .pill.warn { background: transparent; border: 1px solid var(--s1); color: var(--s1); }
+  dl.gloss { margin: 0; } dl.gloss dt { font-weight: 600; margin-top: 10px; } dl.gloss dd { margin: 2px 0 0; color: var(--fg-2); }
+
+  .info { appearance: none; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line-2); background: var(--surface); color: var(--fg-2); font: 600 13px var(--sans); cursor: pointer; vertical-align: middle; margin-left: 8px; line-height: 1; }
+  .info:hover { color: var(--accent); border-color: var(--accent); }
+  dialog.tipos { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--fg); padding: 0; max-width: min(720px, calc(100vw - 32px)); width: 100%; box-shadow: var(--shadow); }
+  dialog.tipos::backdrop { background: rgba(10,10,12,.45); }
+  dialog.tipos .dlg { padding: 22px 24px 20px; }
+  dialog.tipos h2 { font-size: 24px; margin-bottom: 4px; }
+  dialog.tipos .close { position: absolute; top: 14px; right: 14px; }
+  .tipo-list { display: grid; gap: 12px; margin-top: 16px; }
+  .tipo { display: grid; grid-template-columns: 14px 1fr; gap: 12px; align-items: start; }
+  .tipo .sw { width: 14px; height: 14px; border-radius: 4px; margin-top: 4px; background: var(--c); }
+  .tipo h3 { margin: 0; } .tipo h3 .codes { color: var(--fg-3); font-weight: 500; font-size: 12.5px; margin-left: 8px; }
+  .tipo p { margin: 4px 0 0; color: var(--fg-2); font-size: 13.5px; }
+  .tipo .peso { display: inline-block; font-size: 11.5px; font-weight: 600; color: var(--fg-2); background: var(--surface-2); border-radius: 999px; padding: 1px 8px; margin-left: 6px; vertical-align: 1px; }
+  .props-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 12px; }
+  .props-tools select, .props-tools input { font: 14px var(--sans); padding: 8px 11px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--surface); color: var(--fg); }
+  .props-tools input[type=search] { min-width: 240px; flex: 1 1 240px; }
+  table.props { min-width: 820px; }
+  .lei { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 14px; display: grid; gap: 10px; }
+  .lei h4 { margin: 0; font-size: 14px; }
+  .lei p, .lei li { margin: 0; line-height: 1.55; max-width: 78ch; }
+  .lei-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px 24px; }
+  .lei-grid > div { min-width: 0; display: grid; gap: 4px; align-content: start; }
+  .lei-grid b { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--fg-2); }
+  #pf-gab-regra { padding: 8px 12px; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 8px 8px 0; }
+  #pf-gab-regra:empty { display: none; }
+  .lei details summary { cursor: pointer; color: var(--fg-2); font-size: 13px; }
+  .lei details ol { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; font-size: 13px; }
+  table.equipe { min-width: 640px; } table.equipe tbody tr { height: 39px; } #pf-equipe-pager:empty { display: none; } table.equipe td.nm { text-align: left; white-space: normal; } table.equipe td.fn { text-align: left; color: var(--fg-2); white-space: normal; }
+  table.equipe tr.saiu td { color: var(--fg-3); } table.equipe .tag { font-size: 11px; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--fg-2); margin-left: 6px; }
+  .etapa-row { display: grid; grid-template-columns: 190px minmax(0, 1fr) 44px; gap: 12px; align-items: center; margin: 10px 0; font-size: 13.5px; }
+  @media (max-width: 600px) { .etapa-row { grid-template-columns: 1fr; gap: 4px; } }
+  .etapa-row .lbl { color: var(--fg-2); } .etapa-row .lbl b { color: var(--fg); font-weight: 600; } .etapa-row .n { text-align: right; font-variant-numeric: tabular-nums; color: var(--fg-2); }
+  .etapa-stack { display: flex; height: 26px; border-radius: 6px; overflow: hidden; gap: 2px; background: var(--surface-2); }
+  .etapa-stack button { border: 0; padding: 0; min-width: 3px; cursor: pointer; color: #fff; font: 600 12px var(--sans); white-space: nowrap; overflow: hidden; }
+  .etapa-stack button:hover, .etapa-stack button:focus-visible { filter: brightness(1.12); outline: none; } .etapa-stack button.on { box-shadow: inset 0 0 0 2px var(--fg); }
+  .etapa-legend button { background: none; border: 0; padding: 0; cursor: pointer; color: inherit; font: inherit; } .etapa-legend .on { text-decoration: underline; }
+  .pp-filtro { display: inline-flex; gap: 6px; align-items: center; font-size: 12.5px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line-2); } .pp-filtro button { background: none; border: 0; color: var(--fg-2); cursor: pointer; font: inherit; padding: 0 2px; }
+  table.props td { white-space: normal; vertical-align: top; }
+  table.props td.ementa { text-align: left; min-width: 320px; max-width: 560px; line-height: 1.4; }
+  table.props td.ementa a { color: var(--fg); text-decoration-color: var(--line-2); }
+  table.props td.ementa a:hover { color: var(--accent); }
+  table.props td.ementa .cod { display: block; font-size: 11.5px; color: var(--fg-3); margin-top: 2px; }
+  table.nf { min-width: 760px; } table.nf td.desc { text-align: left; white-space: normal; min-width: 220px; max-width: 420px; }
+  table.props td.ementa .tag { font-size: 11px; color: var(--fg-3); background: var(--surface-2); border-radius: 999px; padding: 0 7px; margin-left: 6px; }
+  table.props th.ementa { text-align: left; }
+  table.props td.v, table.props td.d, table.props td.t, table.props td.s { text-align: left; white-space: nowrap; }
+  table.props th.v, table.props th.d, table.props th.t, table.props th.s { text-align: left; }
+  table.props .tipo-dot { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 6px; background: var(--c); vertical-align: -1px; }
+  .pager { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-top: 10px; font-size: 13px; color: var(--fg-2); }
+  .pager .pg { display: flex; gap: 6px; }
+  .link-out { font-size: 12px; white-space: nowrap; }
+  .note { margin-top: 14px; padding: 12px 14px; border-radius: 10px; background: var(--surface-2); color: var(--fg-2); font-size: 13.5px; }
+  footer.method { margin-top: 48px; border-top: 1px solid var(--line); padding-top: 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+  footer.method h3 { margin-bottom: 8px; }
+  footer.method p, footer.method li { font-size: 13.5px; color: var(--fg-2); margin: 0 0 8px; }
+  footer.method ul { padding-left: 18px; margin: 0; } footer.method li { margin-bottom: 4px; }
+  .status { margin-top: 24px; padding: 14px 16px; border-radius: 10px; background: var(--surface-2); color: var(--fg-2); }
+  @media (prefers-reduced-motion: no-preference) { .bars svg path.bar { transition: opacity .2s ease; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Câmara Municipal de Salvador · legislatura 2025–2028</div>
+      <h1>Vereadores de Salvador</h1>
+      <p id="lede">Produtividade, presença e custo dos gabinetes dos 43 vereadores, a partir dos sistemas públicos da própria Câmara.</p>
+    </div>
+  </header>
+
+  <div class="filters" id="filters">
+    <div class="field"><label for="f-ano">Período</label><select id="f-ano"><option value="0">Legislatura 2025–2028 (até agora)</option><option value="2025">2025</option><option value="2026">2026 até agora</option></select></div>
+    <div class="field"><label for="f-partido">Partido</label><select id="f-partido"><option value="">Todos os partidos</option></select></div>
+    <div class="field ver"><label for="f-ver">Vereador</label><select id="f-ver"><option value="">Todos os vereadores</option></select></div>
+    <button type="button" class="btn reset" id="f-reset" disabled>Limpar filtros</button>
+    <button type="button" class="btn" id="f-link" title="Copia o endereço desta página com ano, partido, vereador e aba">Copiar link</button>
+    <button type="button" class="btn" id="gloss-open" title="O que significam os termos usados aqui">Glossário</button>
+  </div>
+
+  <div id="status" class="status">Carregando dados…</div>
+
+  <div class="tabs" role="tablist" id="tabs" hidden>
+    <button type="button" role="tab" id="tab-resumo" aria-selected="true" aria-controls="panel-resumo">Resumo</button>
+    <button type="button" role="tab" id="tab-produtividade" aria-selected="false" aria-controls="panel-produtividade">Produtividade</button>
+    <button type="button" role="tab" id="tab-presenca" aria-selected="false" aria-controls="panel-presenca">Presença</button>
+    <button type="button" role="tab" id="tab-custo" aria-selected="false" aria-controls="panel-custo">Custo</button>
+    <button type="button" role="tab" id="tab-perfil" aria-selected="false" aria-controls="panel-perfil">Perfil</button>
+  </div>
+
+  <!-- ===== Resumo ===== -->
+  <section class="panel" id="panel-resumo" role="tabpanel" aria-labelledby="tab-resumo" hidden>
+    <div class="panel-head">
+      <div>
+        <h2 id="res-h2">A Câmara em números</h2>
+        <p id="res-lede">Presença, produção legislativa e custo dos 43 gabinetes, com os extremos do ano e o que merece atenção. Clique em um nome para ver o vereador em cada aba.</p>
+      </div>
+    </div>
+    <div class="kpis" id="res-kpis"></div>
+    <div class="grid-3" id="res-tops"></div>
+    <div class="grid-2" style="margin-top:16px">
+      <div class="card">
+        <div class="card-head"><h3>O que merece atenção</h3><span class="small muted" id="res-alert-sub"></span></div>
+        <ul class="alerts" id="res-alerts"></ul>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Até quando vai cada dado</h3><span class="small muted" id="res-upd"></span></div>
+        <table class="plain" id="res-fontes"><tbody></tbody></table>
+        <p class="small muted" style="margin:10px 0 0">Fontes e limites estão detalhados no rodapé e no glossário.</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-head"><h3 id="cob-title">Cobertura dos dados, mês a mês</h3><div class="legend cob-legend"><span class="ok">completo</span><span class="parcial">parcial ou reconstruído</span><span class="ausente">sem dado</span></div></div>
+      <div class="tablewrap" style="margin-top:8px"><table class="cob" id="res-cob"><thead></thead><tbody></tbody></table></div>
+      <p class="small muted" style="margin:10px 0 0" id="cob-note"></p>
+    </div>
+  </section>
+
+  <!-- ===== Perfil do vereador ===== -->
+  <section class="panel" id="panel-perfil" role="tabpanel" aria-labelledby="tab-perfil" hidden>
+    <div id="pf-empty" hidden>
+      <div class="panel-head"><div><h2>Escolha um vereador</h2><p>Foto, biografia, redes e os números do mandato num só lugar: presença, produção, custo do gabinete e verba compensatória.</p></div></div>
+      <div class="pf-list" id="pf-list"></div>
+    </div>
+    <div id="pf-body" hidden>
+      <div class="pf-head" id="pf-head"></div>
+      <div class="facts pf-facts" id="pf-facts"></div>
+      <p class="small muted" id="pf-facts-note" style="margin:8px 0 0"></p>
+      <div class="grid-2" style="margin-top:16px">
+        <div class="card"><div class="card-head"><h3 id="pf-pres-title">Presença nas sessões ordinárias</h3><span class="small muted" id="pf-pres-sub"></span></div><div id="pf-pres"></div></div>
+        <div class="card"><div class="card-head"><h3>O que produziu</h3><span class="small muted" id="pf-prod-sub"></span></div><div class="bars" id="pf-prod-bars"></div><div class="legend" id="pf-prod-legend" style="margin-top:8px"></div><p class="small muted" id="pf-prod-note" style="margin:10px 0 0"></p></div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="card-head"><h3 id="pf-verba-title">Verba compensatória recebida</h3><div class="legend" id="pf-verba-legend"></div></div>
+        <div class="pf-big" id="pf-verba-big"></div>
+        <div class="cols-wrap" id="pf-verba-bars"></div>
+        <p class="small muted" id="pf-verba-note" style="margin:10px 0 0"></p>
+      </div>
+      <div class="grid-2" style="margin-top:16px">
+        <div class="card" style="grid-column: 1 / -1"><div class="card-head"><h3>Composição do gabinete</h3><span class="small muted" id="pf-gab-sub"></span></div><div class="bars" id="pf-gab-bars"></div><p class="small muted" id="pf-gab-note" style="margin:10px 0 0"></p><div class="lei" id="pf-gab-lei">
+          <h4>O que diz a regra</h4>
+          <p class="small" id="pf-gab-regra"></p>
+          <div class="lei-grid small">
+            <div><b>Quantos assessores</b><p>Cada vereador monta o gabinete com no mínimo 8 e no máximo 16 Assessores Parlamentares (DL 968/2017, que reduziu o teto de 17 para 16). O gabinete do Presidente vai de 12 a 33 assessores (DL 983/2021).</p></div>
+            <div><b>Pontos, não vagas</b><p>O limite real é em pontos. Cada assessor tem um nível de G-3 a G-29, e o nível é o número de pontos do cargo (DL 811/1996, redação do DL 958/2015). O gabinete comum tem 157 pontos (DL 946/2010), mais 5 desde 2017 (DL 968/2017). O DL 958/2015 também acrescentou à composição do gabinete 3 cargos de Assessor Parlamentar Especial G-30.</p></div>
+            <div><b>Quanto vale o ponto</b><p>R$ 332,80 desde dez/2022 (DL 985/2022) e R$ 346,11 a partir de maio de 2026 (DL 990/2026), reajustado junto com os servidores efetivos. Um G-29 recebia R$ 9.651,20 por mês. O cargo G-30 pode ter Acréscimo Salarial de até 100%, concedido pelo Presidente (Lei 9.829/2025).</p></div>
+            <div><b>Cargos que ganham mais pontos</b><p>Membros da Mesa, vice-presidentes de comissão permanente e vice-líderes ganham 10 pontos a mais. Presidentes de comissão permanente, líderes partidários e líderes de Governo e Oposição ganham 5 (DL 958/2015). As lideranças de Governo e Oposição têm a mesma estrutura da 1ª Secretaria (DL 983/2021).</p></div>
+            <div><b>Quem nomeia</b><p>O assessor é cargo em comissão, classe CC-10, e se subordina diretamente ao vereador (Lei 9.626/2022). A nomeação e a exoneração saem por Ato da Mesa no Diário Oficial do Legislativo, assinado pelo Presidente com os Secretários (Regimento Interno, art. 35, XXI).</p></div>
+            <div><b>No plenário</b><p>Durante a sessão, cada vereador pode ter um assessor no plenário, com crachá (Regimento Interno, art. 105, § 4º).</p></div>
+          </div>
+          <p class="small muted">Não localizamos o texto consolidado do DL 811/1996 com o total de pontos de cada cargo da Mesa. Por isso o painel não calcula se um gabinete está dentro do limite.</p>
+          <details><summary>Fontes: decretos legislativos e leis consultados</summary><ol>
+            <li>DL 946/2010, limite de 157 pontos. <a href="https://portal-api.dioly.com.br/uploads/pdfs/cffabb21-8bfa-47ac-b2ed-42faafd26977_DOL-2010-12-14-3564.pdf" target="_blank" rel="noopener">DOL nº 3.564, 14/12/2010</a></li>
+            <li>DL 958/2015, máximo de 17 assessores, cargos G-30, pontos da Mesa e lideranças, níveis G-3 a G-29. <a href="https://portal-api.dioly.com.br/uploads/pdfs/91e0a104-272d-4928-af3c-63bd9381b3aa_DOL-2015-02-27-4473.pdf" target="_blank" rel="noopener">DOL nº 4.473, 27/02/2015</a></li>
+            <li>DL 968/2017, de 8 a 16 assessores e mais 5 pontos. <a href="https://portal-api.dioly.com.br/uploads/pdfs/40a610b6-87c1-49f1-b90a-922fa7b0f5ae_DOL-2017-07-17-5029.pdf" target="_blank" rel="noopener">DOL nº 5.029, 17/07/2017</a></li>
+            <li>DL 983/2021, gabinete do Presidente e lideranças de Governo e Oposição. <a href="https://portal-api.dioly.com.br/uploads/pdfs/84748434-7244-4f1d-a685-7b3661a45f69_DOL-2021-02-12-5899.pdf" target="_blank" rel="noopener">DOL nº 5.899, 12/02/2021</a></li>
+            <li>DL 985/2022, ponto a R$ 332,80. <a href="https://portal-api.dioly.com.br/uploads/pdfs/94911485-496f-4b4e-bcfa-992b82399df4_DOL-2022-12-15-6355.pdf.pdf" target="_blank" rel="noopener">DOL nº 6.355, 15/12/2022</a></li>
+            <li>DL 990/2026, ponto a R$ 346,11 desde 01/05/2026. <a href="https://portal-api.dioly.com.br/uploads/pdfs/047deb2f-649a-4eee-998d-ae2636bab891_DOL-2026-05-19-7200.pdf.pdf" target="_blank" rel="noopener">DOL nº 7.200, 19/05/2026</a></li>
+            <li>Lei 9.626/2022, plano de cargos da Câmara. <a href="https://www.cms.ba.gov.br/uploads/intranet/legislacao-regulamentacao/LEI-9626-2022-PLANO-DE-CARGOS.pdf" target="_blank" rel="noopener">texto no site da Câmara</a></li>
+            <li>Lei 9.829/2025, altera a estrutura da Câmara e cria o acréscimo do G-30. <a href="https://leismunicipais.com.br/a1/ba/s/salvador/lei-ordinaria/2025/982/9829/lei-ordinaria-n-9829-2025-modifica-a-estrutura-organizacional-da-camara-municipal-de-salvador-composta-pela-lei-n-9626-de-3-de-marco-de-2022-e-pela-lei-n-9-625-de-24-de-fevereiro-de-2022-e-da-outras-providencias" target="_blank" rel="noopener">Leis Municipais</a></li>
+            <li>Regimento Interno, Resolução 910/1991, arts. 35 e 105. <a href="https://www.cms.ba.gov.br/regimento-interno" target="_blank" rel="noopener">site da Câmara</a></li>
+          </ol></details>
+        </div></div>
+
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="card-head"><h3 id="pf-equipe-title">Quem trabalha no gabinete</h3><span class="small muted" id="pf-equipe-sub"></span></div>
+        <div class="tablewrap" style="margin-top:6px"><table id="pf-equipe" class="equipe"><thead></thead><tbody></tbody></table></div>
+        <div class="pager" id="pf-equipe-pager"></div>
+        <p class="small muted" id="pf-equipe-note" style="margin:10px 0 0"></p>
+      </div>
+    <div class="panel-head" style="margin-top:28px">
+      <div>
+        <h2>Cada proposição, uma a uma</h2>
+        <p id="pp-intro"></p>
+      </div>
+    </div>
+    <div class="card" id="sit-wrap" style="margin-top:16px">
+      <div class="card-head"><h3 id="sit-title">Projetos de lei: em que etapa estão</h3><span class="small muted" id="sit-sub"></span></div>
+      <div id="etapa-bars"></div>
+      <div class="legend etapa-legend" id="etapa-legend"></div>
+      <p class="small muted" style="margin:10px 0 0">Inclui projetos de lei, de lei complementar, de emenda à Lei Orgânica e de decreto legislativo. A etapa vem da situação registrada no sistema da Câmara no dia da coleta, por isso pode estar defasada; ainda não mostra quantos projetos viraram lei. Clique numa etapa para ver só esses projetos na tabela.</p>
+    </div>
+    <div class="props-tools">
+      <select id="pp-tipo" aria-label="Tipo"><option value="">Todos os tipos</option></select>
+      <select id="pp-sit" aria-label="Situação"><option value="">Todas as situações</option></select>
+      <label class="small" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="pp-dol"> só com íntegra no Diário</label>
+      <input type="search" id="pp-q" placeholder="Buscar no título ou código" aria-label="Buscar no título ou código">
+      <span class="small muted" id="pp-count"></span>
+    </div>
+    <div class="tablewrap"><table id="pp-table" class="props"><thead></thead><tbody></tbody></table></div>
+    <div class="pager" id="pp-pager"></div>
+      <p class="note" id="pf-foot"></p>
+    </div>
+  </section>
+
+  <!-- ===== Produtividade ===== -->
+  <section class="panel" id="panel-produtividade" role="tabpanel" aria-labelledby="tab-produtividade" hidden>
+    <div class="panel-head">
+      <div>
+        <h2 id="prod-h2">Quem mais produziu, e o que produziu <button type="button" class="info" id="tipos-info" aria-label="O que é cada tipo de proposição" title="O que é cada tipo de proposição">i</button></h2>
+        <p>Proposições protocoladas como primeiro autor. A contagem bruta trata uma moção de pesar igual a um projeto de lei; a ponderada pesa cada tipo, exclui homenagens, nomes de rua e moções de pesar, e normaliza por meses em exercício.</p>
+      </div>
+      <div class="seg" role="group" aria-label="Modo">
+        <button type="button" id="m-bruto" aria-pressed="false">Contagem bruta</button>
+        <button type="button" id="m-pond" aria-pressed="true">Ponderada / 12 meses</button>
+      </div>
+    </div>
+    <div class="kpis" id="prod-kpis"></div>
+    <div class="card" style="margin-top:16px" id="part-prod-card">
+      <div class="card-head"><h3>Por partido</h3><span class="small muted" id="part-prod-sub">produção ponderada média por vereador; clique para filtrar</span></div>
+      <div class="bars" id="part-prod"></div>
+    </div>
+    <div id="prod-detail"></div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-head"><h3 id="prod-title">Proposições por tipo</h3><div class="legend" id="prod-legend"></div></div>
+      <div class="bars" id="prod-bars"></div>
+      <div class="more" id="prod-more-wrap"><button type="button" class="btn" id="prod-more">Mostrar todos</button></div>
+    </div>
+    <div class="tablewrap"><table id="prod-table"><thead></thead><tbody></tbody></table></div>
+    <p class="note" id="prod-note"></p>
+
+  </section>
+
+  <dialog class="tipos" id="gloss-dlg">
+    <div class="dlg">
+    <button type="button" class="btn close" id="gloss-close">Fechar</button>
+    <h2>Glossário</h2>
+    <dl class="gloss">
+      <dt>Competência</dt><dd>O mês a que a despesa se refere, que pode ser diferente do mês em que foi paga. Um ressarcimento de verba pago em março pode ter competência fevereiro.</dd>
+      <dt>Empenho</dt><dd>Primeiro passo do pagamento público: a Câmara reserva o valor para um credor e um objeto. É o registro que usamos para a verba compensatória e as despesas da Casa.</dd>
+      <dt>Verba compensatória</dt><dd>Ressarcimento mensal ao vereador por despesas do mandato (Lei 9.828/2025): combustível, consultorias, gráfica, divulgação, impulsionamento etc. Teto de R$ 34 mil por mês em 2025 e R$ 39 mil a partir de dezembro de 2025; o saldo não usado pode ser gasto nos meses seguintes (art. 22).</dd>
+      <dt>Glosa</dt><dd>Parte de uma despesa apresentada que a Controladoria não aceitou ressarcir.</dd>
+      <dt>Subsídio</dt><dd>A remuneração mensal do vereador: R$ 26.080,98 na legislatura 2025–2028 (Lei 9.825/2024).</dd>
+      <dt>Centro de custo</dt><dd>A unidade da Câmara onde o servidor está lotado. Cada gabinete de vereador tem o seu; é como ligamos cada assessor a um vereador.</dd>
+      <dt>Lotação</dt><dd>Em que unidade (gabinete ou setor) o servidor trabalha. A Câmara deixou de publicar isso em 2026; para esse ano usamos a última lotação conhecida de 2025.</dd>
+      <dt>CC-10 e grau G-xx</dt><dd>CC-10 é o símbolo do cargo de assessor parlamentar, de livre nomeação. O grau (G-05 a G-30) define o salário: de cerca de R$ 1,7 mil a R$ 15 mil.</dd>
+      <dt>Folha analítica e sintética</dt><dd>Analítica lista servidor por servidor; sintética traz só os totais por rubrica e regime. Em 2026 a Câmara publicou apenas a sintética, via TCM-BA.</dd>
+      <dt>Produção ponderada</dt><dd>Cada tipo de proposição recebe um peso (projeto de lei 3, requerimento 1, indicação 0,5, moção 0,25; homenagens e nomes de rua não contam) e o total é normalizado para 12 meses de mandato, para comparar quem assumiu no meio do ano.</dd>
+      <dt>Licenciado</dt><dd>Vereador afastado com licença; a sessão não conta como falta nem como presença.</dd>
+      <dt>LOM art. 27</dt><dd>A Lei Orgânica de Salvador prevê perda do mandato para quem falta a um terço das sessões ordinárias do ano sem justificativa.</dd>
+    </dl>
+    </div>
+  </dialog>
+  <dialog class="tipos" id="tipos-dlg">
+    <div class="dlg">
+      <button type="button" class="btn close" id="tipos-close">Fechar</button>
+      <div class="eyebrow">Regimento Interno da Câmara, arts. 171 a 227</div>
+      <h2>O que é cada tipo de proposição</h2>
+      <p class="muted small" style="margin:0">Proposição é toda matéria sujeita à deliberação do Plenário (art. 171). O peso é o usado no volume ponderado; a lista de pesos é um parâmetro versionado do projeto.</p>
+      <div class="tipo-list">
+        <div class="tipo" style="--c:var(--s1)"><div class="sw"></div><div><h3>Projetos de lei e afins <span class="codes">PLE · PLC · PEL · PDL</span><span class="peso">peso 3</span></h3>
+          <p>Normas que criam, alteram ou revogam regras do município. <b>PLE</b> é o projeto de lei ordinária; <b>PLC</b>, de lei complementar; <b>PEL</b>, de emenda à Lei Orgânica, a "constituição" do município; <b>PDL</b>, de decreto legislativo, matéria de competência exclusiva da Câmara. Passam por comissões, votação em plenário e, no caso das leis, pela sanção ou veto do prefeito (arts. 172 a 202).</p></div></div>
+        <div class="tipo" style="--c:var(--s2)"><div class="sw"></div><div><h3>Requerimentos <span class="codes">REP · RUP</span><span class="peso">peso 1</span></h3>
+          <p>Pedido dirigido à Mesa da Câmara sobre assunto de competência dela (art. 215): sessão especial, audiência pública, informações ao Executivo, voto de louvor, declaração de utilidade pública de uma entidade. Pedidos de obras ou serviços à administração vão em formulário próprio e são despachados pela Presidência (art. 216). <b>REP</b> é o requerimento ao Plenário; <b>RUP</b>, à Presidência ou de urgência.</p></div></div>
+        <div class="tipo" style="--c:var(--s3)"><div class="sw"></div><div><h3>Indicações <span class="codes">PIN</span><span class="peso">peso 0,5</span></h3>
+          <p>Sugestão a outro Poder, em geral à Prefeitura, para adotar uma providência, praticar um ato administrativo ou enviar um projeto de iniciativa exclusiva dele (art. 209). Não tem força de lei nem obriga o destinatário, por isso o peso reduzido. Indicações de nome de rua ou de equipamento público ficam fora da ponderação.</p></div></div>
+        <div class="tipo" style="--c:var(--s4)"><div class="sw"></div><div><h3>Moções <span class="codes">MOC</span><span class="peso">peso 0,25</span></h3>
+          <p>Manifestação do Plenário: aplauso, louvor, congratulação, repúdio ou pesar sobre ato público ou acontecimento de repercussão (arts. 226 e 227). Moções de pesar não entram na ponderação.</p></div></div>
+        <div class="tipo" style="--c:var(--s5)"><div class="sw"></div><div><h3>Homenagens e outros <span class="codes">PRE · VTO · SUB</span><span class="peso">peso 1 ou 0</span></h3>
+          <p><b>PRE</b> é o projeto de resolução, que trata de assuntos internos da Câmara e é o instrumento das honrarias: Título de Cidadão de Salvador, Medalha Thomé de Sousa, Comenda Maria Quitéria e outras (art. 203). Quase todos os PRE são honrarias e ficam com peso 0; cada vereador pode conceder até seis por legislatura (art. 206). <b>VTO</b> é o veto do prefeito, que não é produção parlamentar. <b>SUB</b> é o substitutivo, projeto apresentado para substituir outro sobre o mesmo assunto (art. 194), contado como trabalho de comissão.</p></div></div>
+        <div class="tipo" style="--c:var(--line-2)"><div class="sw"></div><div><h3>Autores que não são vereadores <span class="codes">Mesa Executiva · Executivo Municipal · comissões</span></h3>
+          <p>A <b>Mesa Executiva</b> (presidente, três vice-presidentes e quatro secretários) pode apresentar projetos como órgão coletivo: o texto sai assinado pelo presidente e pelos secretários, sem autor individual. Isso aparece sobretudo em honrarias: a cota de seis por vereador por legislatura (art. 206) não se aplica ao presidente nem a projetos da Mesa, e a imprensa às vezes atribui a homenagem ao vereador que a articulou. O dashboard segue o registro formal da Câmara (art. 179: autor é o primeiro signatário) e lista essas proposições na tabela com a etiqueta "não vereador", fora do ranking. O <b>Executivo Municipal</b> (prefeito) e as <b>comissões</b> também aparecem como autores.</p></div></div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ===== Presença ===== -->
+  <section class="panel" id="panel-presenca" role="tabpanel" aria-labelledby="tab-presenca" hidden>
+    <div class="panel-head">
+      <div>
+        <h2>Quem mais faltou às sessões ordinárias</h2>
+        <p>Faltas registradas pela Câmara em sessões ordinárias. Licenças não contam como falta nem entram na taxa. Vereadores com menos de 10 sessões no período aparecem sem taxa.</p>
+      </div>
+    </div>
+    <div class="kpis" id="pres-kpis"></div>
+    <div id="pres-detail"></div>
+    <div class="card" style="margin-top:16px" id="part-pres-card">
+      <div class="card-head"><h3>Por partido</h3><span class="small muted" id="part-pres-sub">presença média por vereador; clique para filtrar</span></div>
+      <div class="bars" id="part-pres"></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h3>Faltas em sessões ordinárias</h3><span class="small muted" id="pres-sub"></span></div>
+        <div class="bars" id="pres-bars"></div>
+        <div class="more" id="pres-more-wrap"><button type="button" class="btn" id="pres-more">Mostrar todos</button></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3 id="pres-tl-title">Presença da Casa por sessão</h3><span class="small muted">% de presentes, sem licenciados</span></div>
+        <div id="pres-timeline"></div>
+        <p class="small muted" id="pres-tl-note" style="margin:8px 0 0"></p>
+      </div>
+    </div>
+    <div class="tablewrap"><table id="pres-table"><thead></thead><tbody></tbody></table></div>
+  </section>
+
+  <!-- ===== Custo ===== -->
+  <section class="panel" id="panel-custo" role="tabpanel" aria-labelledby="tab-custo" hidden>
+    <div class="panel-head">
+      <div>
+        <h2 id="custo-h2">Quanto custa cada gabinete por mês</h2>
+        <p id="custo-lede">Subsídio do vereador, folha dos assessores lotados no gabinete, bolsas de estagiários e verba compensatória efetivamente ressarcida, por mês. Diárias ainda não entram.</p>
+      </div>
+      <div class="seg" role="group" aria-label="Visão">
+        <button type="button" id="cv-gab" aria-pressed="true">Gabinetes</button>
+        <button type="button" id="cv-cam" aria-pressed="false">Câmara</button>
+      </div>
+    </div>
+    <p class="note" id="custo-note" hidden></p>
+
+    <!-- Visão Gabinetes -->
+    <div id="custo-gab">
+      <div class="kpis" id="custo-kpis"></div>
+      <div id="custo-detail"></div>
+      <div class="card" style="margin-top:16px" id="part-custo-card">
+        <div class="card-head"><h3>Por partido</h3><span class="small muted" id="part-custo-sub">custo médio mensal por gabinete; clique para filtrar</span></div>
+        <div class="bars" id="part-custo"></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><h3>Custo médio mensal por gabinete</h3><div class="legend" id="custo-legend"></div></div>
+          <div class="bars" id="custo-bars"></div>
+          <div class="more" id="custo-more-wrap"><button type="button" class="btn" id="custo-more">Mostrar todos</button></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3 id="custo-tl-title">Custo observado por mês</h3><span class="small muted" id="custo-tl-sub"></span></div>
+          <div id="custo-timeline"></div>
+          <p class="small muted" style="margin:8px 0 0">Janeiro sem subsídio: a lei do subsídio vigora a partir de fevereiro de 2025. Estagiários só publicados de abril a novembro.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><h3 id="grau-title">Assessores por grau</h3><span class="small muted">média mensal de pessoas e folha</span></div>
+          <div class="bars" id="grau-bars"></div>
+          <p class="small muted" style="margin:10px 0 0">Todos os servidores lotados em gabinetes de vereadores são assessores parlamentares comissionados (símbolo CC10), do grau G-05 ao G-30. O grau define o vencimento; a composição de graus é a única diferença de "função" entre gabinetes.</p>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Composição do custo</h3><span class="small muted" id="comp-sub"></span></div>
+          <div class="bars" id="comp-bars"></div>
+          <p class="small muted" style="margin:10px 0 0">Por regime: assessores comissionados, subsídio do vereador (agente político) e estagiários. Não há estatutários lotados em gabinetes.</p>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:16px">
+        <div class="card">
+          <div class="card-head"><h3 id="vteto-title">Verba ressarcida por mês e o teto</h3><span class="small muted" id="vteto-sub"></span></div>
+          <div class="cols-wrap" id="vteto-bars"></div>
+          <p class="small muted" style="margin:10px 0 0" id="vteto-note"></p>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Meses acima do teto</h3><span class="small muted" id="vteto2-sub"></span></div>
+          <div class="bars" id="vteto2-bars"></div>
+          <div class="more" id="vteto2-more-wrap"><button type="button" class="btn" id="vteto2-more">Mostrar todos</button></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="card-head"><h3 id="verba-title">Verba compensatória por vereador</h3><span class="small muted" id="verba-sub"></span></div>
+        <div class="bars" id="verba-bars"></div>
+        <div class="more" id="verba-more-wrap"><button type="button" class="btn" id="verba-more">Mostrar todos</button></div>
+        <p class="small muted" style="margin:10px 0 0" id="verba-note"></p>
+      </div>
+      <div class="grid-2" id="vcat-wrap" hidden>
+        <div class="card">
+          <div class="card-head"><h3 id="vcat-title">Em que a verba foi gasta</h3><div class="legend" id="vcat-legend"></div></div>
+          <div class="bars" id="vcat-bars"></div>
+          <div class="more" id="vcat-more-wrap"><button type="button" class="btn" id="vcat-more">Mostrar todos</button></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3 id="vcat15-title">Por categoria da lei</h3><span class="small muted" id="vcat-sub"></span></div>
+          <div class="bars" id="vcat15-bars"></div>
+          <p class="small muted" style="margin:10px 0 0" id="vcat-note"></p>
+        </div>
+      </div>
+      <div class="card" id="vnf-wrap" hidden style="margin-top:16px">
+        <div class="card-head"><h3 id="vnf-title">Notas fiscais declaradas</h3><span class="small muted" id="vnf-sub"></span></div>
+        <div class="tablewrap" style="margin-top:8px"><table id="vnf-table" class="props nf"><thead></thead><tbody></tbody></table></div>
+        <div class="more" id="vnf-more-wrap"><button type="button" class="btn" id="vnf-more">Mostrar todas</button></div>
+        <p class="small muted" style="margin:10px 0 0" id="vnf-note"></p>
+      </div>
+      <div class="tablewrap"><table id="custo-table"><thead></thead><tbody></tbody></table></div>
+    </div>
+
+    <!-- Visão Câmara -->
+    <div id="custo-cam" hidden>
+      <p class="note" id="cam-note">A visão Câmara cobre toda a folha publicada pela Câmara em 2025: gabinetes dos vereadores e estrutura administrativa (Presidência, Diretorias, Procuradoria, Comunicação…). Os filtros de partido e vereador não se aplicam aqui.</p>
+      <div class="kpis" id="cam-kpis"></div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><h3>Por regime</h3><span class="small muted" id="cam-regime-sub">média mensal</span></div>
+          <div class="bars" id="cam-regime-bars"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Custo total por mês</h3><span class="small muted">folha + bolsas + subsídios + verba</span></div>
+          <div id="cam-timeline"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px" id="cam-funcao-card">
+        <div class="card-head">
+          <h3>Por função exercida</h3>
+          <div class="seg" role="group" aria-label="Onde">
+            <button type="button" id="cf-todas" aria-pressed="true">Toda a Câmara</button>
+            <button type="button" id="cf-gab" aria-pressed="false">Gabinetes</button>
+            <button type="button" id="cf-estr" aria-pressed="false">Estrutura</button>
+          </div>
+          <div class="legend" id="cam-funcao-legend"></div>
+        </div>
+        <div class="bars" id="cam-funcao-bars"></div>
+        <div class="more" id="cam-funcao-more-wrap"><button type="button" class="btn" id="cam-funcao-more">Mostrar todas</button></div>
+        <p class="small muted" style="margin:10px 0 0">Os 26 graus de assessor parlamentar aparecem agrupados numa função só; a distribuição por grau está na visão Gabinetes.</p>
+      </div>
+      <div class="grid-2" id="cam-estrutura-grid">
+        <div class="card">
+          <div class="card-head"><h3>Estrutura por setor</h3><span class="small muted">centros de custo fora dos gabinetes</span></div>
+          <div class="bars" id="cam-setor-bars"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Gabinetes × estrutura por mês</h3><div class="legend" id="cam-split-legend"></div></div>
+          <div class="cols-wrap" id="cam-split-bars"></div>
+        </div>
+      </div>
+      <div id="cam-tabelas">
+      <h3 style="margin-top:24px">Centros de custo da estrutura</h3>
+      <div class="tablewrap"><table id="cam-setor-table"><thead></thead><tbody></tbody></table></div>
+      <h3 style="margin-top:24px">Todas as funções</h3>
+      <div class="tablewrap"><table id="cam-funcao-table"><thead></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="method" id="method" hidden>
+    <div>
+      <h3>Como as métricas são calculadas</h3>
+      <p><b>Produtividade</b>: só o primeiro autor conta (RI art. 179). Pesos: projetos de lei, de lei complementar, de emenda à Lei Orgânica e de decreto legislativo 3; requerimentos 1; indicações 0,5; moções 0,25; homenagens, nomes de logradouro e moções de pesar 0. Normalização: volume ÷ meses em exercício × 12.</p>
+      <p><b>Presença</b>: taxa = presentes ÷ (presentes + ausentes) em sessões ordinárias. Licenças ficam fora da base (Regimento Interno, art. 17 §7; Lei Orgânica, art. 27). Sessões de código 888 e 999, marcadores do sistema, são descartadas.</p>
+      <p><b>Custo</b>: subsídio de R$ 26.080,98 (Lei 9.825/2024) + proventos brutos dos servidores do centro de custo do gabinete + bolsas de estagiários + verba compensatória ressarcida (empenhos do portal financeiro, líquidos de anulações, por mês de competência; Lei 9.828/2025). Sem encargos patronais, 13º, férias e diárias.</p>
+    </div>
+    <div>
+      <h3>Fontes</h3>
+      <ul id="fontes"></ul>
+      <p id="gerado"></p>
+    </div>
+    <div>
+      <h3>Limites conhecidos</h3>
+      <ul>
+        <li>A Câmara corrige status de presença retroativamente. Os dados são recoletados a cada atualização.</li>
+        <li>Não há registro público de presença em comissões nem de votos nominais.</li>
+        <li>A situação das proposições no sistema é um retrato do momento e não informa aprovação. A taxa de aprovação virá da tramitação, ainda não coletada.</li>
+        <li>A Câmara não publicou a relação de servidores de 2026. A folha de 2026 vem da consulta de pessoal do TCM-BA (exportação manual mensal) com a lotação de 2025, e, nos meses em que falta, das folhas sintéticas que a Câmara envia ao TCM (e-TCM).</li>
+        <li>Suplentes aparecem com a vigência do período em que ocuparam a cadeira; os gabinetes seguem o centro de custo, que não muda com a suplência.</li>
+      </ul>
+    </div>
+  </footer>
+</div>
+
+<div class="tip" id="tip" role="tooltip"></div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (s, r = document) => r.querySelector(s);
+  const el = (tag, attrs = {}, ...kids) => {
+    const n = tag.includes(":svg") ? document.createElementNS("http://www.w3.org/2000/svg", tag.replace(":svg", "")) : document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === "class") n.setAttribute("class", v);
+      else if (k === "html") n.innerHTML = v;
+      else if (k === "text") n.textContent = v;
+      else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+      else if (v !== null && v !== undefined && v !== false) n.setAttribute(k, v === true ? "" : v);
+    }
+    for (const k of kids) if (k != null) n.append(k);
+    return n;
+  };
+  const svg = (tag, attrs = {}, ...kids) => el(tag + ":svg", attrs, ...kids);
+  const fmtInt = new Intl.NumberFormat("pt-BR");
+  const fmtBRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+  const fmtPct = v => (v == null ? "—" : (v * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%");
+  const fmt1 = v => (v == null ? "—" : v.toLocaleString("pt-BR", { maximumFractionDigits: 1 }));
+  const fmtDate = s => { const [y, m, d] = s.split("-"); return `${d}/${m}/${y}`; };
+  const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  const fmtComp = c => { const [y, m] = c.split("-"); return `${MESES[+m - 1]}/${y}`; };
+  const TABS = ["resumo", "produtividade", "presenca", "custo", "perfil"];
+  // Período: 0 = legislatura inteira (2025–2028, até onde há dado); 2025/2026 = um ano. Tabelas agregadas têm linhas
+  // com ano 0; tabelas mensais/por sessão são filtradas por competência com inComp/inAno.
+  const anoLabel = a => a === 0 ? "2025–2028" : String(a);
+  const inAno = (a, ano) => ano === 0 ? a !== 0 : a === ano;
+  const inComp = (c, ano) => ano === 0 || String(c).startsWith(String(ano));
+  const mesLbl = c => state.ano === 0 ? fmtComp(c).replace("/20", "/") : fmtComp(c).slice(0, 3);
+
+  const state = { tab: "resumo", ano: 0, partido: "", ver: "", modo: "pond", custoView: "gab", funcOnde: "todas",
+                  showAll: { equipe: false, prod: false, pres: false, custo: false, verba: false, vcat: false, vnf: false, vteto2: false, "cam-funcao": false },
+                  sort: { prod: { key: "pond", dir: -1 }, pres: { key: "ausentes", dir: -1 }, custo: { key: "custo", dir: -1 }, camsetor: { key: "media", dir: -1 }, camfuncao: { key: "media", dir: -1 } } };
+  // Estado na URL: #<aba>-<ano>-<partido sem acento ou "todos">-<gab|cam|x>[-<vereador_id>]. Só letras, dígitos e hífens.
+  const fold = s => String(s || "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+  let hashPartido = null;
+  function readHash() {
+    const parts = location.hash.slice(1).split("-");
+    if (!TABS.includes(parts[0])) return false;
+    state.tab = parts[0];
+    if (parts.length >= 2 && (/^\d{4}$/.test(parts[1]) || parts[1] === "leg")) state.ano = parts[1] === "leg" ? 0 : +parts[1];
+    if (parts.length >= 2) { hashPartido = parts.length >= 3 && parts[2] !== "todos" ? parts[2] : ""; state.ver = parts.length >= 5 ? parts.slice(4).join("-") : ""; }
+    if (parts.length >= 4 && (parts[3] === "cam" || parts[3] === "gab")) state.custoView = parts[3];
+    return parts.length >= 2;
+  }
+  function writeHash() {
+    const p = state.partido ? fold(state.partido).replace(/[^a-z0-9]/g, "") || "p" : "todos";
+    const h = `${state.tab}-${state.ano === 0 ? "leg" : state.ano}-${p}-${state.tab === "custo" ? state.custoView : "x"}${state.ver ? "-" + state.ver : ""}`;
+    if (location.hash !== "#" + h) history.replaceState(null, "", "#" + h);
+  }
+  function resolveHashState() {
+    if (hashPartido !== null) { state.partido = partidosAno(state.ano).find(pt => fold(pt).replace(/[^a-z0-9]/g, "") === hashPartido) || ""; hashPartido = null; }
+    if (state.ver && !D.byId[state.ver]) state.ver = "";
+  }
+  if (!readHash()) { try { const y = +localStorage.getItem("spot.ano"); if ([0, 2025, 2026].includes(y)) state.ano = y; } catch (_) {} }
+  let D = null;
+
+  // ---------- tooltip ----------
+  const tip = $("#tip");
+  function showTip(html, ev) {
+    tip.innerHTML = html; tip.style.display = "block";
+    const pad = 12, w = tip.offsetWidth, h = tip.offsetHeight;
+    let x = ev.clientX + pad, y = ev.clientY + pad;
+    if (x + w > window.innerWidth - 8) x = ev.clientX - w - pad;
+    if (y + h > window.innerHeight - 8) y = ev.clientY - h - pad;
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  }
+  const hideTip = () => { tip.style.display = "none"; };
+  // Toque/clique abre o tooltip (celular não tem hover); tocar fora fecha.
+  const tipOn = (node, html) => { node.addEventListener("mousemove", ev => showTip(typeof html === "function" ? html() : html, ev)); node.addEventListener("pointerdown", ev => { if (ev.pointerType !== "mouse") { ev.preventDefault(); showTip(typeof html === "function" ? html() : html, ev); } }); node.addEventListener("mouseleave", hideTip); };
+  document.addEventListener("pointerdown", e => { if (!e.target.closest(".track, .hit, #tip")) hideTip(); }, { passive: true });
+
+  // ---------- data & filters ----------
+  async function load() {
+    const names = ["meta", "vereadores", "presenca", "produtividade", "custo", "custo_camara"];  // proposicoes.json (2,4 MB) só na aba Produtividade
+    const res = await Promise.all(names.map(n => fetch(`data/${n}.json`).then(r => { if (!r.ok) throw new Error(`${n}.json ${r.status}`); return r.json(); })));
+    const d = Object.fromEntries(names.map((n, i) => [n, res[i]]));
+    d.proposicoes = null;
+    d.byId = Object.fromEntries(d.vereadores.map(v => [v.vereador_id, v]));
+    try { const r = await fetch("data/verba_categorias.json"); d.verba_cat = r.ok ? await r.json() : null; } catch (_) { d.verba_cat = null; }
+    return d;
+  }
+  const V = id => D.byId[id] || { vereador_id: id, nome_parlamentar: id, partido: "" };
+  const inScope = id => { const v = V(id); return (!state.partido || v.partido === state.partido) && (!state.ver || id === state.ver); };
+  // Linhas agregadas por período (o export já traz ano = 0 para a legislatura inteira).
+  const presRows = ano => D.presenca.vereadores.filter(r => r.ano === ano);
+  const prodRows = ano => D.produtividade.vereadores.filter(r => r.ano === ano);
+  const noPeriodo = ano => ano === 0 ? "Na legislatura (até agora)" : `No ano de ${ano}`;
+  // vereadores ativos no ano = aparecem na grade de presença ou nas proposições do ano
+  const idsAno = ano => new Set([...presRows(ano).map(r => r.vereador_id), ...prodRows(ano).map(r => r.vereador_id)]);
+  const partidosAno = ano => [...new Set([...idsAno(ano)].map(id => V(id).partido).filter(Boolean))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+  function fillFilters() {
+    const selP = $("#f-partido"), selV = $("#f-ver");
+    const parts = partidosAno(state.ano);
+    if (state.partido && !parts.includes(state.partido)) state.partido = "";
+    selP.replaceChildren(el("option", { value: "", text: "Todos os partidos" }), ...parts.map(p => el("option", { value: p, text: `${p} (${[...idsAno(state.ano)].filter(id => V(id).partido === p).length})` })));
+    selP.value = state.partido;
+    const vers = [...idsAno(state.ano)].map(V).filter(v => !state.partido || v.partido === state.partido).sort((a, b) => a.nome_parlamentar.localeCompare(b.nome_parlamentar, "pt-BR"));
+    if (state.ver && !vers.some(v => v.vereador_id === state.ver)) state.ver = "";
+    selV.replaceChildren(el("option", { value: "", text: "Todos os vereadores" }), ...vers.map(v => el("option", { value: v.vereador_id, text: `${v.nome_parlamentar} · ${v.partido}` + (v.situacao && v.situacao !== "titular" ? ` (${v.situacao})` : "") })));
+    selV.value = state.ver;
+    $("#f-ano").value = String(state.ano);
+    $("#f-reset").disabled = !(state.partido || state.ver || state.ano !== 0);
+  }
+  const scopeLabel = () => state.ver ? V(state.ver).nome_parlamentar : state.partido ? `${state.partido}` : "Casa";
+
+  // ---------- bars ----------
+  function roundedBar(x, y, w, h, r, dataEnd) {
+    if (w <= 0) return null;
+    r = Math.min(r, w, h / 2);
+    const d = dataEnd ? `M${x},${y} h${w - r} a${r},${r} 0 0 1 ${r},${r} v${h - 2 * r} a${r},${r} 0 0 1 -${r},${r} h-${w - r} z` : `M${x},${y} h${w} v${h} h-${w} z`;
+    return svg("path", { d, class: "bar" });
+  }
+  function barsChart(root, rows) {
+    root.replaceChildren();
+    if (!rows.length) { root.append(el("div", { class: "empty", style: "grid-column: 1 / -1", text: "Nenhum vereador neste recorte." })); return; }
+    const max = Math.max(1e-9, ...rows.map(r => r.value));
+    const px = Math.max(300, root.clientWidth ? root.clientWidth * 0.6 : 600);
+    const gap = 2 * 1000 / px, rad = 4 * 1000 / px;
+    rows.forEach(r => {
+      const name = r.id
+        ? el("div", { class: "name", tabindex: 0, role: "button", title: r.label, onclick: () => selectVer(r.id), onkeydown: e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectVer(r.id); } } },
+            r.label, r.sub ? el("span", { class: "pt", text: r.sub }) : null, r.pill ? el("span", { class: "pill warn", text: r.pill, title: r.pillTitle || "" }) : null)
+        : el("div", { class: "name plain", title: r.label }, r.label, r.sub ? el("span", { class: "pt", text: r.sub }) : null, r.pill ? el("span", { class: "pill warn", text: r.pill, title: r.pillTitle || "" }) : null);
+      const track = el("div", { class: "track" });
+      const s = svg("svg", { viewBox: "0 0 1000 22", preserveAspectRatio: "none" });
+      let x = 0;
+      r.segs.forEach((sg, i) => {
+        if (!sg.v) return;
+        const w = (sg.v / max) * 1000, last = r.segs.slice(i + 1).every(z => !z.v);
+        const p = roundedBar(x, 1, Math.max(0, w - (last ? 0 : gap)), 20, rad, last);
+        if (p) {
+          p.setAttribute("fill", sg.color);
+          tipOn(p, `<b>${r.label}</b><br>${sg.label ? sg.label + ": " : ""}${sg.text}${r.tipExtra ? "<br>" + r.tipExtra : ""}`);
+          s.append(p);
+        }
+        x += w;
+      });
+      track.append(s);
+      const cls = ["row", r.nd ? "nd" : "", r.hl ? "hl" : "", r.dim ? "dim" : ""].filter(Boolean).join(" ");
+      root.append(el("div", { class: cls }, name, track, el("div", { class: "val num", html: r.valueText })));
+    });
+  }
+  function rankingRows(rows, key) {
+    // Com vereador selecionado, mostra a lista inteira do partido/Casa com o selecionado em destaque.
+    const all = rows.slice();
+    const shown = state.showAll[key] || state.ver ? all : all.slice(0, 12);
+    const wrap = $(`#${key}-more-wrap`);
+    wrap.hidden = all.length <= 12 || !!state.ver;
+    $(`#${key}-more`).textContent = state.showAll[key] ? "Mostrar os 12 primeiros" : `Mostrar todos (${all.length})`;
+    return shown.map(r => ({ ...r, hl: state.ver && r.id === state.ver, dim: state.ver && r.id !== state.ver }));
+  }
+
+  // ---------- line chart ----------
+  function lineChart(root, pts, opts) {
+    root.replaceChildren();
+    if (!pts.length) { root.append(el("div", { class: "empty", text: "Sem dados." })); return; }
+    const W = 560, H = 230, m = { t: 14, r: 12, b: 36, l: 48 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const ys = pts.map(p => p.y);
+    let y0 = opts.y0 != null ? opts.y0 : Math.min(...ys), y1 = opts.y1 != null ? opts.y1 : Math.max(...ys);
+    if (opts.nice) { const st = opts.nice; y0 = Math.floor(y0 / st) * st; y1 = Math.ceil(y1 / st) * st; if (y1 === y0) y1 = y0 + st; }
+    const n = pts.length, sx = i => m.l + (n === 1 ? iw / 2 : (i / (n - 1)) * iw), sy = v => m.t + ih - ((v - y0) / (y1 - y0)) * ih;
+    const s = svg("svg", { class: "chart", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": opts.aria || "" });
+    const grid = svg("g", { class: "grid" }); const ticks = opts.ticks || 4;
+    for (let i = 0; i <= ticks; i++) { const v = y0 + (i / ticks) * (y1 - y0), y = sy(v); grid.append(svg("line", { x1: m.l, x2: W - m.r, y1: y, y2: y })); grid.append(svg("text", { x: m.l - 6, y: y + 4, "text-anchor": "end" }, opts.fmtY(v))); }
+    s.append(grid);
+    const xl = svg("g"); const every = Math.max(1, Math.round(n / (opts.xLabels || 6)));
+    pts.forEach((p, i) => { if (i % every === 0 || i === n - 1) xl.append(svg("text", { x: sx(i), y: H - 12, "text-anchor": i === n - 1 ? "end" : i === 0 ? "start" : "middle" }, p.label)); });
+    s.append(xl);
+    const path = pts.map((p, i) => `${i ? "L" : "M"}${sx(i).toFixed(1)},${sy(p.y).toFixed(1)}`).join(" ");
+    s.append(svg("path", { class: "area", d: `${path} L${sx(n - 1).toFixed(1)},${sy(y0)} L${sx(0).toFixed(1)},${sy(y0)} Z` }), svg("path", { class: "line", d: path }));
+    const cross = svg("line", { class: "cross", y1: m.t, y2: m.t + ih }), dot = svg("circle", { class: "dot", r: 4.5, style: "display:none" });
+    s.append(cross, dot, svg("circle", { class: "dot", r: 4, cx: sx(n - 1), cy: sy(pts[n - 1].y) }));
+    const hit = svg("rect", { class: "hit", x: m.l, y: m.t, width: iw, height: ih });
+    const onMove = ev => {
+      const r = s.getBoundingClientRect(); const px = (ev.clientX - r.left) / r.width * W;
+      const i = Math.max(0, Math.min(n - 1, Math.round((px - m.l) / iw * (n - 1))));
+      cross.setAttribute("x1", sx(i)); cross.setAttribute("x2", sx(i)); cross.style.display = "block";
+      dot.setAttribute("cx", sx(i)); dot.setAttribute("cy", sy(pts[i].y)); dot.style.display = "block";
+      showTip(pts[i].tip, ev);
+    };
+    hit.addEventListener("mousemove", onMove); hit.addEventListener("pointerdown", ev => { if (ev.pointerType !== "mouse") { ev.preventDefault(); onMove(ev); } });
+    hit.addEventListener("mouseleave", () => { cross.style.display = "none"; dot.style.display = "none"; hideTip(); });
+    s.append(hit); root.append(s);
+  }
+
+  // ---------- column chart (séries mensais: colunas empilhadas + linha de referência) ----------
+  // cols: [{label, segs: [{v, color, label, text}], ref?, refLabel?, flag?, tip?}]; opts: {fmtY, aria, nice}
+  const fmtMil = v => v >= 1e6 ? `R$ ${(v / 1e6).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mi` : v >= 1e3 ? `R$ ${Math.round(v / 1e3)} mil` : fmtBRL.format(v);
+  function columnChart(root, cols, opts = {}) {
+    root.replaceChildren();
+    if (!cols.length) { root.append(el("div", { class: "empty", text: "Sem dados." })); return; }
+    const n = cols.length, dense = n > 13;
+    const W = 720, H = dense ? 286 : 270, m = { t: 26, r: 14, b: dense ? 44 : 34, l: 72 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const tot = c => c.segs.reduce((a, sg) => a + (sg.v || 0), 0);
+    // eixo com passo "redondo" (1, 2, 2,5 ou 5 × 10^k) para ~4 divisões
+    const vmax = Math.max(1e-9, ...cols.map(c => Math.max(tot(c), c.ref || 0)));
+    const raw = vmax / 4, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const step = [1, 2, 2.5, 5, 10].map(k => k * mag).find(x => x >= raw);
+    const y1 = Math.ceil(vmax * 1.04 / step) * step, ticks = Math.round(y1 / step);
+    const sy = v => m.t + ih - (v / y1) * ih, slot = iw / n, bw = Math.min(slot * (dense ? 0.7 : 0.62), 56), sx = i => m.l + slot * i + (slot - bw) / 2;
+    const fmtY = opts.fmtY || fmtMil;
+    const sv = svg("svg", { class: "chart cols", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": opts.aria || "" });
+    const grid = svg("g", { class: "grid" });
+    for (let i = 0; i <= ticks; i++) { const v = i * step, y = sy(v); grid.append(svg("line", { x1: m.l, x2: W - m.r, y1: y, y2: y })); grid.append(svg("text", { x: m.l - 6, y: y + 4, "text-anchor": "end" }, fmtY(v))); }
+    sv.append(grid);
+    // rótulos de mês: com muitas colunas, só o mês (3 letras) e o ano numa segunda linha em janeiro e na primeira coluna
+    const parts = c => { const mm = String(c.label).match(/^([a-zç]{3})\/?(\d{2,4})?$/i); return mm ? [mm[1], mm[2] ? (mm[2].length === 2 ? "20" + mm[2] : mm[2]) : ""] : [String(c.label), ""]; };
+    cols.forEach((c, i) => {
+      let acc = 0; const x = sx(i);
+      c.segs.filter(sg => sg.v > 0).forEach(sg => {
+        const yTop = sy(acc + sg.v), h = Math.max(0, sy(acc) - yTop - 1.5);
+        const r = svg("rect", { x, y: yTop, width: bw, height: h, rx: 2, fill: sg.color });
+        tipOn(r, `<b>${c.full || c.label}</b><br>${sg.label}: ${sg.text}<br>Total ${fmtBRL.format(tot(c))}${c.tip ? "<br>" + c.tip : ""}`);
+        sv.append(r); acc += sg.v;
+      });
+      // rótulo acima da coluna; se encostar na linha do teto, sobe para cima da linha
+      const yl = c.ref && Math.abs(sy(acc) - sy(c.ref)) < 14 ? Math.min(sy(acc), sy(c.ref)) - 6 : sy(acc) - 5;
+      if (!dense) sv.append(svg("text", { x: x + bw / 2, y: yl, "text-anchor": "middle", class: "vlabel" }, fmtY(acc)));
+      if (c.flag) sv.append(svg("path", { class: "flagmark", d: `M${x + bw / 2 - 4},${(dense ? sy(acc) : yl - 12) - 4} l4,-6 l4,6 z` }, svg("title", {}, c.flag)));
+      const [mes, ano] = parts(c);
+      sv.append(svg("text", { x: x + bw / 2, y: H - (dense ? 26 : 14), "text-anchor": "middle" }, dense ? mes : c.label));
+      if (dense && ano && (i === 0 || mes.toLowerCase() === "jan")) sv.append(svg("text", { x: x + bw / 2, y: H - 10, "text-anchor": "middle", class: "yr" }, ano));
+    });
+    if (cols.some(c => c.ref)) {
+      const d = cols.map((c, i) => c.ref ? `${i === 0 || !cols[i - 1].ref ? "M" : "L"}${sx(i) - (slot - bw) / 2},${sy(c.ref)} L${sx(i) + bw + (slot - bw) / 2},${sy(c.ref)}` : "").join(" ");
+      sv.append(svg("path", { class: "ref", d }));
+      const last = cols.filter(c => c.ref).slice(-1)[0];
+      sv.append(svg("line", { class: "ref", x1: W - m.r - 150, x2: W - m.r - 122, y1: m.t - 14, y2: m.t - 14 }));
+      sv.append(svg("text", { x: W - m.r - 116, y: m.t - 10, "text-anchor": "start", class: "reflabel" }, last.refLabel || "teto"));
+      if (cols.some(c => c.flag)) {
+        sv.append(svg("path", { class: "flagmark", d: `M${W - m.r - 290},${m.t - 10} l4,-6 l4,6 z` }));
+        sv.append(svg("text", { x: W - m.r - 280, y: m.t - 10, "text-anchor": "start", class: "reflabel" }, "acima do teto"));
+      }
+    }
+    root.append(sv);
+  }
+
+  // ---------- tables ----------
+  function copiarCsv(btn, cols, rows) {
+    const esc = v => { const t = String(v ?? ""); return /[";\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+    const linhas = [cols.map(c => esc(c.label)).join(";"), ...rows.map(r => cols.map(c => esc(c.left ? `${r.nome}${r.partido ? " (" + r.partido + ")" : ""}` : (c.get(r) ?? ""))).join(";"))];
+    const txt = linhas.join("\n"), ok = () => { btn.textContent = "Copiado"; setTimeout(() => { btn.textContent = "Copiar tabela (CSV)"; }, 1800); };
+    const fb = () => { const ta = el("textarea", { style: "position:fixed;left:-9999px" }); ta.value = txt; document.body.append(ta); ta.select(); try { document.execCommand("copy"); ok(); } catch (_) { btn.textContent = "Não foi possível copiar"; } ta.remove(); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, fb); else fb();
+  }
+  function table(id, cols, rows, sortKey) {
+    const t = $(`#${id}`), srt = state.sort[sortKey];
+    const wrap = t.parentElement;
+    if (wrap && !wrap.querySelector(".tbl-tools")) wrap.before(el("div", { class: "tbl-tools" }, el("button", { type: "button", class: "btn", id: `${id}-csv`, text: "Copiar tabela (CSV)" })));
+    const btn = $(`#${id}-csv`); if (btn) btn.onclick = () => copiarCsv(btn, cols, rows);
+    t.querySelector("thead").replaceChildren(el("tr", {}, ...cols.map(c => el("th", {
+      tabindex: 0, scope: "col", "aria-sort": srt.key === c.key ? (srt.dir < 0 ? "descending" : "ascending") : "none",
+      onclick: () => { if (srt.key === c.key) srt.dir *= -1; else state.sort[sortKey] = { key: c.key, dir: c.left ? 1 : -1 }; renderTab(); },
+      onkeydown: e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.target.click(); } },
+    }, c.label))));
+    const col = cols.find(c => c.key === srt.key) || cols[0];
+    rows = rows.slice().sort((a, b) => { const x = col.get(a), y = col.get(b); if (x == null && y == null) return 0; if (x == null) return 1; if (y == null) return -1; return (typeof x === "string" ? x.localeCompare(y, "pt-BR") : x - y) * srt.dir; });
+    t.querySelector("tbody").replaceChildren(...rows.map(r => el("tr", { class: state.ver && r.id === state.ver ? "hl" : "" }, ...cols.map(c => c.left
+      ? (r.id ? el("td", { class: "name", onclick: () => selectVer(r.id) }, r.nome, el("span", { class: "pt", text: r.partido }), r.situacao && r.situacao !== "titular" ? el("span", { class: "pill", text: r.situacao }) : null, ...(r.pills || []).map(t => el("span", { class: "pill warn", text: t })))
+              : el("td", { style: "white-space:normal" }, r.nome, r.partido ? el("span", { class: "pt", text: r.partido }) : null))
+      : el("td", { class: "num", text: c.text(r) })))));
+  }
+  const kpi = (label, value, sub) => el("div", { class: "kpi" }, el("div", { class: "label", text: label }), el("div", { class: "value", text: value }), el("div", { class: "sub", text: sub || "" }));
+  const fact = (label, value, sub) => el("div", { class: "fact" }, el("div", { class: "label", text: label }), el("div", { class: "value", text: String(value) }), el("div", { class: "sub", text: sub || "" }));
+  const cargoMesa = (v, ano) => { if (!v.cargo_mesa) return ""; if (ano !== 0) return v.cargo_mesa[String(ano)] || ""; const ks = Object.keys(v.cargo_mesa).sort(); for (let i = ks.length - 1; i >= 0; i--) if (v.cargo_mesa[ks[i]]) return v.cargo_mesa[ks[i]]; return ""; };
+  function detailBox(root, kids) {
+    const v = V(state.ver), cargo = cargoMesa(v, state.ano);
+    const extras = [cargo ? `${cargo} da Mesa` : "", v.gabinete_numero ? `gabinete ${v.gabinete_numero}` : "", v.licenca_data ? `licença desde ${fmtDate(v.licenca_data)}${v.licenca_dias ? ` (${v.licenca_dias} dias)` : ""}${v.suplente_nome ? `, suplente ${v.suplente_nome}` : ""}` : ""].filter(Boolean).join(" · ");
+    root.replaceChildren(el("div", { class: "detail" },
+      el("div", { class: "who" }, el("h2", { text: v.nome_parlamentar }), el("span", { class: "muted", text: `${v.partido}${v.situacao && v.situacao !== "titular" ? " · " + v.situacao : ""}${extras ? " · " + extras : ""}` }),
+        v.fonte_url ? el("a", { class: "small", href: v.fonte_url, target: "_blank", rel: "noopener", text: "Perfil na Câmara" }) : null,
+        el("a", { class: "small", href: "#", onclick: e => { e.preventDefault(); goTo("perfil", state.ver); }, text: "Ver perfil completo →" })),
+      ...kids));
+  }
+
+  // ---------- comparação por partido (b3) ----------
+  // rows: [{id, v}] por vereador; agrega média e n por partido e desenha barras clicáveis (filtra pelo partido).
+  function partidoBars(rootId, rows, fmt, color, label) {
+    const by = {};
+    rows.forEach(r => { const pt = V(r.id).partido || "sem partido"; const o = by[pt] ||= { pt, soma: 0, n: 0, vals: [] }; o.soma += r.v; o.n++; o.vals.push(r.v); });
+    const arr = Object.values(by).map(o => ({ ...o, media: o.soma / o.n })).sort((a, b) => b.media - a.media);
+    const casa = rows.length ? rows.reduce((a, r) => a + r.v, 0) / rows.length : 0;
+    const root = $(`#${rootId}`); root.replaceChildren();
+    if (arr.length < 2) { root.append(el("div", { class: "empty", text: state.partido ? `Só ${state.partido} neste recorte; limpe o filtro para comparar partidos.` : "Sem dados." })); return; }
+    const max = Math.max(...arr.map(o => o.media));
+    arr.forEach(o => {
+      const name = el("div", { class: "name", tabindex: 0, role: "button", title: `${o.n} vereador${o.n > 1 ? "es" : ""}`, onclick: () => { state.partido = state.partido === o.pt ? "" : o.pt; state.ver = ""; renderAll(); } }, o.pt, el("span", { class: "pt", text: `${o.n}` }));
+      const track = el("div", { class: "track" }); const sv = svg("svg", { viewBox: "0 0 1000 22", preserveAspectRatio: "none" });
+      const w = (o.media / max) * 1000; const bar = roundedBar(0, 1, w, 20, 4, true); bar.setAttribute("fill", color);
+      tipOn(bar, `<b>${o.pt}</b> · ${o.n} vereador${o.n > 1 ? "es" : ""}<br>${label}: ${fmt(o.media)}<br>Casa: ${fmt(casa)}<br>mín ${fmt(Math.min(...o.vals))} · máx ${fmt(Math.max(...o.vals))}`);
+      sv.append(bar);
+      // marcador da média da Casa
+      const cx = (casa / max) * 1000; if (cx > 0 && cx <= 1000) sv.append(svg("line", { x1: cx, x2: cx, y1: 0, y2: 22, stroke: "currentColor", "stroke-width": 2, "stroke-dasharray": "3 3", opacity: 0.6 }));
+      track.append(sv);
+      root.append(el("div", { class: `row${state.partido === o.pt ? " hl" : ""}${state.partido && state.partido !== o.pt ? " dim" : ""}` }, name, track, el("div", { class: "val num", html: `${fmt(o.media)}<small>${o.media >= casa ? "+" : "−"}${fmt(Math.abs(o.media - casa))} vs Casa</small>` })));
+    });
+  }
+
+  // ---------- PRODUTIVIDADE ----------
+  const GRUPOS = [
+    { label: "Projetos de lei e afins", color: "var(--s1)", tipos: ["n_ple", "n_plc", "n_pel", "n_pdl"] },
+    { label: "Requerimentos", color: "var(--s2)", tipos: ["n_rep", "n_rup"] },
+    { label: "Indicações", color: "var(--s3)", tipos: ["n_pin"] },
+    { label: "Moções", color: "var(--s4)", tipos: ["n_moc"] },
+    { label: "Homenagens e outros", color: "var(--s5)", tipos: ["n_pre", "n_outros"] },
+  ];
+  const grp = (r, g) => g.tipos.reduce((a, t) => a + (r[t] || 0), 0);
+  // Ritmo anual vs ano anterior: proposições por mês de sessão (fev–dez) para não comparar ano cheio com ano parcial.
+  function refProd(ano, tot) {
+    const prev = prodRows(ano - 1); if (!prev.length) return "";
+    const mesesAno = Math.max(1, Math.max(...prodRows(ano).map(r => r.meses_exercicio || 0))), mesesPrev = Math.max(1, Math.max(...prev.map(r => r.meses_exercicio || 0)));
+    const ritmo = tot / mesesAno, ritmoPrev = prev.reduce((a, r) => a + r.n_total, 0) / mesesPrev;
+    const d = (ritmo / ritmoPrev - 1) * 100; return ` · ritmo ${d >= 0 ? "+" : "−"}${Math.abs(d).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}% vs ${ano - 1}`;
+  }
+  function renderProd() {
+    const ano = state.ano, pond = state.modo === "pond";
+    $("#m-bruto").setAttribute("aria-pressed", String(!pond)); $("#m-pond").setAttribute("aria-pressed", String(pond));
+    const scope = prodRows(ano).filter(r => (!state.partido || V(r.vereador_id).partido === state.partido));
+    const rows = scope.filter(r => r.n_total > 0).sort((a, b) => pond ? b.vol_ponderado_12m - a.vol_ponderado_12m : b.n_total - a.n_total);
+    const tot = scope.reduce((a, r) => a + r.n_total, 0), exc = scope.reduce((a, r) => a + r.n_excluidas_regex, 0);
+    const pl = scope.reduce((a, r) => a + grp(r, GRUPOS[0]), 0), ind = scope.reduce((a, r) => a + grp(r, GRUPOS[2]) + grp(r, GRUPOS[3]), 0);
+    const casaTot = prodRows(ano).reduce((a, r) => a + r.n_total, 0);
+    $("#prod-kpis").replaceChildren(
+      kpi("Proposições", fmtInt.format(tot), state.partido ? `${fmtPct(tot / casaTot)} da Casa (${fmtInt.format(casaTot)})` : `${scope.filter(r => r.n_total > 0).length} autores${refProd(ano, tot)}`),
+      kpi("Projetos de lei e afins", fmtInt.format(pl), tot ? `${fmtPct(pl / tot)} do total` : ""),
+      kpi("Indicações e moções", fmtInt.format(ind), tot ? `${fmtPct(ind / tot)} do total` : ""),
+      kpi("Fora da ponderação", fmtInt.format(exc), "homenagens, nomes de rua e votos de pesar: contam no total, não no ranking ponderado"),
+    );
+    $("#prod-title").textContent = pond ? `Volume ponderado, normalizado para 12 meses · ${scopeLabel()}` : `Proposições protocoladas, por tipo · ${scopeLabel()}`;
+    partidoBars("part-prod", prodRows(ano).filter(r => r.n_total > 0).map(r => ({ id: r.vereador_id, v: pond ? r.vol_ponderado_12m : r.n_total })), fmt1, "var(--s1)", pond ? "produção ponderada média" : "proposições por vereador");
+    $("#part-prod-sub").textContent = pond ? "produção ponderada média por vereador · linha tracejada = Casa · clique para filtrar" : "proposições por vereador · linha tracejada = Casa · clique para filtrar";
+    $("#prod-legend").replaceChildren(...GRUPOS.map(g => el("span", { style: `--c:${g.color}`, text: g.label })));
+    if (pond) $("#prod-legend").replaceChildren();
+    barsChart($("#prod-bars"), rankingRows(rows.map(r => { const v = V(r.vereador_id); return {
+      id: r.vereador_id, label: v.nome_parlamentar, sub: v.partido, value: pond ? r.vol_ponderado_12m : r.n_total,
+      segs: pond ? [{ v: r.vol_ponderado_12m, color: "var(--s1)", label: "Volume ponderado / 12 meses", text: fmt1(r.vol_ponderado_12m) }] : GRUPOS.map(g => ({ v: grp(r, g), color: g.color, label: g.label, text: String(grp(r, g)) })),
+      tipExtra: `${r.n_total} proposições em ${r.meses_exercicio} meses · ${r.n_excluidas_regex} excluídas`,
+      valueText: pond ? `${fmt1(r.vol_ponderado_12m)}<small>${r.n_total} brutas</small>` : `${r.n_total}<small>${fmt1(r.vol_ponderado_12m)} pond.</small>`,
+    }; }), "prod"));
+    // detalhe
+    const det = $("#prod-detail"); det.replaceChildren();
+    if (state.ver) {
+      const r = prodRows(ano).find(x => x.vereador_id === state.ver);
+      if (r) {
+        const parts = GRUPOS.map(g => ({ ...g, v: grp(r, g) })).filter(x => x.v);
+        const pos = rows.findIndex(x => x.vereador_id === state.ver) + 1;
+        detailBox(det, [
+          el("div", { class: "facts" },
+            fact("Proposições", r.n_total, `${r.meses_exercicio} meses em exercício`),
+            fact("Vol. ponderado / 12m", fmt1(r.vol_ponderado_12m), `bruto ponderado ${fmt1(r.vol_ponderado)}`),
+            fact("Excluídas", r.n_excluidas_regex, "homenagem, nome de rua, pesar"),
+            fact("Posição", pos ? `${pos}º` : "—", `de ${rows.length} em ${state.partido || "Casa"} (${pond ? "ponderado" : "bruto"})`)),
+          el("div", { class: "legend", style: "margin-top:12px" }, ...parts.map(x => el("span", { style: `--c:${x.color}`, text: `${x.label} ${x.v}` }))),
+        ]);
+      } else detailBox(det, [el("p", { class: "muted", text: `Sem proposições registradas em ${anoLabel(ano)}.` })]);
+    }
+    const cols = [
+      { key: "nome", label: "Vereador", left: true, get: r => r.nome },
+      { key: "n_total", label: "Proposições", get: r => r.n_total, text: r => fmtInt.format(r.n_total) },
+      { key: "pl", label: "Projetos", get: r => r.pl, text: r => fmtInt.format(r.pl) },
+      { key: "req", label: "Requerimentos", get: r => r.req, text: r => fmtInt.format(r.req) },
+      { key: "pin", label: "Indicações", get: r => r.pin, text: r => fmtInt.format(r.pin) },
+      { key: "moc", label: "Moções", get: r => r.moc, text: r => fmtInt.format(r.moc) },
+      { key: "exc", label: "Excluídas", get: r => r.exc, text: r => fmtInt.format(r.exc) },
+      { key: "meses", label: "Meses", get: r => r.meses, text: r => fmtInt.format(r.meses) },
+      { key: "pond", label: "Produção ponderada (ritmo anual)", get: r => r.pond, text: r => fmt1(r.pond) },
+    ];
+    table("prod-table", cols, scope.map(r => { const v = V(r.vereador_id); return { id: r.vereador_id, nome: v.nome_parlamentar, partido: v.partido, situacao: v.situacao, n_total: r.n_total, pl: grp(r, GRUPOS[0]), req: grp(r, GRUPOS[1]), pin: r.n_pin, moc: r.n_moc, exc: r.n_excluidas_regex, meses: r.meses_exercicio, pond: r.vol_ponderado_12m }; }), "prod");
+    const outros = D.produtividade.outros_autores.filter(o => o.ano === ano);
+    $("#prod-note").textContent = `Fora do ranking, por não serem vereadores: ${outros.map(o => `${o.autor_fonte} (${o.n})`).join(", ")}. Total oficial da Câmara para ${anoLabel(ano)}: ${fmtInt.format((ano === 0 ? { total_resumo: D.meta.resumo_oficial_por_ano.reduce((a, x) => a + x.total_resumo, 0) } : D.meta.resumo_oficial_por_ano.find(x => x.ano === ano))?.total_resumo ?? 0)} proposições.`;
+  }
+
+  // ---------- PROPOSIÇÕES (tabela individual) ----------
+  const TIPO_NOME = { PLE: "Projeto de lei", PLC: "Projeto de lei complementar", PEL: "Projeto de emenda à Lei Orgânica", PDL: "Projeto de decreto legislativo", PRE: "Projeto de resolução", REP: "Requerimento ao Plenário", RUP: "Requerimento à Presidência", RUU: "Requerimento", PIN: "Indicação", MOC: "Moção", VTO: "Veto", SUB: "Substitutivo", RAD: "Outro" };
+  const TIPO_GRUPO = t => GRUPOS.find(g => g.tipos.includes("n_" + t.toLowerCase())) || GRUPOS[4];
+  const EXCL = { logradouro: "nome de rua", honraria: "homenagem", pesar: "pesar" };
+  const CONSULTA_URL = "https://cmsalvador.sys.inf.br/cl/prop_interna/";
+  const pp = { tipo: "", sit: "", q: "", dol: false, etapa: "", page: 0, size: 50, sort: { key: "movimentado", dir: -1 } };
+  // Autores institucionais (Executivo, Mesa, comissões) entram na lista só quando não há filtro de partido/vereador.
+  const ppScope = r => r.vereador_id ? inScope(r.vereador_id) : !(state.partido || state.ver);  // no perfil state.ver está sempre preenchido
+  function ppRows() {
+    const qn = fold(pp.q.trim());
+    return D.proposicoes.filter(r => inAno(r.ano, state.ano) && ppScope(r) && (!pp.tipo || r.tipo === pp.tipo) && (!pp.sit || r.situacao === pp.sit) && (!pp.dol || r.pdf_url) && (!pp.etapa || (PL_TIPOS.includes(r.tipo) && etapaDe(r) === pp.etapa))
+      && (!qn || fold(r.ementa).includes(qn) || fold(r.codigo).includes(qn) || fold(r.autor || (r.vereador_id ? V(r.vereador_id).nome_parlamentar : "")).includes(qn) || fold(r.situacao).includes(qn)));
+  }
+  // Etapas da tramitação a partir da situação no sistema (só projetos de lei e afins).
+  const PL_TIPOS = ["PLE", "PLC", "PEL", "PDL"];
+  const ETAPAS = [
+    { k: "protocolado", label: "Protocolado", color: "var(--s4)", desc: "protocolado ou encaminhado, antes das comissões" },
+    { k: "comissoes", label: "Nas comissões", color: "var(--s2)", desc: "aguardando relator, com relator, aguardando parecer, diligência" },
+    { k: "plenario", label: "Pronto para o plenário", color: "var(--s1)", desc: "aguardando deliberação, pauta, ordem do dia" },
+    { k: "final", label: "Aprovado, fase final", color: "var(--s3)", desc: "redação final, aguardando assinatura ou publicação" },
+    { k: "arquivado", label: "Arquivado", color: "var(--fg-3)", desc: "armazenado ou arquivado na Gestão de Documentos" },
+  ];
+  function etapaDe(r) {
+    const sit = fold(r.situacao), loc = fold(r.localizacao || "");
+    if (/arquiv|armazen/.test(sit) || (sit === "encaminhado" && loc.includes("gestao de documentos"))) return "arquivado";
+    if (/redacao final|aguardando assinatura|aguardando publicacao|sancion|promulg|aprovad/.test(sit)) return "final";
+    if (/deliberacao|ordem do dia|pauta|recurso/.test(sit)) return "plenario";
+    if (/relator|parecer|diligencia|redistribu|anexado ci|estudo tecnico|comissao/.test(sit)) return "comissoes";
+    return "protocolado";
+  }
+  function renderSituacao(base) {
+    const quem = state.ver ? V(state.ver).nome_parlamentar : state.partido ? `vereadores do ${state.partido}` : "vereadores";
+    $("#pp-intro").textContent = `Tudo o que ${quem} apresentou ${state.ano === 0 ? "nesta legislatura" : `em ${state.ano}`}, com a situação de cada proposição no sistema da Câmara. Clique no título para ler o texto completo no Diário Oficial do Legislativo; quando a edição ainda não foi localizada, o link leva à consulta da Câmara, onde dá para buscar pelo código.`;
+    const pls = base.filter(r => PL_TIPOS.includes(r.tipo));
+    const casa = D.proposicoes.filter(r => inAno(r.ano, state.ano) && r.vereador_id && PL_TIPOS.includes(r.tipo));
+    $("#sit-title").textContent = `Projetos de lei: em que etapa estão · ${scopeLabel()}`;
+    $("#sit-sub").textContent = `${fmtInt.format(pls.length)} projetos em ${anoLabel(state.ano)}`;
+    const linha = (nome, rows, clicavel) => {
+      const cnt = Object.fromEntries(ETAPAS.map(e => [e.k, 0])); rows.forEach(r => cnt[etapaDe(r)]++);
+      const tot = rows.length || 1;
+      const stack = el("div", { class: "etapa-stack" }, ...ETAPAS.filter(e => cnt[e.k]).map(e => {
+        const pct = cnt[e.k] / tot, b = el(clicavel ? "button" : "span", { type: clicavel ? "button" : null, class: pp.etapa === e.k ? "on" : "", style: `flex:${cnt[e.k]} 1 0; background:${e.color}; display:flex; align-items:center; justify-content:center`,
+          text: pct >= 0.08 ? `${cnt[e.k]}` : "", "aria-label": `${e.label}: ${cnt[e.k]} (${fmtPct(pct)})`,
+          onclick: clicavel ? () => { pp.etapa = pp.etapa === e.k ? "" : e.k; pp.tipo = ""; pp.page = 0; renderProps(); } : null });
+        tipOn(b, `<b>${e.label}</b>: ${cnt[e.k]} de ${rows.length} (${fmtPct(pct)})<br>${e.desc}${clicavel ? "<br><i>clique para filtrar a tabela</i>" : ""}`);
+        return b; }));
+      return el("div", { class: "etapa-row" }, el("div", { class: "lbl" }, el("b", { text: nome })), stack, el("div", { class: "n", text: `${fmtInt.format(rows.length)}` }));
+    };
+    const root = $("#etapa-bars");
+    if (!pls.length) { root.replaceChildren(el("p", { class: "muted", text: `Nenhum projeto de lei em ${anoLabel(state.ano)}.` })); }
+    else root.replaceChildren(linha(state.ver ? V(state.ver).nome_parlamentar : scopeLabel(), pls, true), ...(state.ver || state.partido ? [linha("Casa (todos os vereadores)", casa, false)] : []));
+    $("#etapa-legend").replaceChildren(...ETAPAS.map(e => el("span", { style: `--c:${e.color}` }, el("button", { type: "button", class: pp.etapa === e.k ? "on" : "", title: e.desc, text: e.label, onclick: () => { pp.etapa = pp.etapa === e.k ? "" : e.k; pp.tipo = ""; pp.page = 0; renderProps(); } }))));
+  }
+
+  let gabLoading = null, equipePage = 0;
+  function ensureGab() {
+    if (D.gabinetes || gabLoading) return;
+    gabLoading = fetch("data/gabinetes.json").then(r => r.ok ? r.json() : []).catch(() => []).then(j => { D.gabinetes = j; gabLoading = null; if (state.tab === "perfil") renderEquipe(); });
+  }
+  function renderEquipe() {
+    const tb = $("#pf-equipe");
+    if (!D.gabinetes) { tb.querySelector("tbody").replaceChildren(el("tr", {}, el("td", { class: "nm", text: "Carregando a equipe…" }))); ensureGab(); return; }
+    const ano = state.ano, ini = ano === 0 ? "0000-00" : `${ano}-01`, fimP = ano === 0 ? "9999-99" : `${ano}-12`;
+    const rows = D.gabinetes.filter(g => g.v === state.ver && g.inicio <= fimP && g.fim >= ini)
+      .sort((a, b) => (b.salario - a.salario) || a.nome.localeCompare(b.nome, "pt-BR"));
+    const atuais = rows.filter(r => r.atual);
+    $("#pf-equipe-title").textContent = `Quem trabalha no gabinete · ${anoLabel(ano)}`;
+    $("#pf-equipe-sub").textContent = !rows.length ? "" : ano === 0 || ano === +String(rows.reduce((m, r) => r.fim > m ? r.fim : m, "")).slice(0, 4)
+      ? `${atuais.length} na folha mais recente · ${rows.length} pessoas no período · ${fmtBRL.format(atuais.reduce((a, r) => a + r.salario, 0))}/mês hoje`
+      : `${rows.length} pessoas passaram pelo gabinete em ${ano}`;
+    const SIZE = 10, pages = Math.max(1, Math.ceil(rows.length / SIZE));
+    if (equipePage >= pages) equipePage = pages - 1;
+    const shown = rows.slice(equipePage * SIZE, (equipePage + 1) * SIZE);
+    const pager = $("#pf-equipe-pager"); pager.replaceChildren();
+    if (rows.length > SIZE) {
+      pager.append(el("span", { text: `${equipePage * SIZE + 1}–${Math.min(rows.length, (equipePage + 1) * SIZE)} de ${rows.length}` }));
+      pager.append(el("div", { class: "pg" },
+        el("button", { type: "button", class: "btn", disabled: equipePage === 0, onclick: () => { equipePage--; renderEquipe(); } }, "Anterior"),
+        el("span", { class: "muted", style: "align-self:center", text: `página ${equipePage + 1} de ${pages}` }),
+        el("button", { type: "button", class: "btn", disabled: equipePage >= pages - 1, onclick: () => { equipePage++; renderEquipe(); } }, "Próxima")));
+    }
+    const ult = rows.reduce((m, r) => r.fim > m ? r.fim : m, "");
+    tb.querySelector("thead").replaceChildren(el("tr", {}, ...["Nome", "Cargo", "Nível", "Salário mensal", "Início", "Fim"].map((h, i) => el("th", { scope: "col", style: i < 2 ? "text-align:left" : "", text: h }))));
+    tb.querySelector("tbody").replaceChildren(...(rows.length ? shown.map(r => {
+      const desde = r.inicio === "2025-01" && r.admissao ? fmtDate(r.admissao) : fmtComp(r.inicio);
+      const titleIni = r.inicio === "2025-01" && r.admissao ? "data de admissão na Câmara (a série de folha começa em jan/2025)" : "primeiro mês na folha deste gabinete";
+      return el("tr", { class: r.atual ? "" : "saiu" },
+        el("td", { class: "nm" }, r.nome.toLowerCase().replace(/(^|\s)(\S)/g, (m, a, b) => a + b.toUpperCase()).replace(/\b(De|Da|Do|Dos|Das|E)\b/g, w => w.toLowerCase()), null),
+        el("td", { class: "fn", text: (r.funcao || "—").toLowerCase().replace(/^./, c => c.toUpperCase()) }),
+        el("td", { class: "num", text: r.grau || "—" }),
+        el("td", { class: "num", text: fmtBRL.format(r.salario) }),
+        el("td", { class: "num", title: titleIni, text: desde }),
+        el("td", { class: "num", text: r.atual ? "atual" : fmtComp(r.fim) }));
+    }) : [el("tr", {}, el("td", { class: "nm", text: `Sem folha de gabinete em ${anoLabel(ano)}.` }))]));
+    $("#pf-equipe-note").textContent = `Servidores lotados no centro de custo do gabinete na folha da Câmara (2025) e na consulta de pessoal do TCM-BA (2026). Salário: mediana dos proventos mensais, sem 13º e férias. Fim: último mês em que aparece no gabinete; "atual" = está na folha mais recente (${ult ? fmtComp(ult) : "—"}). Em 2026 a Câmara deixou de publicar a lotação: quem estava no gabinete no fim de 2025 e segue na folha de 2026 (TCM-BA) aparece como atual; contratados em 2026 ainda não aparecem aqui. Início: data de admissão na Câmara para quem já estava em jan/2025, quando a série começa.`;
+  }
+  let propsLoading = null;
+  function ensureProps() {
+    if (D.proposicoes || propsLoading) return propsLoading;
+    $("#pp-count").textContent = "Carregando as proposições…";
+    propsLoading = fetch("data/proposicoes.json").then(r => { if (!r.ok) throw new Error(`proposicoes.json ${r.status}`); return r.json(); })
+      .then(j => { D.proposicoes = j; propsLoading = null; if (state.tab === "perfil") renderProps(); })
+      .catch(err => { propsLoading = null; $("#pp-count").textContent = "Não foi possível carregar as proposições (" + err.message + ")."; });
+    return propsLoading;
+  }
+  function renderProps() {
+    if (!D.proposicoes) { ensureProps(); return; }
+    const base = D.proposicoes.filter(r => inAno(r.ano, state.ano) && ppScope(r));
+    renderSituacao(base);
+    const selT = $("#pp-tipo"), selS = $("#pp-sit");
+    const tipos = [...new Set(base.map(r => r.tipo))].sort((a, b) => (TIPO_NOME[a] || a).localeCompare(TIPO_NOME[b] || b, "pt-BR"));
+    if (pp.tipo && !tipos.includes(pp.tipo)) pp.tipo = "";
+    selT.replaceChildren(el("option", { value: "", text: "Todos os tipos" }), ...tipos.map(t => el("option", { value: t, text: `${TIPO_NOME[t] || t} (${base.filter(r => r.tipo === t).length})` })));
+    selT.value = pp.tipo;
+    const sits = [...new Set(base.map(r => r.situacao))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+    if (pp.sit && !sits.includes(pp.sit)) pp.sit = "";
+    selS.replaceChildren(el("option", { value: "", text: "Todas as situações" }), ...sits.map(x => el("option", { value: x, text: `${x} (${base.filter(r => r.situacao === x).length})` })));
+    selS.value = pp.sit;
+    let rows = ppRows();
+    const cols = [
+      { key: "vereador", label: "Autor", cls: "v", get: r => r.vereador_id ? V(r.vereador_id).nome_parlamentar : r.autor || "" },
+      { key: "movimentado", label: "Última movimentação", cls: "d", get: r => r.movimentado },
+      { key: "tipo", label: "Tipo", cls: "t", get: r => TIPO_NOME[r.tipo] || r.tipo },
+      { key: "ementa", label: "Título (ementa)", cls: "ementa", get: r => r.ementa },
+      { key: "situacao", label: "Situação", cls: "s", get: r => r.situacao },
+    ];
+    const col = cols.find(c => c.key === pp.sort.key);
+    rows.sort((a, b) => { const x = col.get(a) || "", y = col.get(b) || ""; return x.localeCompare(y, "pt-BR") * pp.sort.dir || a.codigo.localeCompare(b.codigo); });
+    const pages = Math.max(1, Math.ceil(rows.length / pp.size)); if (pp.page >= pages) pp.page = pages - 1;
+    const slice = rows.slice(pp.page * pp.size, (pp.page + 1) * pp.size);
+    const nInt = rows.filter(r => r.pdf_url && r.variante !== "numero").length, nCit = rows.filter(r => r.pdf_url && r.variante === "numero").length;
+    $("#pp-count").replaceChildren(`${fmtInt.format(rows.length)} proposições · ${fmtInt.format(nInt)} com íntegra no Diário Oficial${nCit ? ` · ${fmtInt.format(nCit)} só citadas na pauta` : ""}`, ...(pp.etapa ? [" ", el("span", { class: "pp-filtro" }, `etapa: ${ETAPAS.find(e => e.k === pp.etapa).label} (só projetos de lei)`, el("button", { type: "button", "aria-label": "Remover filtro de etapa", text: "✕", onclick: () => { pp.etapa = ""; pp.page = 0; renderProps(); } }))] : []));
+    const t = $("#pp-table");
+    t.querySelector("thead").replaceChildren(el("tr", {}, ...cols.map(c => el("th", { class: c.cls, tabindex: 0, scope: "col", "aria-sort": pp.sort.key === c.key ? (pp.sort.dir < 0 ? "descending" : "ascending") : "none",
+      onclick: () => { if (pp.sort.key === c.key) pp.sort.dir *= -1; else pp.sort = { key: c.key, dir: c.key === "movimentado" ? -1 : 1 }; pp.page = 0; renderProps(); },
+      onkeydown: e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.target.click(); } } }, c.label))));
+    t.querySelector("tbody").replaceChildren(...slice.map(r => {
+      const v = V(r.vereador_id), g = TIPO_GRUPO(r.tipo);
+      const href = r.pdf_url || CONSULTA_URL;
+      const citada = r.pdf_url && r.variante === "numero";
+      const title = r.pdf_url ? `${citada ? "Citada na pauta do" : "Íntegra no"} Diário Oficial do Legislativo de ${fmtDate(r.dol_data)}${r.confianca ? " · confiança " + r.confianca : ""}` : "Consulta de proposições da Câmara (buscar pelo código)";
+      return el("tr", {},
+        r.vereador_id
+          ? el("td", { class: "v name", onclick: () => selectVer(r.vereador_id) }, v.nome_parlamentar, el("span", { class: "pt", text: v.partido }))
+          : el("td", { class: "v" }, r.autor || "—", el("span", { class: "pill", text: "não vereador" })),
+        el("td", { class: "d num", text: r.movimentado ? fmtDate(r.movimentado) : "—" }),
+        el("td", { class: "t" }, el("span", { class: "tipo-dot", style: `--c:${g.color}` }), TIPO_NOME[r.tipo] || r.tipo),
+        el("td", { class: "ementa" }, el("a", { href, target: "_blank", rel: "noopener", title }, r.ementa.replace(/^"|"$/g, "")),
+          el("span", { class: "cod" }, r.codigo, r.pdf_url ? ` · ${citada ? "citada no DOL de" : "íntegra no DOL de"} ${fmtDate(r.dol_data)}${r.n_edicoes > 1 ? ` (${r.n_edicoes} edições)` : ""}` : " · íntegra não localizada", r.exclusao ? el("span", { class: "tag", text: EXCL[r.exclusao] || r.exclusao }) : null)),
+        el("td", { class: "s", text: r.situacao }));
+    }));
+    const pager = $("#pp-pager"); pager.replaceChildren();
+    if (rows.length) {
+      pager.append(el("span", { text: `${fmtInt.format(pp.page * pp.size + 1)}–${fmtInt.format(Math.min(rows.length, (pp.page + 1) * pp.size))} de ${fmtInt.format(rows.length)}` }));
+      pager.append(el("div", { class: "pg" },
+        el("button", { type: "button", class: "btn", disabled: pp.page === 0, onclick: () => { pp.page--; renderProps(); } }, "Anterior"),
+        el("span", { class: "muted", style: "align-self:center", text: `página ${pp.page + 1} de ${pages}` }),
+        el("button", { type: "button", class: "btn", disabled: pp.page >= pages - 1, onclick: () => { pp.page++; renderProps(); } }, "Próxima")));
+    }
+  }
+
+  // ---------- PRESENÇA ----------
+  // Alerta de presença: LOM art. 27 (um terço das ordinárias do ano) ou, no ano corrente, ritmo que leva lá.
+  const alertaPres = (r, ano) => r.alerta_lom27 ? "⅓ das sessões (LOM 27)" : (ano === 2026 && !r.sem_dado && r.fracao_faltas_lom27 >= 0.25 ? `faltou a ${fmtPct(r.fracao_faltas_lom27)} até agora` : null);
+  // Comparação com o ano anterior, em pontos percentuais (Casa inteira).
+  function refPres(ano, taxa) {
+    const prev = presRows(ano - 1); if (!prev.length) return "";
+    const P = prev.reduce((a, r) => a + r.presentes, 0), A = prev.reduce((a, r) => a + r.ausentes, 0);
+    const d = (taxa - P / (P + A)) * 100; return ` · ${d >= 0 ? "+" : "−"}${Math.abs(d).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} p.p. vs ${ano - 1}`;
+  }
+  // Faixa de presença por sessão (b7): uma célula por sessão ordinária, com data e link para a ata.
+  function presStrip(id, ano, sessAll) {
+    const gs = (D.presenca.grade || []).filter(x => x.v === id && inAno(x.ano, ano)).sort((a, b) => a.ano - b.ano);
+    if (!gs.length) return [];
+    const g = { n: gs.flatMap(x => x.n.map(n => [x.ano, n])), s: gs.map(x => x.s).join("") };
+    const ST = { P: "presente", A: "falta", L: "licenciado" };
+    const cells = g.n.map(([ga, n], i) => { const st = g.s[i] || "?", sess = sessAll.find(z => z.num_sessao === n && z.ano === ga);
+      const title = `${n}ª sessão ordinária de ${ga}${sess ? " · " + fmtDate(sess.data_sessao) : ""} · ${ST[st] || "sem registro"}${sess && sess.ata_url ? " · abrir ata" : ""}`;
+      return el("a", { class: st, href: sess && sess.ata_url ? sess.ata_url : null, target: "_blank", rel: "noopener", title, "aria-label": title }); });
+    const seq = (() => { let best = 0, cur = 0; for (const c of g.s) { cur = c === "A" ? cur + 1 : 0; best = Math.max(best, cur); } return best; })();
+    return [
+      el("p", { class: "small muted", style: "margin:12px 0 0", text: `Sessão por sessão em ${anoLabel(ano)} (${g.n.length} ordinárias em exercício)${seq >= 3 ? ` · maior sequência de faltas: ${seq} sessões seguidas` : ""}` }),
+      el("div", { class: "strip" }, ...cells),
+      el("div", { class: "strip-legend" }, el("span", {}, el("i", { style: "background:var(--s2)" }), "presente"), el("span", {}, el("i", { style: "background:var(--s1)" }), "falta"), el("span", {}, el("i", { style: "background:var(--line-2)" }), "licença"), el("span", { class: "muted", text: "clique abre a ata" })),
+    ];
+  }
+  function renderPres() {
+    const ano = state.ano;
+    const scope = presRows(ano).filter(r => !state.partido || V(r.vereador_id).partido === state.partido);
+    const rows = scope.slice().sort((a, b) => b.ausentes - a.ausentes || (a.taxa_presenca ?? 1) - (b.taxa_presenca ?? 1));
+    const sessAll = D.presenca.sessoes.filter(s => inAno(s.ano, ano));
+    const P = scope.reduce((a, r) => a + r.presentes, 0), A = scope.reduce((a, r) => a + r.ausentes, 0), L = scope.reduce((a, r) => a + r.licenciado, 0);
+    const casaP = presRows(ano).reduce((a, r) => a + r.presentes, 0), casaA = presRows(ano).reduce((a, r) => a + r.ausentes, 0);
+    const ult = sessAll[sessAll.length - 1];
+    $("#pres-kpis").replaceChildren(
+      kpi("Sessões ordinárias", fmtInt.format(sessAll.length), ano === 2025 ? "ano completo" : `até ${fmtDate(ult.data_sessao)} (${ult.num_sessao}ª de ${ult.ano})`),
+      state.ver ? kpi(`Presença · ${scopeLabel()}`, (() => { const r = presRows(ano).find(x => x.vereador_id === state.ver); return r && !r.sem_dado ? fmtPct(r.taxa_presenca) : "—"; })(), `Casa: ${fmtPct(casaP / (casaP + casaA))}`)
+                : kpi(`Presença · ${scopeLabel()}`, fmtPct(P / (P + A)), state.partido ? `Casa: ${fmtPct(casaP / (casaP + casaA))}` : `${scope.length} vereadores${refPres(ano, P / (P + A))}`),
+      kpi("Faltas registradas", fmtInt.format(A), state.partido ? `${fmtPct(A / casaA)} das faltas da Casa` : ""),
+      kpi("Licenças", fmtInt.format(L), "licenças contadas por sessão"),
+    );
+    $("#pres-sub").textContent = `${scope.length} vereadores · ${sessAll.length} sessões`;
+    partidoBars("part-pres", presRows(ano).filter(r => !r.sem_dado).map(r => ({ id: r.vereador_id, v: r.taxa_presenca })), fmtPct, "var(--s2)", "presença média");
+    $("#part-pres-sub").textContent = "presença média por vereador · linha tracejada = Casa · clique para filtrar";
+    barsChart($("#pres-bars"), rankingRows(rows.map(r => { const v = V(r.vereador_id), base = r.presentes + r.ausentes; return {
+      id: r.vereador_id, label: v.nome_parlamentar, sub: v.partido, value: r.ausentes, nd: r.sem_dado,
+      pill: alertaPres(r, ano), pillTitle: r.alerta_lom27 ? "Faltou a um terço ou mais das sessões ordinárias do ano (Lei Orgânica, art. 27)" : "Em 2026, ritmo de faltas que levaria a um terço das sessões do ano",
+      segs: [{ v: r.sem_dado ? 0 : r.ausentes, color: "var(--s1)", label: "Faltas", text: `${r.ausentes} de ${base} sessões` }],
+      tipExtra: `Presente ${r.presentes} · Licenciado ${r.licenciado}` + (r.sem_dado ? " · menos de 10 sessões em exercício" : ""),
+      valueText: `${r.ausentes}<small>${r.sem_dado ? "menos de 10 sessões" : fmtPct(r.taxa_presenca)}</small>`,
+    }; }), "pres"));
+    // série: Casa (sempre), ou do vereador se selecionado (presente/ausente por sessão não é série contínua, então a Casa fica)
+    $("#pres-tl-title").textContent = "Presença da Casa por sessão";
+    lineChart($("#pres-timeline"), sessAll.map(s => ({ y: s.presentes / (s.presentes + s.ausentes), label: ano === 0 ? fmtDate(s.data_sessao).slice(3, 5) + "/" + String(s.ano).slice(2) : fmtDate(s.data_sessao).slice(0, 5),
+      tip: `<b>${s.num_sessao}ª sessão ordinária</b> · ${fmtDate(s.data_sessao)}<br>Presentes ${s.presentes} · Ausentes ${s.ausentes} · Licenciados ${s.licenciados}` })),
+      { fmtY: v => Math.round(v * 100) + "%", nice: 0.1, y1: 1, ticks: 4, xLabels: 6, aria: "Percentual de presentes por sessão ordinária" });
+    const worst = sessAll.slice().sort((a, b) => a.presentes / (a.presentes + a.ausentes) - b.presentes / (b.presentes + b.ausentes))[0];
+    $("#pres-tl-note").textContent = worst ? `Menor presença: ${worst.num_sessao}ª sessão (${fmtDate(worst.data_sessao)}), ${worst.ausentes} ausentes.` : "";
+    const det = $("#pres-detail"); det.replaceChildren();
+    if (state.ver) {
+      const r = presRows(ano).find(x => x.vereador_id === state.ver);
+      if (r) {
+        const f = D.presenca.faltas.find(x => x.vereador_id === state.ver && inAno(x.ano, ano));
+        const pos = rows.findIndex(x => x.vereador_id === state.ver) + 1;
+        detailBox(det, [
+          el("div", { class: "facts" },
+            fact("Presença", r.sem_dado ? "sem dado" : fmtPct(r.taxa_presenca), r.sem_dado ? "menos de 10 sessões" : `Casa ${fmtPct(casaP / (casaP + casaA))}`),
+            fact("Faltas", r.ausentes, `${pos}º em faltas de ${rows.length}`),
+            fact("Presenças", r.presentes, `de ${r.em_exercicio} sessões em exercício`),
+            fact("Licenças", r.licenciado, `de ${r.ordinarias_do_ano} ordinárias no ano`)),
+          ...presStrip(state.ver, ano, sessAll),
+          r.alerta_lom27 ? el("p", { class: "small", style: "margin:10px 0 0", text: "Alerta: faltas em um terço ou mais das sessões ordinárias do ano (Lei Orgânica, art. 27)." }) : null,
+        ]);
+      } else detailBox(det, [el("p", { class: "muted", text: `Sem registro de presença em ${anoLabel(ano)}.` })]);
+    }
+    const cols = [
+      { key: "nome", label: "Vereador", left: true, get: r => r.nome },
+      { key: "ausentes", label: "Faltas", get: r => r.ausentes, text: r => fmtInt.format(r.ausentes) },
+      { key: "taxa", label: "Presença", get: r => r.taxa, text: r => r.sem_dado ? "menos de 10 sessões" : fmtPct(r.taxa) },
+      { key: "presentes", label: "Presenças", get: r => r.presentes, text: r => fmtInt.format(r.presentes) },
+      { key: "licenciado", label: "Licenças", get: r => r.licenciado, text: r => fmtInt.format(r.licenciado) },
+      { key: "em_exercicio", label: "Sessões em exercício", get: r => r.em_exercicio, text: r => fmtInt.format(r.em_exercicio) },
+      { key: "lom", label: "% das sessões do ano com falta", get: r => r.lom, text: r => fmtPct(r.lom) },
+    ];
+    table("pres-table", cols, scope.map(r => { const v = V(r.vereador_id); return { id: r.vereador_id, nome: v.nome_parlamentar, partido: v.partido, situacao: v.situacao, pills: [alertaPres(r, ano)].filter(Boolean), ausentes: r.ausentes, taxa: r.sem_dado ? null : r.taxa_presenca, sem_dado: r.sem_dado, presentes: r.presentes, licenciado: r.licenciado, em_exercicio: r.em_exercicio, lom: r.fracao_faltas_lom27 }; }), "pres");
+  }
+
+  // ---------- CUSTO ----------
+  const SEGC = [{ k: "folha_assessores", label: "Assessores", color: "var(--s1)" }, { k: "subsidio", label: "Subsídio", color: "var(--s2)" }, { k: "bolsas_estagiarios", label: "Estagiários", color: "var(--s3)" }, { k: "verba_compensatoria_observada", label: "Verba compensatória", color: "var(--s4)" }];
+  function renderCusto() {
+    const gab = state.custoView === "gab";
+    $("#cv-gab").setAttribute("aria-pressed", String(gab)); $("#cv-cam").setAttribute("aria-pressed", String(!gab));
+    $("#custo-gab").hidden = !gab; $("#custo-cam").hidden = gab;
+    $("#custo-h2").textContent = gab ? "Quanto custa cada gabinete por mês" : "Quanto custa a Câmara por mês";
+    $("#custo-lede").textContent = gab
+      ? "Subsídio do vereador, folha dos assessores lotados no gabinete, bolsas de estagiários e verba compensatória efetivamente ressarcida, por mês. Diárias de viagem ficam de fora: em 2025–26 houve uma só a vereador (R$ 1,4 mil, Hélio Ferreira, agosto de 2026); as demais, R$ 164 mil, foram a servidores."
+      : `Folha completa de pessoal da Câmara em ${anoLabel(state.ano)} (estatutários e comissionados de todos os setores), mais bolsas de estagiários e subsídios dos vereadores. Não inclui encargos patronais, contratos, obras nem custeio, que só aparecem agregados no SIGA.`;
+    if (gab) renderCustoGab(); else renderCustoCam();
+  }
+  const fmtN = v => v == null ? "—" : v.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+  function renderCustoGab() {
+    const note = $("#custo-note");
+    const anoStr = String(state.ano);
+    const anualAno = D.custo.anual.filter(r => (r.ano ?? 2025) === state.ano);
+    const mesesAno = [...new Set(D.custo.mensal.filter(m => inComp(m.competencia, state.ano)).map(m => m.competencia))].sort();
+    note.hidden = !mesesAno.some(m => m >= "2026") || state.custoView !== "gab";
+    note.textContent = mesesAno.length
+      ? `Em ${anoLabel(state.ano)} a Câmara não publicou a relação de servidores. Assessores e custo por gabinete até ${fmtComp(mesesAno[mesesAno.length - 1])} vêm da consulta de pessoal do TCM-BA (exportada manualmente), com a lotação recuperada pela matrícula na folha de 2025; contratados em 2026 sem gabinete conhecido ficam fora destes números e aparecem na visão Câmara como "Lotação não publicada".`
+      : `Sem folha de ${anoLabel(state.ano)}: custo de gabinete e assessores indisponíveis.`;
+    const anual = anualAno.filter(r => !state.partido || V(r.vereador_id).partido === state.partido);
+    const rows = anual.slice().sort((a, b) => b.media_mensal_custo_observado - a.media_mensal_custo_observado);
+    const ids = new Set(anual.map(r => r.vereador_id));
+    const mensal = D.custo.mensal.filter(m => ids.has(m.vereador_id) && inComp(m.competencia, state.ano));
+    const byComp = {}; mensal.forEach(m => { const c = byComp[m.competencia] ||= { competencia: m.competencia, folha: 0, sub: 0, bol: 0, verba: 0, tot: 0, n: 0, ass: 0 }; c.parcial = c.parcial || !!m.parcial; c.folha += m.folha_assessores; c.sub += m.subsidio || 0; c.bol += m.bolsas_estagiarios || 0; c.verba += m.verba_compensatoria_observada || 0; c.tot += m.custo_observado; c.n++; c.ass += m.n_assessores; });
+    const serie = Object.values(byComp).sort((a, b) => a.competencia.localeCompare(b.competencia));
+    const fevDez = serie.filter(c => c.competencia >= "2025-02");  // jan/2025 não tem subsídio verificado
+    const totAno = serie.reduce((a, c) => a + c.tot, 0), media = fevDez.reduce((a, c) => a + c.tot, 0) / Math.max(1, fevDez.length);
+    const assMed = fevDez.reduce((a, c) => a + c.ass, 0) / Math.max(1, fevDez.length);
+    const casaSerie = D.custo.casa.filter(c => inComp(c.competencia, state.ano) && c.competencia >= "2025-02");
+    const casaMedia = casaSerie.reduce((a, c) => a + c.custo_observado, 0) / Math.max(1, casaSerie.length);
+    const periodo = fevDez.length ? `${mesLbl(fevDez[0].competencia)}–${mesLbl(fevDez[fevDez.length - 1].competencia)}${state.ano ? "/" + state.ano : ""}` : anoLabel(state.ano);
+    $("#custo-kpis").replaceChildren(
+      state.ver ? kpi(`Custo mensal · ${scopeLabel()}`, (() => { const r = anualAno.find(x => x.vereador_id === state.ver); return r ? fmtBRL.format(r.media_mensal_custo_observado) : "—"; })(), `Casa (todos os gabinetes): ${fmtBRL.format(casaMedia)}`)
+                : kpi(`Custo mensal · ${scopeLabel()}`, fmtBRL.format(media), state.partido ? `Casa: ${fmtBRL.format(casaMedia)}` : `média ${periodo}, ${anual.length} vereadores`),
+      kpi(noPeriodo(state.ano), fmtBRL.format(totAno), `subsídios + assessores + estagiários + verba compensatória · ${serie.length} meses`),
+      kpi("Assessores", fmt1(assMed), `média mensal, ${anual.length} vereadores (titulares e suplentes)`),
+      kpi("Por gabinete", fmtBRL.format(media / Math.max(1, Math.round(fevDez.reduce((a, c) => a + c.n, 0) / Math.max(1, fevDez.length)))), "custo médio mensal"),
+    );
+    $("#custo-legend").replaceChildren(...SEGC.map(g => el("span", { style: `--c:${g.color}`, text: g.label })));
+    partidoBars("part-custo", anualAno.map(r => ({ id: r.vereador_id, v: r.media_mensal_custo_observado })), fmtBRL.format, "var(--s3)", "custo médio mensal");
+    $("#part-custo-sub").textContent = "custo médio mensal por gabinete · linha tracejada = Casa · clique para filtrar";
+    barsChart($("#custo-bars"), rankingRows(rows.map(r => { const v = V(r.vereador_id), m = r.meses_com_folha || 1, cargo = cargoMesa(v, state.ano); return {
+      id: r.vereador_id, label: v.nome_parlamentar, sub: cargo ? `${v.partido} · ${cargo}` : v.partido, value: r.media_mensal_custo_observado,
+      segs: SEGC.map(s => ({ v: (r[s.k] || 0) / m, color: s.color, label: s.label + " (média mensal)", text: fmtBRL.format((r[s.k] || 0) / m) })),
+      tipExtra: `${fmt1(r.media_assessores_parlamentares)} assessores em média · ${r.meses_com_folha} meses com folha`,
+      valueText: `${fmtBRL.format(r.media_mensal_custo_observado)}<small>${fmt1(r.media_assessores_parlamentares)} assess.</small>`,
+    }; }), "custo"));
+    $("#custo-tl-title").textContent = `Custo observado por mês · ${scopeLabel()}`;
+    $("#custo-tl-sub").textContent = state.ver ? "gabinete" : `${anual.length} gabinete${anual.length > 1 ? "s" : ""}`;
+    const serieVer = state.ver ? mensal.filter(m => m.vereador_id === state.ver).sort((a, b) => a.competencia.localeCompare(b.competencia)).map(m => ({ competencia: m.competencia, folha: m.folha_assessores, sub: m.subsidio || 0, bol: m.bolsas_estagiarios || 0, verba: m.verba_compensatoria_observada || 0, tot: m.custo_observado, ass: m.n_assessores })) : serie;
+    const mil = serieVer.length && Math.max(...serieVer.map(c => c.tot)) < 2e6;
+    lineChart($("#custo-timeline"), serieVer.map(c => ({ y: mil ? c.tot / 1e3 : c.tot / 1e6, label: mesLbl(c.competencia),
+      tip: `<b>${fmtComp(c.competencia)}</b>${c.parcial ? " · <i>mês com dado incompleto</i>" : ""}<br>Assessores ${fmtBRL.format(c.folha)} (${c.ass})<br>Subsídios ${fmtBRL.format(c.sub)}<br>Estagiários ${fmtBRL.format(c.bol)}<br>Verba compensatória ${fmtBRL.format(c.verba)}<br>Total ${fmtBRL.format(c.tot)}` })),
+      { fmtY: v => mil ? `R$ ${Math.round(v)} mil` : `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mi`, y0: 0, nice: mil ? 50 : 1, ticks: 4, xLabels: 12, aria: "Custo observado por mês de 2025" });
+    const det = $("#custo-detail"); det.replaceChildren();
+    if (state.ver) {
+      const cs = anualAno.filter(r => r.vereador_id === state.ver);
+      if (cs.length) detailBox(det, cs.map(c => el("div", { class: "facts" },
+        fact("Média mensal", fmtBRL.format(c.media_mensal_custo_observado), `${c.meses_com_folha} meses com folha · ${c.ranking}º de ${anualAno.length}`),
+        fact("Assessores", fmt1(c.media_assessores_parlamentares), fmtBRL.format(c.folha_assessores / (c.meses_com_folha || 1)) + " por mês"),
+        fact("Subsídio", fmtBRL.format(26080.98), `${c.meses_com_subsidio} meses no ano`),
+        fact("Verba compensatória", fmtBRL.format((c.verba_compensatoria_observada || 0) / (c.meses_com_verba || 1)), `por mês, ${c.meses_com_verba || 0} meses com ressarcimento · teto ${fmtBRL.format(c.verba_compensatoria_teto / (c.meses_com_folha || 12))}`),
+        fact("Estagiários", c.bolsas_estagiarios == null ? "—" : fmtBRL.format(c.bolsas_estagiarios / (c.meses_com_estagiarios || 1)), c.meses_com_estagiarios ? `por mês, ${c.meses_com_estagiarios} meses publicados` : "não publicado"),
+        fact(`Total ${anoLabel(state.ano)}`, fmtBRL.format(c.custo_observado), `verba no ano: ${fmtBRL.format(c.verba_compensatoria_observada || 0)}`))));
+      else detailBox(det, [el("p", { class: "muted", text: "Sem gabinete próprio na folha de 2025 (ocupou cadeira por suplência curta ou entrou em 2026)." })]);
+    }
+    const cols = [
+      { key: "nome", label: "Vereador", left: true, get: r => r.nome },
+      { key: "custo", label: "Custo médio mensal", get: r => r.custo, text: r => fmtBRL.format(r.custo) },
+      { key: "assess", label: "Assessores", get: r => r.assess, text: r => fmt1(r.assess) },
+      { key: "folha", label: "Folha assessores / mês", get: r => r.folha, text: r => fmtBRL.format(r.folha) },
+      { key: "bolsas", label: "Estagiários / mês", get: r => r.bolsas, text: r => r.bolsas == null ? "—" : fmtBRL.format(r.bolsas) },
+      { key: "verba", label: "Verba / mês", get: r => r.verba, text: r => r.verba == null ? "—" : fmtBRL.format(r.verba) },
+      { key: "meses", label: "Meses", get: r => r.meses, text: r => fmtInt.format(r.meses) },
+      { key: "porAss", label: "Folha por assessor", get: r => r.porAss, text: r => r.porAss ? fmtBRL.format(r.porAss) : "—" },
+      { key: "total", label: `Total ${anoLabel(state.ano)}`, get: r => r.total, text: r => fmtBRL.format(r.total) },
+      { key: "rank", label: "Posição", get: r => r.rank, text: r => `${r.rank}º` },
+    ];
+    table("custo-table", cols, anual.map(r => { const v = V(r.vereador_id), m = r.meses_com_folha || 1; return { id: r.vereador_id, nome: v.nome_parlamentar, partido: v.partido, situacao: v.situacao, porAss: r.media_assessores_parlamentares ? (r.folha_assessores / m) / r.media_assessores_parlamentares : null, custo: r.media_mensal_custo_observado, assess: r.media_assessores_parlamentares, folha: r.folha_assessores / m, bolsas: r.bolsas_estagiarios == null ? null : r.bolsas_estagiarios / (r.meses_com_estagiarios || 1), verba: r.meses_com_verba ? (r.verba_compensatoria_observada || 0) / r.meses_com_verba : null, meses: r.meses_com_folha, total: r.custo_observado, rank: r.ranking }; }), "custo");
+    // Verba compensatória por vereador, no ano do filtro (existe para 2025 e 2026)
+    const vb = D.custo.verba.filter(v => inComp(v.competencia, state.ano) && (v.vereador_id ? inScope(v.vereador_id) : !(state.partido || state.ver)));
+    const byV = {};
+    vb.forEach(v => { const k = v.vereador_id || ("?" + v.credor); const o = byV[k] ||= { id: v.vereador_id, credor: v.credor, total: 0, meses: 0, acima: 0, teto: 0 }; o.total += v.verba_compensatoria_observada; o.meses++; o.acima += v.acima_do_teto ? 1 : 0; o.teto += v.verba_compensatoria_teto; });
+    const vrows = Object.values(byV).sort((a, b) => b.total - a.total);
+    const nMeses = new Set(vb.map(v => v.competencia)).size, tetoAno = tetoAnual(state.ano);
+    $("#verba-title").textContent = `Verba compensatória ressarcida em ${anoLabel(state.ano)} · ${scopeLabel()}`;
+    $("#verba-sub").textContent = `${vrows.length} vereadores · ${nMeses} meses · ${fmtBRL.format(vrows.reduce((a, r) => a + r.total, 0))}`;
+    barsChart($("#verba-bars"), rankingRows(vrows.map(r => ({ id: r.id, label: r.id ? V(r.id).nome_parlamentar : r.credor, sub: r.id ? V(r.id).partido : "não identificado", value: r.total,
+      pill: r.total > tetoAno + 0.5 ? "acima do teto anual" : r.acima ? `${r.acima} ${r.acima === 1 ? "mês" : "meses"} acima do teto` : null,
+      pillTitle: r.total > tetoAno + 0.5 ? `Ressarcido no ano acima da soma dos tetos mensais decorridos (${fmtBRL.format(tetoAno)}); a validar: pode ser empenho atribuído ao mês errado` : "Meses acima do teto mensal; a lei permite usar saldo não gasto de meses anteriores (art. 22)",
+      segs: [{ v: r.total, color: "var(--s4)", label: "Ressarcido no ano", text: fmtBRL.format(r.total) }],
+      tipExtra: `${r.meses} meses · média ${fmtBRL.format(r.total / r.meses)}/mês · teto acumulado ${fmtBRL.format(r.teto)}${r.acima ? ` · ${r.acima} mês(es) acima do teto mensal` : ""}${r.total > tetoAno + 0.5 ? " · acima do teto do ano: a validar (atribuição de competência)" : ""}`,
+      valueText: `${fmtBRL.format(r.total)}<small>${fmtBRL.format(r.total / r.meses)}/mês</small>` })), "verba"));
+    $("#verba-note").textContent = `Empenhos com objeto "verba compensatória" no portal financeiro da Câmara, líquidos de anulações, atribuídos ao mês de competência citado no objeto. Teto mensal: R$ 34.000 em 2025, R$ 39.000 em 2026. Meses acima do teto usam saldo não gasto de meses anteriores (Lei 9.828/2025, art. 22). O ressarcimento é o valor pago ao vereador; as notas fiscais que o justificam não são publicadas.`;
+    // verba mensal × teto (recorte) e ranking de meses acima do teto
+    const byM = {};
+    vb.forEach(v => { const o = byM[v.competencia] ||= { comp: v.competencia, verba: 0, teto: 0, n: 0, acima: 0 }; o.verba += v.verba_compensatoria_observada; o.teto += v.verba_compensatoria_teto; o.n++; o.acima += v.acima_do_teto ? 1 : 0; });
+    const serieV = Object.values(byM).sort((a, b) => a.comp.localeCompare(b.comp));
+    const tetoUnit = c => c >= "2025-12" ? 39000 : 34000;
+    $("#vteto-title").textContent = `Verba ressarcida por mês e o teto · ${scopeLabel()}`;
+    $("#vteto-sub").textContent = state.ver ? `teto ${fmtBRL.format(tetoMes(serieV.length ? serieV[0].comp : "2025-01"))} a ${fmtBRL.format(tetoMes(serieV.length ? serieV[serieV.length - 1].comp : "2026-01"))} por mês` : "soma dos tetos dos vereadores com ressarcimento no mês";
+    columnChart($("#vteto-bars"), serieV.map(c => ({ label: mesLbl(c.comp), full: fmtComp(c.comp), ref: c.teto, refLabel: "teto", flag: c.verba > c.teto + 0.5 ? "acima" : "",
+      segs: [{ v: Math.min(c.verba, c.teto), color: "var(--s4)", label: "Ressarcido", text: fmtBRL.format(c.verba) }, ...(c.verba > c.teto ? [{ v: c.verba - c.teto, color: "var(--s1)", label: "Acima do teto", text: fmtBRL.format(c.verba - c.teto) }] : [])],
+      tip: `${c.n} vereador${c.n > 1 ? "es" : ""} · ${fmtPct(c.teto ? c.verba / c.teto : 0)} do teto (${fmtBRL.format(c.teto)})${c.acima ? ` · ${c.acima} acima do teto mensal` : ""}` })), { aria: `Verba ressarcida por mês em ${anoLabel(state.ano)} e o teto` });
+    $("#vteto-note").textContent = "A linha tracejada é o teto do mês (R$ 34 mil por vereador em 2025, R$ 39 mil a partir de dezembro de 2025; na Casa, a soma dos tetos de quem teve ressarcimento). A parte vermelha é o que passou do teto: permitido com saldo de meses anteriores (Lei 9.828, art. 22); o teto anual é a soma dos mensais.";
+    const acimaRows = vrows.filter(r => r.id && r.acima > 0).sort((a, b) => b.acima - a.acima || b.total - a.total);
+    $("#vteto2-sub").textContent = `${acimaRows.length} de ${vrows.filter(r => r.id).length} vereadores em ${anoLabel(state.ano)}`;
+    barsChart($("#vteto2-bars"), rankingRows(acimaRows.map(r => ({ id: r.id, label: V(r.id).nome_parlamentar, sub: V(r.id).partido, value: r.acima,
+      segs: [{ v: r.acima, color: "var(--s1)", label: "Meses acima do teto", text: `${r.acima} de ${r.meses}` }],
+      tipExtra: `ressarcido ${fmtBRL.format(r.total)} · teto do ano até agora ${fmtBRL.format(tetoAno)}${r.total > tetoAno + 0.5 ? " · acima do teto do ano" : ""}`,
+      valueText: `${r.acima}<small>de ${r.meses} meses</small>` })), "vteto2"));
+    renderVerbaCategorias();
+    // Assessores por grau (escopo: Casa / partido / vereador)
+    const scopeIds = new Set(anual.filter(r => !state.ver || r.vereador_id === state.ver).map(r => r.vereador_id));
+    const byGrau = {};
+    D.custo_camara.gab_grau.filter(g => (g.ano ?? 2025) === state.ano && scopeIds.has(g.vereador_id)).forEach(g => { const k = g.grau || "sem grau"; const o = byGrau[k] ||= { grau: k, n: 0, rs: 0 }; o.n += g.n_medio; o.rs += g.media_mensal; });
+    const graus = Object.values(byGrau).sort((a, b) => b.grau.localeCompare(a.grau));
+    $("#grau-title").textContent = `Assessores por grau · ${scopeLabel()}`;
+    barsChart($("#grau-bars"), graus.map(g => ({ id: null, label: g.grau, value: g.rs, segs: [{ v: g.rs, color: "var(--s1)", label: "Folha mensal", text: fmtBRL.format(g.rs) }],
+      tipExtra: `${fmtN(g.n)} assessores em média · ${fmtBRL.format(g.n ? g.rs / g.n : 0)} por assessor`, valueText: `${fmtBRL.format(g.rs)}<small>${fmtN(g.n)} pessoas</small>` })));
+    // Composição por regime do escopo (média mensal fev–dez)
+    const comp = [
+      { label: "Assessores comissionados (CC10)", v: fevDez.reduce((a, c) => a + c.folha, 0) / Math.max(1, fevDez.length), color: "var(--s1)" },
+      { label: "Subsídio dos vereadores", v: fevDez.reduce((a, c) => a + c.sub, 0) / Math.max(1, fevDez.length), color: "var(--s2)" },
+      { label: "Bolsas de estagiários", v: fevDez.reduce((a, c) => a + c.bol, 0) / Math.max(1, fevDez.length), color: "var(--s3)" },
+      { label: "Verba compensatória (ressarcimentos)", v: fevDez.reduce((a, c) => a + c.verba, 0) / Math.max(1, fevDez.length), color: "var(--s4)" },
+    ];
+    const compTot = comp.reduce((a, c) => a + c.v, 0);
+    $("#comp-sub").textContent = `média mensal · ${scopeLabel()}`;
+    barsChart($("#comp-bars"), comp.map(c => ({ id: null, label: c.label, value: c.v, segs: [{ v: c.v, color: c.color, label: "Média mensal", text: fmtBRL.format(c.v) }], valueText: `${fmtBRL.format(c.v)}<small>${fmtPct(compTot ? c.v / compTot : 0)}</small>` })));
+  }
+
+  // ---------- Verba por categoria (processos de pagamento no e-TCM) ----------
+  const VGRUPOS = [
+    { label: "Comunicação e divulgação", color: "var(--s1)", cats: ["VII", "X", "XII", "XIII"] },
+    { label: "Consultorias e serviços técnicos", color: "var(--s2)", cats: ["IX"] },
+    { label: "Transporte e combustível", color: "var(--s3)", cats: ["VIII", "XIV", "XV"] },
+    { label: "Infraestrutura, tecnologia e expediente", color: "var(--s4)", cats: ["I", "II", "IV", "V", "VI", "XI"] },
+    { label: "Formação e assinaturas", color: "var(--s5)", cats: ["III"] },
+  ];
+  function renderVerbaCategorias() {
+    const wrap = $("#vcat-wrap"); const VC = D.verba_cat;
+    if (!VC || !VC.por_vereador || !VC.por_vereador.length) { wrap.hidden = true; return; }
+    const rows = VC.por_vereador.filter(r => inAno(r.ano, state.ano) && (r.vereador_id ? inScope(r.vereador_id) : !(state.partido || state.ver)));
+    if (!rows.length) { wrap.hidden = true; return; }
+    wrap.hidden = false;
+    const desc = Object.fromEntries((VC.categorias || []).map(c => [c.romano, c.descricao]));
+    const grupoDe = cat => VGRUPOS.find(g => g.cats.includes(cat)) || VGRUPOS[3];
+    // por vereador, empilhado por grupo
+    const byV = {};
+    rows.forEach(r => { const k = r.vereador_id || ("?" + (r.credor || "")); const o = byV[k] ||= { id: r.vereador_id, label: r.vereador_id ? V(r.vereador_id).nome_parlamentar : (r.credor || "não identificado"), sub: r.vereador_id ? V(r.vereador_id).partido : "", total: 0, g: {}, meses: new Set() }; o.total += r.valor; o.g[grupoDe(r.categoria).label] = (o.g[grupoDe(r.categoria).label] || 0) + r.valor; o.meses.add(r.competencia); });
+    const vrows = Object.values(byV).sort((a, b) => b.total - a.total);
+    const nMeses = new Set(rows.map(r => r.competencia)).size;
+    $("#vcat-title").textContent = `Em que a verba foi gasta · ${anoLabel(state.ano)} · ${scopeLabel()}`;
+    $("#vcat-legend").replaceChildren(...VGRUPOS.map(g => el("span", { style: `--c:${g.color}`, text: g.label })));
+    barsChart($("#vcat-bars"), rankingRows(vrows.map(r => ({ id: r.id, label: r.label, sub: r.sub, value: r.total,
+      segs: VGRUPOS.map(g => ({ v: r.g[g.label] || 0, color: g.color, label: g.label, text: fmtBRL.format(r.g[g.label] || 0) })),
+      tipExtra: `${r.meses.size} ${r.meses.size === 1 ? "mês" : "meses"} com prestação de contas lida`,
+      valueText: `${fmtBRL.format(r.total)}<small>${r.meses.size} m.</small>` })), "vcat"));
+    // por categoria da lei (15 incisos), no recorte
+    const byC = {};
+    rows.forEach(r => { byC[r.categoria] = (byC[r.categoria] || 0) + r.valor; });
+    const tot = Object.values(byC).reduce((a, b) => a + b, 0);
+    const crows = Object.entries(byC).sort((a, b) => b[1] - a[1]);
+    barsChart($("#vcat15-bars"), crows.map(([cat, v]) => ({ id: null, label: `${cat} · ${desc[cat] || ""}`, value: v,
+      segs: [{ v, color: grupoDe(cat).color, label: grupoDe(cat).label, text: fmtBRL.format(v) }], valueText: `${fmtBRL.format(v)}<small>${fmtPct(tot ? v / tot : 0)}</small>` })));
+    $("#vcat-sub").textContent = `${fmtBRL.format(tot)} em ${nMeses} ${nMeses === 1 ? "mês" : "meses"}`;
+    const cob = VC.cobertura && VC.cobertura[String(state.ano)];
+    let cobTxt = "";
+    if (typeof cob === "number") cobTxt = `Cobertura em ${anoLabel(state.ano)}: ${fmtInt.format(cob)} processos lidos.`;
+    else if (cob) {
+      const meses = (cob.meses_sem_categorias || []).map(fmtComp);
+      cobTxt = `Cobertura em ${anoLabel(state.ano)}: ${fmtInt.format(cob.processos)} processos lidos, ${fmtInt.format(cob.com_categorias)} com despesas por categoria.` +
+        (cob.sem_categorias ? ` Os ${fmtInt.format(cob.sem_categorias)} processos de ${meses.join(" e ")} só trazem o total autorizado, sem categorias, e ficam fora destes gráficos.` : "");
+    }
+    $("#vcat-note").textContent = `Fonte: processos de pagamento da verba compensatória enviados pela Câmara ao TCM-BA (e-TCM, Consulta Pública). De junho de 2025 em diante eles trazem o resumo das despesas por inciso da Lei 9.828/2025, art. 14; em janeiro e fevereiro, uma linha por documento fiscal (tabela abaixo). As notas fiscais em si não acompanham o processo. ${cobTxt}`;
+    renderVerbaNotas(VC);
+  }
+
+  // ---------- Notas fiscais declaradas (formulário antigo, competências jan–fev/2025) ----------
+  function renderVerbaNotas(VC) {
+    const wrap = $("#vnf-wrap");
+    const all = (VC.notas || []).filter(r => inAno(r.ano, state.ano) && (r.vereador_id ? inScope(r.vereador_id) : !(state.partido || state.ver)));
+    if (!all.length) { wrap.hidden = true; return; }
+    wrap.hidden = false;
+    const desc = Object.fromEntries((VC.categorias || []).map(c => [c.romano, c.descricao]));
+    const rows = all.slice().sort((a, b) => a.competencia.localeCompare(b.competencia) || V(a.vereador_id).nome_parlamentar.localeCompare(V(b.vereador_id).nome_parlamentar, "pt-BR") || (a.pp_numero - b.pp_numero) || (a.item || "99").localeCompare(b.item || "99"));
+    const LIM = 25, shown = state.showAll.vnf || state.ver ? rows : rows.slice(0, LIM);
+    $("#vnf-more-wrap").hidden = rows.length <= LIM || !!state.ver;
+    $("#vnf-more").textContent = state.showAll.vnf ? `Mostrar as ${LIM} primeiras` : `Mostrar todas (${fmtInt.format(rows.length)})`;
+    const meses = [...new Set(rows.map(r => r.competencia))].sort();
+    const tot = rows.reduce((a, r) => a + (r.valor_compensado || 0), 0), glosa = rows.reduce((a, r) => a + (r.valor_glosa || 0), 0);
+    $("#vnf-title").textContent = `Notas fiscais declaradas · ${meses.map(fmtComp).join(" e ")} · ${scopeLabel()}`;
+    $("#vnf-sub").textContent = `${fmtInt.format(rows.length)} documentos · ${fmtBRL.format(tot)} reembolsados${glosa ? ` · ${fmtBRL.format(glosa)} glosados` : ""}`;
+    const t = $("#vnf-table");
+    t.querySelector("thead").replaceChildren(el("tr", {}, ...["Vereador", "Competência", "Categoria (lei)", "Despesa declarada", "Documento", "Emissão", "Apresentado", "Glosa", "Reembolsado"].map((h, i) => el("th", { scope: "col", class: i >= 6 ? "num" : "" }, h))));
+    t.querySelector("tbody").replaceChildren(...shown.map(r => {
+      const v = r.vereador_id ? V(r.vereador_id) : null;
+      return el("tr", {},
+        v ? el("td", { class: "v name", onclick: () => selectVer(r.vereador_id) }, v.nome_parlamentar, el("span", { class: "pt", text: v.partido })) : el("td", { class: "v", text: "não identificado" }),
+        el("td", { class: "num", text: fmtComp(r.competencia) }),
+        el("td", { title: desc[r.categoria] || "" }, r.categoria ? `${r.categoria} · ${(desc[r.categoria] || "").split(/[(,/]/)[0].trim()}` : "—"),
+        el("td", { class: "desc" }, r.descricao || "—", r.inciso_fonte && r.inciso_fonte !== r.categoria ? el("span", { class: "tag", title: "Inciso que o gabinete escreveu no formulário", text: `declarado como ${r.inciso_fonte}` }) : null),
+        el("td", { class: "num", text: r.documento || "—" }),
+        el("td", { class: "num", text: r.data ? fmtDate(r.data) : "—" }),
+        el("td", { class: "num", text: fmtBRL.format(r.valor_apresentado || 0) }),
+        el("td", { class: "num", text: r.valor_glosa ? fmtBRL.format(r.valor_glosa) : "—" }),
+        el("td", { class: "num", text: fmtBRL.format(r.valor_compensado || 0) }));
+    }));
+    $("#vnf-note").textContent = "Formulário \"Detalhamento / Resumo\" usado pela Controladoria nas prestações de fevereiro e março de 2025 (despesas de janeiro e fevereiro): número e data do documento fiscal, valor apresentado e glosa, sem o nome do fornecedor. A categoria da lei é inferida da descrição; quando o gabinete escreveu outro inciso no formulário, ele aparece ao lado. A partir de abril a Câmara deixou de publicar esse nível de detalhe.";
+  }
+
+  // ---------- CUSTO · visão Câmara ----------
+  const REG_COLOR = { "Cargo em comissão": "var(--s1)", "Estatutário": "var(--s2)", "Estagiário": "var(--s3)", "Agente político": "var(--s4)" };
+  function renderCustoCam() {
+    const C = D.custo_camara;
+    const ano = state.ano;
+    const mensal = (C.mensal || []).filter(m => inAno(m.ano ?? +m.competencia.slice(0, 4), ano));
+    const analitica = mensal.some(m => !m.fonte || m.fonte === "folha_analitica" || m.fonte === "folha_reconstruida_tcm");
+    const reconstruida = mensal.some(m => m.fonte === "folha_reconstruida_tcm");
+    const cob = (C.lotacao_cobertura || []).filter(c => inComp(c.competencia, ano));
+    const semLot = cob.length ? Math.max(...cob.map(c => c.pct_sem_lotacao || 0)) : 0;
+    const nMeses = mensal.length;
+    const fd = mensal.filter(m => m.competencia >= "2025-02");
+    const avg = (arr, k) => arr.reduce((a, m) => a + (m[k] || 0), 0) / Math.max(1, arr.length);
+    const folhaMed = avg(mensal, "folha_total"), custoMed = avg(fd, "custo_total"), nMed = avg(mensal, "n_servidores");
+    const totalAno = mensal.reduce((a, m) => a + (m.custo_total || 0), 0);
+    const ult = mensal[mensal.length - 1];
+    const periodo = nMeses ? `${mesLbl(mensal[0].competencia)}–${mesLbl(ult.competencia)}${ano ? "/" + ano : ""}` : anoLabel(ano);
+    $("#cam-note").textContent = reconstruida
+      ? `Em ${anoLabel(ano)} a Câmara não publicou a relação de servidores. Esta visão usa a consulta de pessoal do TCM-BA (servidor, cargo, grau e remuneração, exportada manualmente mês a mês) e recupera a lotação pela matrícula na última folha publicada pela Câmara em 2025. Quem foi contratado em 2026 ainda não tem lotação publicada (até ${fmtPct(semLot / 100)} dos servidores no mês) e aparece como "Lotação não publicada". Os filtros de partido e vereador não se aplicam aqui.`
+      : analitica
+      ? `A visão Câmara cobre toda a folha publicada pela Câmara em ${anoLabel(ano)}: gabinetes dos vereadores e estrutura administrativa (Presidência, Diretorias, Procuradoria, Comunicação…). Os filtros de partido e vereador não se aplicam aqui.`
+      : `Em ${anoLabel(ano)} a Câmara não publicou a relação de servidores no site. Os números vêm das folhas de pagamento sintéticas que ela envia ao TCM-BA todo mês (e-TCM, classes PCMGE035 e PCMGE048): totais por regime, sem servidor nem gabinete. Por isso as quebras por função, setor e gabinete não estão disponíveis para ${anoLabel(ano)}. Os filtros de partido e vereador não se aplicam aqui.`;
+    const kpis = [
+      kpi("Custo total mensal", fmtBRL.format(custoMed), `média ${periodo}: folha + bolsas + subsídios + verba`),
+      kpi("Folha de pessoal", fmtBRL.format(folhaMed), `${fmtN(nMed)} servidores em média${analitica ? "" : " · folha sintética (e-TCM)"}`),
+    ];
+    if (analitica) {
+      kpis.push(kpi("Em gabinetes de vereadores", fmtPct(avg(mensal, "folha_gabinetes") / folhaMed), `${fmtN(avg(mensal, "n_gabinetes"))} assessores · ${fmtBRL.format(avg(mensal, "folha_gabinetes"))}/mês`),
+        kpi("Na estrutura administrativa", fmtPct(avg(mensal, "folha_estrutura") / folhaMed), `${fmtN(avg(mensal, "n_estrutura"))} servidores · ${fmtBRL.format(avg(mensal, "folha_estrutura"))}/mês`));
+    } else {
+      const comSub = mensal.filter(m => m.subsidios_pagos != null);
+      kpis.push(kpi("Subsídios pagos", fmtBRL.format(avg(comSub, "subsidios_pagos")), `${fmtN(avg(comSub, "n_subsidios"))} vereadores por mês em média`),
+        kpi("Estagiários", fmtBRL.format(avg(mensal.filter(m => m.n_estagiarios), "bolsas")), `${fmtN(avg(mensal.filter(m => m.n_estagiarios), "n_estagiarios"))} bolsas por mês`));
+    }
+    kpis.push(kpi(noPeriodo(ano), fmtBRL.format(totalAno), `soma dos ${nMeses} meses publicados`));
+    $("#cam-kpis").replaceChildren(...kpis);
+    // por regime (inclui estagiários e subsídio como "regimes" de custo)
+    $("#cam-regime-sub").textContent = `média mensal, ${periodo}${analitica ? "" : " · folha sintética"}`;
+    const reg = [];
+    if (analitica) {
+      (C.regime || []).filter(r => (r.ano ?? 2025) === ano).forEach(r => reg.push({ label: `${r.regime} · ${r.em_gabinete ? "gabinetes" : "estrutura"}`, regime: r.regime, v: r.media_mensal, n: r.n_medio, pessoas: r.pessoas }));
+      reg.push({ label: "Estagiário · gabinetes e estrutura", regime: "Estagiário", v: avg(mensal.filter(m => m.n_estagiarios), "bolsas"), n: avg(mensal.filter(m => m.n_estagiarios), "n_estagiarios"), pessoas: null });
+      reg.push({ label: "Agente político · subsídio dos vereadores", regime: "Agente político", v: avg(fd, "subsidios"), n: 43, pessoas: null });
+    } else {
+      (C.regime_sintetico || []).filter(r => inAno(r.ano, ano)).forEach(r => reg.push({ label: r.regime === "Agente político" ? "Agente político · subsídio dos vereadores" : `${r.regime} · toda a Câmara`, regime: r.regime === "Estagiário" ? "Estagiário" : r.regime, v: r.media_mensal, n: r.n_medio, pessoas: null }));
+    }
+    reg.push({ label: "Agente político · verba compensatória (ressarcimentos)", regime: "Agente político", v: avg(mensal, "verba"), n: 43, pessoas: null });
+    reg.sort((a, b) => b.v - a.v);
+    barsChart($("#cam-regime-bars"), reg.map(r => ({ id: null, label: r.label, value: r.v, segs: [{ v: r.v, color: REG_COLOR[r.regime] || "var(--s5)", label: "Média mensal", text: fmtBRL.format(r.v) }],
+      tipExtra: `${fmtN(r.n)} por mês em média${r.pessoas ? ` · ${r.pessoas} pessoas distintas no ano` : ""} · ${fmtBRL.format(r.n ? r.v / r.n : 0)} por pessoa`,
+      valueText: `${fmtBRL.format(r.v)}<small>${fmtN(r.n)} pessoas</small>` })));
+    lineChart($("#cam-timeline"), mensal.map(m => ({ y: (m.custo_total || 0) / 1e6, label: mesLbl(m.competencia),
+      tip: `<b>${fmtComp(m.competencia)}</b><br>Folha ${fmtBRL.format(m.folha_total || 0)} (${m.n_servidores ?? "—"} servidores)${m.folha_gabinetes != null ? `<br>Gabinetes ${fmtBRL.format(m.folha_gabinetes)} · Estrutura ${fmtBRL.format(m.folha_estrutura)}` : ""}<br>Bolsas ${m.bolsas == null ? "—" : fmtBRL.format(m.bolsas)} · Subsídios ${m.subsidios == null ? "—" : fmtBRL.format(m.subsidios)}<br>Verba compensatória ${m.verba == null ? "—" : fmtBRL.format(m.verba)}<br>Total ${fmtBRL.format(m.custo_total || 0)}${m.fonte === "folha_sintetica_etcm" ? "<br><i>folha sintética (e-TCM)</i>" : ""}${m.parcial ? "<br><i>mês com dado incompleto</i>" : ""}` })),
+      { fmtY: v => `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mi`, y0: 0, nice: 2, ticks: 5, xLabels: 12, aria: `Custo total da Câmara por mês de ${anoLabel(ano)}` });
+    // blocos que exigem a folha analítica (função, setor, gabinetes × estrutura, tabelas)
+    ["cam-funcao-card", "cam-estrutura-grid", "cam-tabelas"].forEach(id => { $(`#${id}`).hidden = !analitica; });
+    if (!analitica) return;
+    // por função exercida
+    ["todas", "gab", "estr"].forEach(k => $(`#cf-${k}`).setAttribute("aria-pressed", String(state.funcOnde === k)));
+    let fun = C.funcao.filter(f => (f.ano ?? 2025) === ano && (state.funcOnde === "todas" || (state.funcOnde === "gab") === f.em_gabinete));
+    // agrupar assessores CC10 numa função só
+    const agg = {};
+    fun.forEach(f => { const k = `${f.funcao_grupo}|${f.regime}|${f.em_gabinete}`; const o = agg[k] ||= { funcao: f.funcao_grupo, regime: f.regime, em_gabinete: f.em_gabinete, pessoas: 0, n: 0, rs: 0, ano: 0 }; o.pessoas += f.pessoas; o.n += f.n_medio; o.rs += f.media_mensal; o.ano += f.total_ano; });
+    const funRows = Object.values(agg).sort((a, b) => b.rs - a.rs);
+    const shownF = state.showAll["cam-funcao"] ? funRows : funRows.slice(0, 15);
+    $("#cam-funcao-more-wrap").hidden = funRows.length <= 15; $("#cam-funcao-more").textContent = state.showAll["cam-funcao"] ? "Mostrar as 15 maiores" : `Mostrar todas (${funRows.length})`;
+    $("#cam-funcao-legend").replaceChildren(...["Cargo em comissão", "Estatutário"].map(r => el("span", { style: `--c:${REG_COLOR[r]}`, text: r })));
+    const tc = t => t.toLowerCase().replace(/(^|\s|-)(\S)/g, (m, a, b) => a + b.toUpperCase()).replace(/\bDe\b|\bDa\b|\bDo\b|\bE\b/g, w => w.toLowerCase());
+    barsChart($("#cam-funcao-bars"), shownF.map(f => ({ id: null, label: tc(f.funcao), sub: state.funcOnde === "todas" ? (f.em_gabinete ? "gab." : "estr.") : "", value: f.rs,
+      segs: [{ v: f.rs, color: REG_COLOR[f.regime] || "var(--s5)", label: f.regime, text: fmtBRL.format(f.rs) + "/mês" }],
+      tipExtra: `${fmtN(f.n)} por mês em média · ${f.pessoas} pessoas no ano · ${fmtBRL.format(f.n ? f.rs / f.n : 0)} por servidor`,
+      valueText: `${fmtBRL.format(f.rs)}<small>${fmtN(f.n)} pessoas</small>` })));
+    // setor
+    const bySetor = {};
+    const setorAno = C.setor.filter(x => (x.ano ?? 2025) === ano);
+    setorAno.forEach(x => { const o = bySetor[x.setor] ||= { setor: x.setor, n: 0, rs: 0, cc: 0 }; o.n += x.n_medio; o.rs += x.media_mensal; o.cc++; });
+    const setores = Object.values(bySetor).sort((a, b) => b.rs - a.rs);
+    barsChart($("#cam-setor-bars"), setores.map(x => ({ id: null, label: x.setor, value: x.rs, segs: [{ v: x.rs, color: "var(--s2)", label: "Folha mensal", text: fmtBRL.format(x.rs) }],
+      tipExtra: `${fmtN(x.n)} servidores em média · ${x.cc} centro${x.cc > 1 ? "s" : ""} de custo`, valueText: `${fmtBRL.format(x.rs)}<small>${fmtN(x.n)} pessoas</small>` })));
+    // gabinetes × estrutura por mês (barras empilhadas, uma por mês)
+    $("#cam-split-legend").replaceChildren(el("span", { style: "--c:var(--s1)", text: "Gabinetes" }), el("span", { style: "--c:var(--s2)", text: "Estrutura" }), ...(mensal.some(m => m.folha_sem_lotacao) ? [el("span", { style: "--c:var(--s5)", text: "Lotação não publicada" })] : []));
+    columnChart($("#cam-split-bars"), mensal.filter(m => m.folha_gabinetes != null).map(m => ({ label: mesLbl(m.competencia), full: fmtComp(m.competencia),
+      segs: [{ v: m.folha_gabinetes, color: "var(--s1)", label: "Gabinetes", text: fmtBRL.format(m.folha_gabinetes) }, { v: m.folha_estrutura, color: "var(--s2)", label: "Estrutura", text: fmtBRL.format(m.folha_estrutura) }, ...(m.folha_sem_lotacao ? [{ v: m.folha_sem_lotacao, color: "var(--s5)", label: "Lotação não publicada", text: fmtBRL.format(m.folha_sem_lotacao) }] : [])],
+      tip: `${m.n_servidores} servidores${m.parcial ? " · mês com dado incompleto" : ""}` })), { aria: `Folha dos gabinetes e da estrutura por mês de ${anoLabel(ano)}` });
+    // tabelas
+    table("cam-setor-table", [
+      { key: "nome", label: "Centro de custo", left: true, get: r => r.nome },
+      { key: "setor", label: "Setor", get: r => r.setor, text: r => r.setor },
+      { key: "n", label: "Servidores (média/mês)", get: r => r.n, text: r => fmtN(r.n) },
+      { key: "pessoas", label: "Pessoas no ano", get: r => r.pessoas, text: r => fmtInt.format(r.pessoas) },
+      { key: "media", label: "Folha / mês", get: r => r.media, text: r => fmtBRL.format(r.media) },
+      { key: "pp", label: "Por servidor", get: r => r.pp, text: r => fmtBRL.format(r.pp) },
+      { key: "ano", label: `Total ${anoLabel(state.ano)}`, get: r => r.ano, text: r => fmtBRL.format(r.ano) },
+    ], setorAno.map(x => ({ id: null, nome: x.centro_custo_label, partido: "", setor: x.setor, n: x.n_medio, pessoas: x.pessoas, media: x.media_mensal, pp: x.n_medio ? x.media_mensal / x.n_medio : 0, ano: x.total_ano })), "camsetor");
+    table("cam-funcao-table", [
+      { key: "nome", label: "Função", left: true, get: r => r.nome },
+      { key: "regime", label: "Regime", get: r => r.regime, text: r => r.regime },
+      { key: "onde", label: "Onde", get: r => r.onde, text: r => r.onde },
+      { key: "n", label: "Servidores (média/mês)", get: r => r.n, text: r => fmtN(r.n) },
+      { key: "pessoas", label: "Pessoas no ano", get: r => r.pessoas, text: r => fmtInt.format(r.pessoas) },
+      { key: "pp", label: "Por servidor / mês", get: r => r.pp, text: r => fmtBRL.format(r.pp) },
+      { key: "media", label: "Folha / mês", get: r => r.media, text: r => fmtBRL.format(r.media) },
+      { key: "ano", label: `Total ${anoLabel(state.ano)}`, get: r => r.ano, text: r => fmtBRL.format(r.ano) },
+    ], C.funcao.map(f => ({ id: null, nome: tc(f.funcao), partido: "", regime: f.regime, onde: f.em_gabinete ? "Gabinetes" : "Estrutura", n: f.n_medio, pessoas: f.pessoas, pp: f.media_por_servidor_mes, media: f.media_mensal, ano: f.total_ano })), "camfuncao");
+  }
+
+  // Teto anual da verba: soma dos tetos mensais dos meses já decorridos no ano (R$ 34 mil até nov/2025, R$ 39 mil depois).
+  const tetoMes = c => c >= "2025-12" ? 39000 : 34000;
+  function tetoAnual(ano) {
+    const comps = [...new Set(D.custo.verba.filter(v => inComp(v.competencia, ano)).map(v => v.competencia))].sort();
+    if (!comps.length) return 0;
+    const [y0, m0] = comps[0].split("-").map(Number), [y1, m1] = comps[comps.length - 1].split("-").map(Number);
+    let t = 0; for (let y = y0; y <= y1; y++) for (let m = (y === y0 ? m0 : 1); m <= (y === y1 ? m1 : 12); m++) t += tetoMes(`${y}-${String(m).padStart(2, "0")}`); return t;
+  }
+  // ---------- RESUMO (aba inicial) ----------
+  const goTo = (tab, id, extra) => { state.tab = tab; state.ver = id || ""; if (extra) Object.assign(state, extra); renderAll(); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  function topList(title, sub, rows, fmt, tab, extra) {
+    // rows: [{id, v}] ordenado do maior para o menor; mostra os 5 maiores e os 5 menores
+    const li = r => el("li", {}, el("span", { class: "n", text: V(r.id).nome_parlamentar, title: `${V(r.id).partido} · abrir perfil`, onclick: () => goTo("perfil", r.id) }), el("span", { class: "v", text: fmt(r.v) }));
+    const hi = rows.slice(0, 5), lo = rows.slice(-5).reverse();
+    return el("div", { class: "card tops" }, el("h3", { text: title }), el("div", { class: "sub", text: sub }),
+      el("div", { class: "split" }, el("div", {}, el("div", { class: "lbl", text: "Maiores" }), el("ol", {}, ...hi.map(li))), el("div", {}, el("div", { class: "lbl", text: "Menores" }), el("ol", {}, ...lo.map(li)))));
+  }
+  function renderResumo() {
+    const ano = state.ano, scopeF = r => inScope(r.vereador_id);
+    const pres = presRows(ano).filter(scopeF), prod = prodRows(ano).filter(scopeF);
+    const P = pres.reduce((a, r) => a + r.presentes, 0), A = pres.reduce((a, r) => a + r.ausentes, 0);
+    const nProp = prod.reduce((a, r) => a + r.n_total, 0), nPL = prod.reduce((a, r) => a + grp(r, GRUPOS[0]), 0);
+    const anual = D.custo.anual.filter(r => (r.ano ?? 2025) === ano && scopeF(r));
+    const idsC = new Set(anual.map(r => r.vereador_id)), porMes = {};
+    D.custo.mensal.filter(m => inComp(m.competencia, ano) && m.competencia >= "2025-02" && idsC.has(m.vereador_id)).forEach(m => { porMes[m.competencia] = (porMes[m.competencia] || 0) + (m.custo_observado || 0); });
+    const mesesC = Object.keys(porMes).length, custoMes = mesesC ? Object.values(porMes).reduce((a, b) => a + b, 0) / mesesC : 0;
+    const vb = D.custo.verba.filter(v => inComp(v.competencia, ano) && v.vereador_id && scopeF(v));
+    const verbaAno = vb.reduce((a, v) => a + v.verba_compensatoria_observada, 0), verbaMeses = new Set(vb.map(v => v.competencia)).size;
+    const camMensal = (D.custo_camara.mensal || []).filter(m => inAno(m.ano ?? +m.competencia.slice(0, 4), ano));
+    const camFd = camMensal.filter(m => m.competencia >= "2025-02"), camMed = camFd.length ? camFd.reduce((a, m) => a + (m.custo_total || 0), 0) / camFd.length : null;
+    const esc = scopeLabel();
+    $("#res-h2").textContent = state.ver ? `${esc} em ${anoLabel(ano)}` : state.partido ? `${esc} em ${anoLabel(ano)}` : `A Câmara em ${anoLabel(ano)}`;
+    $("#res-kpis").replaceChildren(
+      kpi(`Presença · ${esc}`, P + A ? fmtPct(P / (P + A)) : "—", `${pres.length} vereadores · ${D.presenca.sessoes.filter(s => inAno(s.ano, ano)).length} sessões ordinárias`),
+      kpi("Proposições", fmtInt.format(nProp), `${fmtInt.format(nPL)} projetos de lei e afins`),
+      kpi(`Custo dos gabinetes / mês`, anual.length ? fmtBRL.format(custoMes) : "—", `${anual.length} vereadores (titulares e suplentes) · subsídio + assessores + estagiários + verba`),
+      kpi("Verba compensatória no ano", fmtBRL.format(verbaAno), `${verbaMeses} meses de ressarcimentos`),
+      ...(state.ver || state.partido ? [] : [kpi("Custo total da Câmara / mês", camMed ? fmtBRL.format(camMed) : "—", "folha completa + bolsas + subsídios + verba")]),
+    );
+    // extremos
+    const presRank = presRows(ano).filter(r => !r.sem_dado && (!state.partido || V(r.vereador_id).partido === state.partido)).map(r => ({ id: r.vereador_id, v: r.taxa_presenca })).sort((a, b) => b.v - a.v);
+    const prodRank = prodRows(ano).filter(r => r.n_total > 0 && (!state.partido || V(r.vereador_id).partido === state.partido)).map(r => ({ id: r.vereador_id, v: r.vol_ponderado_12m })).sort((a, b) => b.v - a.v);
+    const custoRank = D.custo.anual.filter(r => (r.ano ?? 2025) === ano && (!state.partido || V(r.vereador_id).partido === state.partido)).map(r => ({ id: r.vereador_id, v: r.media_mensal_custo_observado })).sort((a, b) => b.v - a.v);
+    $("#res-tops").replaceChildren(
+      topList("Presença nas sessões", "percentual de sessões ordinárias com presença", presRank, fmtPct, "presenca"),
+      topList("Produção legislativa", "produção ponderada, ritmo anual", prodRank, fmt1, "produtividade"),
+      topList("Custo do gabinete", "média mensal: subsídio, assessores, estagiários e verba", custoRank, fmtBRL.format, "custo", { custoView: "gab" }),
+    );
+    // alertas
+    const al = [];
+    const nome = id => el("span", { class: "n", text: V(id).nome_parlamentar, onclick: () => goTo(al_tab(id), id) });
+    const al_tab = () => "presenca";
+    presRows(ano).filter(r => r.alerta_lom27 && (!state.partido || V(r.vereador_id).partido === state.partido)).forEach(r =>
+      al.push(el("li", {}, el("span", { class: "tag", text: "LOM 27" }), el("span", {}, el("span", { class: "n", text: V(r.vereador_id).nome_parlamentar, onclick: () => goTo("presenca", r.vereador_id) }), ` faltou a ${fmtPct(r.fracao_faltas_lom27)} das sessões ordinárias do ano; a Lei Orgânica prevê perda de mandato a partir de um terço.`))));
+    if (ano === 2026) presRows(ano).filter(r => !r.alerta_lom27 && !r.sem_dado && r.fracao_faltas_lom27 >= 0.25 && (!state.partido || V(r.vereador_id).partido === state.partido)).forEach(r =>
+      al.push(el("li", {}, el("span", { class: "tag", text: "ritmo" }), el("span", {}, el("span", { class: "n", text: V(r.vereador_id).nome_parlamentar, onclick: () => goTo("presenca", r.vereador_id) }), ` faltou a ${fmtPct(r.fracao_faltas_lom27)} das sessões ordinárias realizadas até agora; a Lei Orgânica prevê perda de mandato a partir de um terço no ano.`))));
+    const byV = {}; D.custo.verba.filter(v => inComp(v.competencia, ano) && v.vereador_id && (!state.partido || V(v.vereador_id).partido === state.partido)).forEach(v => { const o = byV[v.vereador_id] ||= { t: 0, teto: 0, acima: 0 }; o.t += v.verba_compensatoria_observada; o.teto += v.verba_compensatoria_teto; o.acima += v.acima_do_teto ? 1 : 0; });
+    const tetoAno = tetoAnual(ano);
+    Object.entries(byV).filter(([, o]) => o.t > tetoAno + 0.5).sort((a, b) => b[1].t - a[1].t).forEach(([id, o]) =>
+      al.push(el("li", {}, el("span", { class: "tag", text: "verba" }), el("span", {}, el("span", { class: "n", text: V(id).nome_parlamentar, onclick: () => goTo("custo", id, { custoView: "gab" }) }), ` recebeu ${fmtBRL.format(o.t)} de verba no ano, ${fmtBRL.format(o.t - tetoAno)} acima da soma dos tetos mensais até agora (${fmtBRL.format(tetoAno)}; a validar: pode ser empenho atribuído ao mês errado).`))));
+    const nAcima = Object.values(byV).filter(o => o.acima >= 3).length;
+    if (nAcima) al.push(el("li", {}, el("span", { class: "tag neutral", text: "verba" }), el("span", { text: `${nAcima} vereadores tiveram 3 ou mais meses acima do teto mensal da verba; a lei permite usar saldo não gasto de meses anteriores.` })));
+    const cob = (D.custo_camara.lotacao_cobertura || []).filter(c => inComp(c.competencia, ano));
+    if (cob.length) { const u = cob[cob.length - 1]; al.push(el("li", {}, el("span", { class: "tag neutral", text: "folha" }), el("span", { text: `A Câmara não publica a relação de servidores de ${anoLabel(ano)}. Em ${fmtComp(u.competencia)}, ${u.n_sem_lotacao} servidores (${fmtPct(u.pct_sem_lotacao / 100)}) não têm gabinete conhecido.` }))); }
+    const vc = D.verba_cat && D.verba_cat.cobertura && D.verba_cat.cobertura[String(ano)];
+    if (vc && vc.sem_categorias) al.push(el("li", {}, el("span", { class: "tag neutral", text: "verba" }), el("span", { text: `${vc.sem_categorias} processos de verba de ${anoLabel(ano)} (${(vc.meses_sem_categorias || []).map(fmtComp).join(", ")}) só informam o total, sem as categorias de despesa.` })));
+    $("#res-alert-sub").textContent = `${al.length} ${al.length === 1 ? "item" : "itens"}`;
+    $("#res-alerts").replaceChildren(...(al.length ? al : [el("li", {}, el("span", { class: "tag neutral", text: "ok" }), el("span", { text: "Nenhum alerta neste recorte." }))]));
+    // cobertura das fontes
+    const last = arr => arr.length ? arr[arr.length - 1] : null;
+    const sess = D.presenca.sessoes.filter(s => inAno(s.ano, ano));
+    const folha = camMensal.filter(m => m.fonte !== "folha_sintetica_etcm"), sint = camMensal.filter(m => m.fonte === "folha_sintetica_etcm");
+    const verbaComps = [...new Set(D.custo.verba.filter(v => inComp(v.competencia, ano)).map(v => v.competencia))].sort();
+    const etcm = D.verba_cat ? [...new Set(D.verba_cat.por_vereador.filter(r => inAno(r.ano, ano)).map(r => r.competencia))].sort() : [];
+    const fonteRows = [
+      ["Presença em sessões", sess.length ? `até ${fmtDate(last(sess).data_sessao)} (${last(sess).num_sessao}ª sessão)` : "—"],
+      ["Proposições", `${fmtInt.format(prodRows(ano).reduce((a, r) => a + r.n_total, 0))} no período`],
+      ["Folha dos gabinetes", folha.length ? `até ${fmtComp(last(folha).competencia)} (${last(folha).fonte === "folha_analitica" ? "RH da Câmara" : "consulta de pessoal do TCM-BA"})` : "—"],
+      ["Folha da Câmara (totais)", camMensal.length ? `até ${fmtComp(last(camMensal).competencia)}${sint.length ? ", últimos meses pela folha sintética do e-TCM" : ""}` : "—"],
+      ["Verba compensatória (empenhos)", verbaComps.length ? `até ${fmtComp(last(verbaComps))}` : "—"],
+      ["Verba por categoria (e-TCM)", etcm.length ? `até ${fmtComp(last(etcm))}` : "—"],
+    ];
+    $("#res-fontes tbody").replaceChildren(...fonteRows.map(([k, v]) => el("tr", {}, el("td", { text: k }), el("td", { class: "v", text: v }))));
+    $("#res-upd").textContent = `dados processados em ${fmtDate(D.meta.gerado_em)}`;
+    renderCobertura(ano);
+  }
+  // Cobertura fonte × mês (b4): cada célula diz se o mês tem dado completo, parcial/reconstruído ou nenhum.
+  function renderCobertura(ano) {
+    const hoje = D.meta.gerado_em.slice(0, 7);
+    const meses = ano === 0
+      ? (() => { const out = []; for (let y = 2025; y <= +hoje.slice(0, 4); y++) for (let m = 1; m <= 12; m++) { const c = `${y}-${String(m).padStart(2, "0")}`; if (c <= hoje) out.push(c); } return out; })()
+      : Array.from({ length: 12 }, (_, i) => `${ano}-${String(i + 1).padStart(2, "0")}`);
+    const futuro = m => m > hoje;
+    const sessPorMes = {}; D.presenca.sessoes.filter(s => inAno(s.ano, ano)).forEach(s => { const k = s.data_sessao.slice(0, 7); sessPorMes[k] = (sessPorMes[k] || 0) + 1; });
+    const cam = Object.fromEntries((D.custo_camara.mensal || []).filter(m => inAno(m.ano ?? +m.competencia.slice(0, 4), ano)).map(m => [m.competencia, m]));
+    const verba = {}; D.custo.verba.filter(v => inComp(v.competencia, ano) && v.vereador_id).forEach(v => { verba[v.competencia] = (verba[v.competencia] || 0) + 1; });
+    const etcm = {}; if (D.verba_cat) D.verba_cat.por_vereador.filter(r => inAno(r.ano, ano)).forEach(r => { (etcm[r.competencia] ||= new Set()).add(r.vereador_id || r.credor); });
+    const cob = Object.fromEntries((D.custo_camara.lotacao_cobertura || []).map(c => [c.competencia, c]));
+    const recesso = m => m.endsWith("-01") || m.endsWith("-07");
+    const cell = (cls, txt, title) => el("td", { class: cls, text: txt, title: title || "" });
+    const linhas = [
+      ["Sessões ordinárias (presença)", m => futuro(m) ? cell("ausente", "·") : sessPorMes[m] ? cell("ok", String(sessPorMes[m]), `${sessPorMes[m]} sessões`) : cell(recesso(m) ? "ok" : "ausente", recesso(m) ? "recesso" : "—")],
+      ["Folha dos gabinetes", m => { const r = cam[m]; if (!r || futuro(m)) return cell("ausente", futuro(m) ? "·" : "—"); if (r.fonte === "folha_analitica") return cell("ok", "RH", "relação de servidores publicada pela Câmara"); if (r.fonte === "folha_reconstruida_tcm") return cell("parcial", "TCM", `consulta de pessoal do TCM-BA + lotação de 2025${cob[m] ? ` · ${fmtPct(cob[m].pct_sem_lotacao / 100)} sem lotação` : ""}`); return cell("ausente", "—", "só totais da Casa"); }],
+      ["Folha da Câmara (totais)", m => { const r = cam[m]; if (!r || futuro(m)) return cell("ausente", futuro(m) ? "·" : "—"); return cell(r.parcial ? "parcial" : "ok", r.fonte === "folha_sintetica_etcm" ? "e-TCM" : r.fonte === "folha_analitica" ? "RH" : "TCM", r.parcial ? "mês com dado incompleto" : "folha do mês"); }],
+      ["Verba compensatória (empenhos)", m => futuro(m) ? cell("ausente", "·") : verba[m] ? cell(verba[m] >= 35 ? "ok" : "parcial", String(verba[m]), `${verba[m]} vereadores com ressarcimento`) : cell("ausente", "—")],
+      ["Verba por categoria (e-TCM)", m => futuro(m) ? cell("ausente", "·") : etcm[m] ? cell(etcm[m].size >= 35 ? "ok" : "parcial", String(etcm[m].size), `${etcm[m].size} processos com categorias`) : cell("ausente", "—", "prestação ainda não publicada ou processos só com o total")],
+    ];
+    const t = $("#res-cob");
+    t.querySelector("thead").replaceChildren(el("tr", {}, el("th", { text: "" }), ...meses.map(m => el("th", { text: ano === 0 ? mesLbl(m) : MESES[+m.slice(5) - 1] }))));
+    t.querySelector("tbody").replaceChildren(...linhas.map(([nome, f]) => el("tr", {}, el("td", { text: nome }), ...meses.map(f))));
+    $("#cob-title").textContent = `Cobertura dos dados em ${anoLabel(ano)}, mês a mês`;
+    $("#cob-note").textContent = "Sessões: quantidade de ordinárias no mês (janeiro e julho são recesso). Folha: RH = relação de servidores publicada pela Câmara; TCM = consulta de pessoal do TCM-BA com a lotação recuperada de 2025; e-TCM = folha sintética enviada ao Tribunal, só totais. Verba: número de vereadores com ressarcimento (empenhos) e de processos com despesas por categoria (prestações mensais no e-TCM).";
+  }
+
+  // ---------- PERFIL DO VEREADOR ----------
+  const idade = iso => { if (!iso || iso.length < 10) return null; const d = new Date(iso + "T00:00:00"), h = new Date(); let a = h.getFullYear() - d.getFullYear(); if (h < new Date(h.getFullYear(), d.getMonth(), d.getDate())) a--; return a; };
+  const posicao = (rows, id, key, desc = true) => { const arr = rows.slice().sort((a, b) => desc ? b[key] - a[key] : a[key] - b[key]); const i = arr.findIndex(r => r.vereador_id === id); return i < 0 ? null : [i + 1, arr.length]; };
+  function regraGab(cargo) {
+    const nome = V(state.ver).nome_parlamentar;
+    if (cargo === "Presidência") return `${nome} preside a Câmara. O gabinete do Presidente pode ter de 12 a 33 assessores (DL 983/2021).`;
+    if (cargo === "4ª Secretaria") return `${nome} ocupa a 4ª Secretaria. O DL 958/2015 assegura 40 pontos ao 4º Secretário e dá 10 pontos a mais a cada membro da Mesa.`;
+    if (cargo === "Ouvidoria substituta") return `${nome} é Ouvidor(a) substituto(a). O DL 958/2015 atribui 25 pontos a esse cargo.`;
+    if (/Vice-Presidência|Secretaria/.test(cargo)) return `${nome} ocupa a ${cargo} da Mesa. Membros da Mesa têm 10 pontos a mais no gabinete (DL 958/2015).`;
+    if (cargo) return `${nome} ocupa a ${cargo}. Não localizamos regra de gabinete própria desse cargo nos decretos consultados. Vale o limite geral de 8 a 16 assessores.`;
+    return `${nome} não ocupa cargo na Mesa em ${anoLabel(state.ano)}. Vale o limite geral: de 8 a 16 assessores e 162 pontos, com mais 5 ou 10 pontos se presidir ou for vice de comissão permanente ou exercer liderança.`;
+  }
+  function renderPerfil() {
+    const ano = state.ano, anoK = String(ano);
+    $("#pf-empty").hidden = !!state.ver; $("#pf-body").hidden = !state.ver;
+    if (!state.ver) {
+      const ids = [...idsAno(ano)].map(V).sort((a, b) => a.nome_parlamentar.localeCompare(b.nome_parlamentar, "pt-BR"));
+      $("#pf-list").replaceChildren(...ids.map(v => el("a", { onclick: () => goTo("perfil", v.vereador_id) }, el("span", {}, v.nome_parlamentar, cargoMesa(v, ano) ? el("span", { class: "pill", text: cargoMesa(v, ano) }) : null, v.situacao && v.situacao !== "titular" ? el("span", { class: "pill", text: v.situacao }) : null), el("span", { class: "pt", text: v.partido }))));
+      return;
+    }
+    const v = V(state.ver), cargo = cargoMesa(v, ano), an = idade(v.nascimento);
+    // cabeçalho
+    const ini = v.nome_parlamentar.split(" ").map(w => w[0]).slice(0, 2).join("");
+    const meta = [v.partido, v.situacao && v.situacao !== "titular" ? v.situacao : "", cargo ? `${cargo} da Mesa` : "", v.gabinete_numero ? `gabinete ${v.gabinete_numero}` : "", an ? `${an} anos` : "", v.licenca_data ? `licenciado desde ${v.licenca_data.length >= 10 ? fmtDate(v.licenca_data) : v.licenca_data}${v.suplente_nome ? ` (suplente: ${v.suplente_nome})` : ""}` : ""].filter(Boolean).join(" · ");
+    const links = [v.instagram ? el("a", { href: v.instagram, target: "_blank", rel: "noopener", text: "Instagram" }) : null, v.x ? el("a", { href: v.x, target: "_blank", rel: "noopener", text: "X (Twitter)" }) : null, v.fonte_url ? el("a", { href: v.fonte_url, target: "_blank", rel: "noopener", text: "Perfil na Câmara" }) : null].filter(Boolean);
+    const bio = (v.bio || "").trim();
+    const bioEl = el("div", { class: "pf-bio" + (bio.length > 520 ? " clip" : ""), text: bio || "Sem biografia no perfil da Câmara." });
+    const more = bio.length > 520 ? el("div", { class: "pf-more" }, el("button", { type: "button", text: "Ler a biografia completa", onclick: e => { const c = bioEl.classList.toggle("clip"); e.target.textContent = c ? "Ler a biografia completa" : "Recolher"; } })) : null;
+    $("#pf-head").replaceChildren(
+      v.foto ? el("img", { class: "pf-foto", src: v.foto, alt: `Foto de ${v.nome_parlamentar}`, loading: "lazy" }) : el("div", { class: "pf-foto ini", text: ini }),
+      el("div", {}, el("h2", { text: v.nome_parlamentar }), el("div", { class: "pf-meta", text: meta }), el("div", { class: "pf-links" }, ...links), bioEl, more));
+    // fatos
+    const pres = presRows(ano), pr = pres.find(r => r.vereador_id === state.ver);
+    const casaP = pres.reduce((a, r) => a + r.presentes, 0), casaA = pres.reduce((a, r) => a + r.ausentes, 0);
+    const prod = prodRows(ano), pd = prod.find(r => r.vereador_id === state.ver);
+    const anual = D.custo.anual.filter(r => (r.ano ?? 2025) === ano), cu = anual.find(r => r.vereador_id === state.ver);
+    const vb = D.custo.verba.filter(x => x.vereador_id === state.ver && inComp(x.competencia, ano));
+    const verbaAno = vb.reduce((a, x) => a + x.verba_compensatoria_observada, 0), tetoAno = tetoAnual(ano);
+    const verbaCasa = {}; D.custo.verba.filter(x => x.vereador_id && inComp(x.competencia, ano)).forEach(x => { verbaCasa[x.vereador_id] = (verbaCasa[x.vereador_id] || 0) + x.verba_compensatoria_observada; });
+    const verbaRows = Object.entries(verbaCasa).map(([id, t]) => ({ vereador_id: id, t })), pv = posicao(verbaRows, state.ver, "t");
+    const posP = pr && !pr.sem_dado ? posicao(pres.filter(r => !r.sem_dado), state.ver, "taxa_presenca") : null;
+    const posF = pr ? posicao(pres, state.ver, "ausentes") : null;
+    const posPd = pd && pd.n_total > 0 ? posicao(prod.filter(r => r.n_total > 0), state.ver, "vol_ponderado_12m") : null;
+    const posC = cu ? posicao(anual, state.ver, "media_mensal_custo_observado") : null;
+    const tile = (label, value, pos, cmp) => el("div", { class: "fact" }, el("div", { class: "label", text: label }), el("div", { class: "value", text: value }), el("div", { class: "pos", text: pos || "" }), el("div", { class: "sub", text: cmp || "" }));
+    const prodCasa = prod.filter(r => r.n_total > 0);
+    $("#pf-facts").replaceChildren(
+      tile("Presença", pr ? (pr.sem_dado ? "menos de 10 sessões" : fmtPct(pr.taxa_presenca)) : "—", posP ? `${posP[0]}º de ${posP[1]} (do mais presente)` : "", `Casa ${fmtPct(casaP / (casaP + casaA))}`),
+      tile("Faltas", pr ? String(pr.ausentes) : "—", posF ? `${posF[0]}º de ${posF[1]} em faltas` : "", pr ? `de ${pr.em_exercicio} sessões em exercício${alertaPres(pr, ano) ? " · " + alertaPres(pr, ano) : ""}` : ""),
+      tile("Produção ponderada", pd ? fmt1(pd.vol_ponderado_12m) : "—", posPd ? `${posPd[0]}º de ${posPd[1]}` : "", pd ? `${pd.n_total} proposições em ${pd.meses_exercicio} meses · média da Casa ${fmt1(prodCasa.reduce((a, r) => a + r.vol_ponderado_12m, 0) / Math.max(1, prodCasa.length))}` : ""),
+      tile("Projetos de lei e afins", pd ? String(grp(pd, GRUPOS[0])) : "—", "", pd ? `${pd.n_excluidas_regex} homenagens/nomes de rua fora da ponderação` : ""),
+      tile("Custo do gabinete / mês", cu ? fmtBRL.format(cu.media_mensal_custo_observado) : "—", posC ? `${posC[0]}º de ${posC[1]} (do mais caro)` : "", cu ? `${fmt1(cu.media_assessores_parlamentares)} assessores em média · Casa ${fmtBRL.format(anual.reduce((a, r) => a + r.media_mensal_custo_observado, 0) / Math.max(1, anual.length))}` : `sem folha de gabinete em ${anoLabel(ano)}`),
+      tile("Verba compensatória no ano", fmtBRL.format(verbaAno), pv ? `${pv[0]}º de ${pv[1]}` : "", `${vb.length} meses · ${fmtPct(tetoAno ? verbaAno / tetoAno : 0)} do teto até agora (${fmtBRL.format(tetoAno)})`),
+    );
+    $("#pf-facts-note").textContent = `Posições entre os vereadores com dado em ${anoLabel(ano)} (titulares e suplentes). Verba: valor ressarcido pela Câmara (empenhos); teto de R$ 34 mil por mês em 2025 e R$ 39 mil desde dezembro de 2025.`;
+    // presença sessão a sessão
+    const sessAll = D.presenca.sessoes.filter(x => inAno(x.ano, ano));
+    $("#pf-pres-sub").textContent = pr ? `${pr.presentes} presenças · ${pr.ausentes} faltas · ${pr.licenciado} licenças` : "";
+    $("#pf-pres").replaceChildren(...(presStrip(state.ver, ano, sessAll).length ? presStrip(state.ver, ano, sessAll) : [el("p", { class: "muted", text: `Sem registro de presença em ${anoLabel(ano)}.` })]));
+    // produção: composição por grupo
+    if (pd) {
+      const parts = GRUPOS.map(g => ({ ...g, v: grp(pd, g) })).filter(x => x.v);
+      $("#pf-prod-sub").textContent = `${pd.n_total} proposições em ${anoLabel(ano)}`;
+      barsChart($("#pf-prod-bars"), parts.map(x => ({ id: null, label: x.label, value: x.v, segs: [{ v: x.v, color: x.color, label: x.label, text: String(x.v) }], valueText: `${x.v}<small>${fmtPct(x.v / pd.n_total)}</small>` })));
+      $("#pf-prod-legend").replaceChildren();
+      $("#pf-prod-note").textContent = `Produção ponderada: ${fmt1(pd.vol_ponderado)} no período, ${fmt1(pd.vol_ponderado_12m)} em ritmo anual. Só o primeiro autor conta; homenagens, nomes de rua e votos de pesar ficam fora da ponderação.`;
+    } else { $("#pf-prod-sub").textContent = ""; barsChart($("#pf-prod-bars"), []); $("#pf-prod-note").textContent = `Sem proposições registradas em ${anoLabel(ano)}.`; }
+    // verba: big number + barras mensais por categoria
+    const porCat = {}; (D.verba_cat ? D.verba_cat.por_vereador : []).filter(r => r.vereador_id === state.ver && inAno(r.ano, ano)).forEach(r => { const o = porCat[r.competencia] ||= {}; o[r.categoria] = (o[r.categoria] || 0) + r.valor; });
+    const grupoDe = cat => VGRUPOS.find(g => g.cats.includes(cat)) || VGRUPOS[3];
+    const comps = [...new Set([...vb.map(x => x.competencia), ...Object.keys(porCat)])].sort();
+    const mesesCat = Object.keys(porCat).length;
+    $("#pf-verba-title").textContent = `Verba compensatória recebida em ${anoLabel(ano)}`;
+    $("#pf-verba-big").replaceChildren(el("b", { text: fmtBRL.format(verbaAno) }), el("span", { text: `em ${vb.length} meses · média ${fmtBRL.format(vb.length ? verbaAno / vb.length : 0)}/mês · ${fmtPct(tetoAno ? verbaAno / tetoAno : 0)} do teto acumulado` }));
+    $("#pf-verba-legend").replaceChildren(...VGRUPOS.map(g => el("span", { style: `--c:${g.color}`, text: g.label })), el("span", { style: "--c:var(--line-2)", text: "sem detalhamento por categoria" }));
+    columnChart($("#pf-verba-bars"), comps.map(c => {
+      const emp = vb.filter(x => x.competencia === c).reduce((a, x) => a + x.verba_compensatoria_observada, 0);
+      const cats = porCat[c] || {}; const byG = {}; Object.entries(cats).forEach(([cat, val]) => { const g = grupoDe(cat).label; byG[g] = (byG[g] || 0) + val; });
+      const somaCat = Object.values(byG).reduce((a, b) => a + b, 0), resto = Math.max(0, emp - somaCat);
+      const segs = VGRUPOS.filter(g => byG[g.label]).map(g => ({ v: byG[g.label], color: g.color, label: g.label, text: fmtBRL.format(byG[g.label]) }));
+      if (resto > 0.5) segs.push({ v: resto, color: "var(--line-2)", label: somaCat ? "diferença entre empenho e categorias" : "sem detalhamento por categoria", text: fmtBRL.format(resto) });
+      const teto = tetoMes(c);
+      return { label: mesLbl(c), full: fmtComp(c), segs, ref: teto, refLabel: `teto ${fmtMil(teto)}`, flag: emp > teto + 0.5 ? "acima do teto" : "",
+        tip: `${fmtPct((emp || somaCat) / teto)} do teto do mês (${fmtBRL.format(teto)})${Object.keys(cats).length ? ` · ${Object.keys(cats).length} categorias declaradas` : " · prestação sem categorias"}` };
+    }), { aria: `Verba compensatória recebida por mês em ${anoLabel(ano)}, por categoria, com a linha do teto` });
+    $("#pf-verba-note").textContent = `Barras: valor ressarcido por mês (empenhos da Câmara), dividido pelas categorias da Lei 9.828/2025 declaradas na prestação de contas enviada ao TCM-BA (${mesesCat} de ${comps.length} meses com categorias). Meses sem detalhamento mostram só o total. As notas fiscais em si não são publicadas, salvo janeiro e fevereiro de 2025.`;
+    // gabinete: composição e graus
+    if (cu) {
+      const m = cu.meses_com_folha || 1;
+      const comp = SEGC.map(sg => ({ ...sg, v: (cu[sg.k] || 0) / m })).filter(x => x.v);
+      const totC = comp.reduce((a, x) => a + x.v, 0);
+      $("#pf-gab-sub").textContent = `média mensal em ${anoLabel(ano)} · ${cu.meses_com_folha} meses com folha`;
+      barsChart($("#pf-gab-bars"), comp.map(x => ({ id: null, label: x.label, value: x.v, segs: [{ v: x.v, color: x.color, label: x.label, text: fmtBRL.format(x.v) }], valueText: `${fmtBRL.format(x.v)}<small>${fmtPct(x.v / totC)}</small>` })));
+      $("#pf-gab-note").textContent = `Total ${fmtBRL.format(totC)} por mês. Folha por assessor: ${cu.media_assessores_parlamentares ? fmtBRL.format((cu.folha_assessores / m) / cu.media_assessores_parlamentares) : "—"}.${ano === 2026 ? " Em 2026 a lotação vem da consulta de pessoal do TCM-BA com a última lotação conhecida de 2025." : ""}`;
+    } else { $("#pf-gab-sub").textContent = ""; barsChart($("#pf-gab-bars"), []); $("#pf-gab-note").textContent = `Sem folha de gabinete em ${anoLabel(ano)}.`; }
+    $("#pf-gab-regra").textContent = regraGab(cargo);
+    renderEquipe();
+    // proposições, uma a uma (funil de situação + tabela filtrável), só deste vereador
+    renderProps();
+    // rodapé
+    const camM = (D.custo_camara.mensal || []).filter(m => inAno(m.ano ?? +m.competencia.slice(0, 4), ano) && m.fonte !== "folha_sintetica_etcm");
+    const ultS = sessAll[sessAll.length - 1], ultF = camM[camM.length - 1];
+    $("#pf-foot").textContent = `Fontes deste perfil: foto e biografia do perfil oficial na Câmara; presença até ${ultS ? fmtDate(ultS.data_sessao) : "—"} (grade de frequência da Câmara); proposições do sistema legislativo; folha do gabinete até ${ultF ? fmtComp(ultF.competencia) : "—"} (${ultF && ultF.fonte === "folha_analitica" ? "RH da Câmara" : "consulta de pessoal do TCM-BA"}); verba compensatória pelos empenhos e pelas prestações de contas no e-TCM. Redes sociais: contas oficiais informadas pelo projeto; corrija pelo repositório se houver erro.`;
+  }
+
+  // ---------- footer ----------
+  function renderMethod() {
+    const F = D.meta.fontes;
+    const leis = Object.fromEntries((D.meta.parametros_custo || []).map(p => [p.parametro, p.fonte_url]).filter(x => x[1]));
+    const extras = [["Prestações de contas mensais ao TCM-BA (e-TCM): processos da verba compensatória, notas fiscais e folhas sintéticas", F.etcm || "https://e.tcm.ba.gov.br/epp/ConsultaPublica/listView.seam"],
+      ["Consulta de pessoal do TCM-BA (servidor, cargo, grau, remuneração; exportação manual mensal)", "https://www.tcm.ba.gov.br/controle-social/pessoal/"],
+      ["Diário Oficial do Legislativo (íntegra das proposições e atos da Mesa)", "https://portal-api.dioly.com.br/api/diarios/?tipo=DOL"],
+      ["Lei 9.828/2025 e alterações (verba compensatória)", leis.verba_compensatoria_teto || leis.verba_teto || "https://www.cms.ba.gov.br/leis"]];
+    const items = [["Frequência em sessões (LEG_SYS, Câmara)", F.frequencia], ["Catálogo de sessões e atas", F.sessoes], ["Proposições e tramitação", F.proposicoes],
+      ["Produtividade parlamentar (resumo oficial)", F.resumo_proposicoes], ["Relação de servidores por centro de custo (RH)", F.rh], ["Lista de vereadores", F.vereadores], ["Lei 9.825/2024 (subsídio)", F.subsidio], ["Empenhos do portal financeiro (verba compensatória)", F.empenhos]];
+    $("#fontes").replaceChildren(...[...items, ...extras].filter(([, u]) => u).map(([t, u]) => el("li", {}, el("a", { href: u, target: "_blank", rel: "noopener", text: t }))));
+    $("#gerado").textContent = `Dados coletados e processados em ${fmtDate(D.meta.gerado_em)}. Sessões de 2026 até ${fmtDate(D.meta.ultima_sessao_2026)}. Base de ${fmtInt.format(D.meta.n_proposicoes_base)} proposições desde 2004; o total de 2025 confere com o resumo oficial da Câmara.`;
+    $("#lede").textContent = `Produtividade, presença e custo dos gabinetes dos 43 vereadores, a partir dos sistemas públicos da própria Câmara. Dados até ${fmtDate(D.meta.ultima_sessao_2026)}.`;
+  }
+
+  // ---------- orchestration ----------
+  function renderTab() {
+    TABS.forEach(t => { $(`#tab-${t}`).setAttribute("aria-selected", String(t === state.tab)); $(`#panel-${t}`).hidden = t !== state.tab; });
+    $("#tab-perfil").textContent = state.ver ? `Perfil · ${V(state.ver).nome_parlamentar.split(" ")[0]}` : "Perfil";
+    if (state.tab === "resumo") renderResumo(); else if (state.tab === "produtividade") renderProd(); else if (state.tab === "presenca") renderPres(); else if (state.tab === "perfil") renderPerfil(); else renderCusto();
+  }
+  function renderAll() { pp.page = 0; pp.etapa = ""; equipePage = 0; fillFilters(); renderTab(); writeHash(); }
+  function selectVer(id) { state.ver = state.ver === id ? "" : id; renderAll(); if (state.ver && window.innerWidth > 600 && state.tab !== "perfil") $("#filters").scrollIntoView({ block: "start", behavior: "smooth" }); }
+  function setTab(t) { state.tab = t; renderTab(); writeHash(); }
+
+  load().then(d => {
+    D = d;
+    $("#status").hidden = true; $("#tabs").hidden = false; $("#method").hidden = false;
+    resolveHashState(); renderMethod(); renderAll();
+    TABS.forEach(t => $(`#tab-${t}`).addEventListener("click", () => setTab(t)));
+    window.addEventListener("hashchange", () => { if (readHash()) { resolveHashState(); renderAll(); } else { const t = location.hash.slice(1); if (TABS.includes(t) && t !== state.tab) setTab(t); } });
+    $("#f-link").addEventListener("click", () => {
+      const b = $("#f-link"), done = () => { b.textContent = "Link copiado"; setTimeout(() => { b.textContent = "Copiar link"; }, 1800); };
+      const fallback = () => { const i = el("input", { value: location.href, readonly: true, style: "position:fixed;left:-9999px" }); document.body.append(i); i.select(); try { document.execCommand("copy"); done(); } catch (_) { b.textContent = "Copie da barra de endereço"; } i.remove(); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(location.href).then(done, fallback); else fallback();
+    });
+    const gdlg = $("#gloss-dlg");
+    $("#gloss-open").addEventListener("click", () => { if (typeof gdlg.showModal === "function") gdlg.showModal(); else gdlg.setAttribute("open", ""); });
+    $("#gloss-close").addEventListener("click", () => gdlg.close ? gdlg.close() : gdlg.removeAttribute("open"));
+    gdlg.addEventListener("click", e => { if (e.target === gdlg) gdlg.close(); });
+    $("#f-ano").addEventListener("change", e => { state.ano = +e.target.value; try { localStorage.setItem("spot.ano", String(state.ano)); } catch (_) {} renderAll(); });
+    $("#pp-dol").addEventListener("change", e => { pp.dol = e.target.checked; pp.page = 0; renderProps(); });
+    $("#f-partido").addEventListener("change", e => { state.partido = e.target.value; renderAll(); });
+    $("#f-ver").addEventListener("change", e => { state.ver = e.target.value; renderAll(); });
+    $("#f-reset").addEventListener("click", () => { state.ano = 0; state.partido = ""; state.ver = ""; try { localStorage.setItem("spot.ano", "0"); } catch (_) {} renderAll(); });
+    $("#m-bruto").addEventListener("click", () => { state.modo = "bruto"; state.sort.prod = { key: "n_total", dir: -1 }; renderTab(); });
+    $("#m-pond").addEventListener("click", () => { state.modo = "pond"; state.sort.prod = { key: "pond", dir: -1 }; renderTab(); });
+    $("#pp-tipo").addEventListener("change", e => { pp.tipo = e.target.value; pp.page = 0; renderProps(); });
+    $("#pp-sit").addEventListener("change", e => { pp.sit = e.target.value; pp.page = 0; renderProps(); });
+    $("#pp-q").addEventListener("input", e => { pp.q = e.target.value; pp.page = 0; renderProps(); });
+    const dlg = $("#tipos-dlg");
+    $("#tipos-info").addEventListener("click", () => { if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", ""); });
+    $("#tipos-close").addEventListener("click", () => dlg.close ? dlg.close() : dlg.removeAttribute("open"));
+    dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+    $("#prod-more").addEventListener("click", () => { state.showAll.prod = !state.showAll.prod; renderTab(); });
+    $("#pres-more").addEventListener("click", () => { state.showAll.pres = !state.showAll.pres; renderTab(); });
+    $("#cv-gab").addEventListener("click", () => { state.custoView = "gab"; renderTab(); });
+    $("#cv-cam").addEventListener("click", () => { state.custoView = "cam"; renderTab(); });
+    ["todas", "gab", "estr"].forEach(k => $(`#cf-${k}`).addEventListener("click", () => { state.funcOnde = k; renderTab(); }));
+    $("#cam-funcao-more").addEventListener("click", () => { state.showAll["cam-funcao"] = !state.showAll["cam-funcao"]; renderTab(); });
+    $("#vcat-more").addEventListener("click", () => { state.showAll.vcat = !state.showAll.vcat; renderTab(); });
+    $("#vnf-more").addEventListener("click", () => { state.showAll.vnf = !state.showAll.vnf; renderTab(); });
+    $("#verba-more").addEventListener("click", () => { state.showAll.verba = !state.showAll.verba; renderTab(); });
+    $("#vteto2-more").addEventListener("click", () => { state.showAll.vteto2 = !state.showAll.vteto2; renderTab(); });
+    $("#custo-more").addEventListener("click", () => { state.showAll.custo = !state.showAll.custo; renderTab(); });
+    let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(renderTab, 150); });
+  }).catch(err => { $("#status").textContent = "Não foi possível carregar os dados (" + err.message + "). Recarregue a página."; });
+})();
+</script>

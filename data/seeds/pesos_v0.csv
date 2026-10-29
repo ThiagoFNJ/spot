@@ -1,0 +1,14 @@
+tipo,peso,observacao
+PLE,3,projeto de lei ordinária (RI art. 171); peso máximo v0 (spike §4.2)
+PLC,3,projeto de lei complementar; mesmo peso de PLE
+PEL,3,projeto de emenda à Lei Orgânica; mesmo peso de PLE
+PDL,3,projeto de decreto legislativo; mesmo peso de PLE
+PRE,1,projeto de resolução não honorífico (revoga resolução; institui prêmio; carteira funcional); PRE de honraria (Título de Cidadão / Medalha / Comenda) é excluído pelo regex honraria antes da ponderação = 0 (RI arts. 203-208)
+REP,1,requerimento ao Plenário (RI art. 194-195)
+RUP,1,requerimento de urgência / à Presidência; mesmo peso de REP
+RUU,1,requerimento (código histórico; ausente em 2025-26); mesmo peso de REP
+PIN,0.5,indicação (RI art. 209); peso reduzido pela inflação documentada (spike §4.2); indicação de nome de logradouro/equipamento excluída pelo regex logradouro
+MOC,0.25,moção (aplauso / repúdio / apoio); moção de pesar excluída pelo regex pesar = 0
+VTO,0,veto do Executivo; não é produção parlamentar
+SUB,0,substitutivo; conta no eixo 3 (trabalho em comissão) — spike §4.2
+RAD,0,código único no histórico (1 linha; antes de 2025); sem definição conhecida
