@@ -1,0 +1,103 @@
+from datetime import datetime, timedelta
+
+from spidermon import Monitor, MonitorSuite, monitors
+from spidermon.contrib.actions.discord import SendDiscordMessage
+from spidermon.contrib.scrapy.monitors import (
+    ErrorCountMonitor,
+    FinishReasonMonitor,
+    ItemValidationMonitor,
+)
+
+from gazette.utils.api_client import api_client_from_settings
+
+
+@monitors.name("Requests/Items Ratio")
+class RequestsItemsRatioMonitor(Monitor):
+    @monitors.name("Ratio of requests over items scraped count")
+    def test_requests_items_ratio(self):
+        n_scraped_items = self.data.stats.get("item_scraped_count", 0)
+        n_requests_count = self.data.stats.get("downloader/request_count", 0)
+        max_ratio = self.data.crawler.settings.get("QUERIDODIARIO_MAX_REQUESTS_ITEMS_RATIO", 5)
+
+        if n_scraped_items > 0:
+            ratio = n_requests_count / n_scraped_items
+            percent = round(ratio * 100, 2)
+            allowed_percent = round(max_ratio * 100, 2)
+            self.assertLessEqual(
+                ratio,
+                max_ratio,
+                msg=f"""{percent}% is greater than the allowed {allowed_percent}%
+                ratio of requests over items scraped.
+                """,
+            )
+
+
+@monitors.name("Comparison Between Executions")
+class ComparisonBetweenSpiderExecutionsMonitor(Monitor):
+    @monitors.name("Days without gazettes")
+    def test_days_without_gazettes(self):
+        max_days_without_gazettes = self.data.crawler.settings.getint(
+            "QUERIDODIARIO_MAX_DAYS_WITHOUT_GAZETTES"
+        )
+        if max_days_without_gazettes:
+            client = api_client_from_settings(self.data.crawler.settings)
+            if client is None:
+                self.skipTest("QUERIDODIARIO_API_URL is not set. Monitor disabled.")
+
+            reference_date = (datetime.today() - timedelta(days=max_days_without_gazettes)).replace(
+                hour=0, minute=0
+            )
+
+            job_stats = client.get_job_stats(
+                spider_name=self.data.spider.name,
+                since_date=reference_date.date(),
+            )
+            n_scraped_items = self.data.stats.get("item_scraped_count", 0)
+            extracted_in_period = (
+                sum(stat.get("stats", {}).get("item_scraped_count", 0) for stat in job_stats)
+                + n_scraped_items
+            )
+            self.assertNotEqual(
+                extracted_in_period,
+                0,
+                msg=f"No gazettes scraped in the last {max_days_without_gazettes} days.",
+            )
+
+
+class CustomSendDiscordMessage(SendDiscordMessage):
+    def get_message(self):
+        stats = self.data.stats
+        n_scraped_items = stats.get("item_scraped_count", 0)
+
+        failures_report = []
+        for result in self.result.monitor_results:
+            if result.status != "FAIL":
+                continue
+            failures_report.append(f"{result.monitor.name}: {result.reason}")
+
+        failures = len(self.result.failures)
+        emoji = "\U0001f525" if failures > 0 else "\U0001f60e"
+
+        msg_lines = [
+            f"*{self.data.spider.name}* {stats['finish_reason']}",
+            f"- Finish time: *{stats['finish_time']}*",
+            f"- Gazettes scraped: *{n_scraped_items}*",
+            f"- {emoji} {failures} failures {emoji}",
+        ]
+        if failures_report:
+            msg_lines.append("===== FAILURES =====")
+            msg_lines.extend(failures_report)
+
+        return "\n".join(msg_lines)
+
+
+class SpiderCloseMonitorSuite(MonitorSuite):
+    monitors = [
+        ComparisonBetweenSpiderExecutionsMonitor,
+        RequestsItemsRatioMonitor,
+        ErrorCountMonitor,
+        FinishReasonMonitor,
+        ItemValidationMonitor,
+    ]
+
+    monitors_failed_actions = [CustomSendDiscordMessage]

@@ -1,0 +1,15 @@
+ORÃAMENTO | https://www.cms.ba.gov.br/transparencia/orcamento
+Registro de Despesa | https://cmsalvador.sys.inf.br/ca/gridRegistroDespesa
+Repasses ou Transf. de Recursos Financei | https://www.cms.ba.gov.br/transparencia/prestacao-contas
+EMPENHOS | https://cmsalvador.sys.inf.br/ca/gridRegistroEmpenho/
+CONTRATOS | https://cmsalvador.sys.inf.br/ca/contrato/
+NOTAS FISCAIS | https://cmsalvador.sys.inf.br/ca/trans_nf/
+LIQUIDAÃÃO | https://cmsalvador.sys.inf.br/ca/trans_liq/
+PAGAMENTOS | https://cmsalvador.sys.inf.br/ca/trans_pagamento/
+DESPESAS DE VIAGEM | https://www.cms.ba.gov.br/transparencia/despesas-viagem
+EXECUÃÃO ORÃAMENTARIA E FINANCEIRA | https://www.cms.ba.gov.br/transparencia/exec-orcamentaria-financeira
+PARECER PRÉVIO - TCM | https://www.cms.ba.gov.br/transparencia/parecer-tcm
+PRESTAÃÃO DE CONTAS | https://www.cms.ba.gov.br/transparencia/prestacao-contas
+CONVÊNIO, PROGRAMA, AÃÃO, PROJETO E OB | https://cmsalvador.sys.inf.br/ca/gridAcompanhamento/
+RELATÓRIO LRF | https://www.cms.ba.gov.br/transparencia/relatorios-lrf
+VERIFICAR AUTENTICIDADE | https://www.cms.ba.gov.br/transparencia/verify_autenticidade

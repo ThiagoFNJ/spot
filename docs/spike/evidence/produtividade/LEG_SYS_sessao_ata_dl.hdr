@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+Date: Fri, 16 Oct 2026 17:03:06 GMT
+Server: Apache/2.4.25 (Debian)
+Vary: Accept-Encoding
+Cache-Control: max-age=1296000
+Expires: Sat, 31 Oct 2026 17:03:06 GMT
+Transfer-Encoding: chunked
+Content-Type: text/html; charset=UTF-8
+

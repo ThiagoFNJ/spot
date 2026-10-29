@@ -1,0 +1,108 @@
+=== https://sapl.lapa.pr.leg.br/api/
+{"audiencia/tipoaudienciapublica":"http://sapl.lapa.pr.leg.br/api/audiencia/tipoaudienciapublica/","audiencia/audienciapublica":"http://sapl.lapa.pr.leg.br/api/audiencia/audienciapublica/","audiencia/anexoaudienciapublica":"http://sapl.lapa.pr.leg.br/api/audiencia/anexoaudienciapublica/","contenttypes/contenttype":"http://sapl.lapa.pr.leg.br/api/contenttypes/contenttype/","base/casalegislativa":"http://sapl.lapa.pr.leg.br/api/base/casalegislativa/","base/appconfig":"http://sapl.lapa.pr.leg.br/api/base/appconfig/","base/tipoautor":"http://sapl.lapa.pr.leg.br/api/base/tipoautor/","base/autor":"http://sapl.lapa.pr.leg.br/api/base/autor/","base/operadorautor":"http://sapl.lapa.pr.leg.br/api/base/operadorautor/","base/auditlog":"http://sapl.lapa.pr.leg.br/api/base/auditlog/","base/metadata":"http://sapl.lapa.pr.leg.br/api/base/metadata/","comissoes/tipocomissao":"http://sapl.lapa.pr.leg.br/api/comissoes/tipocomissao/","comissoes/comissao":"http://sapl.lapa.pr.leg.br/api/comissoes/comissao/","comissoes/periodo":"http://sapl.lapa.pr.leg.br/api/comissoes/periodo/","comissoes/cargocomissao":"http://sapl.lapa.pr.leg.br/api/comissoes/cargocomissao/","comissoes/composicao":"http://sapl.lapa.pr.leg.br/api/comissoes/composicao/","comissoes/participacao":"http://sapl.lapa.pr.leg.br/api/comissoes/participacao/","comissoes/reuniao":"http://sapl.lapa.pr.leg.br/api/comissoes/reuniao/","comissoes/documentoacessorio":"http://sapl.lapa.pr.leg.br/api/materia/documentoacessorio/","compilacao/perfile
+=== https://sapl.lapa.pr.leg.br/api/sessao/sessaoplenariapresenca/?page_size=2&format=json
+{"pagination":{"links":{"next":"http://sapl.lapa.pr.leg.br/api/sessao/sessaoplenariapresenca/?format=json&page=2&page_size=2","previous":null},"previous_page":null,"next_page":2,"start_index":1,"end_index":2,"total_entries":3843,"total_pages":1922,"page":1},"results":[{"id":518,"__str__":"SessaoPlenariaPresenca object (518)","link_detail_backend":"","metadata":{},"data_sessao":null,"sessao_plenaria":142,"parlamentar":6},{"id":509,"__str__":"SessaoPlenariaPresenca object (509)","link_detail_backend":"","metadata":{},"data_sessao":null,"sessao_plenaria":139,"parlamentar":6}]}
+HTTP 200 application/json
+
+=== https://sapl.lapa.pr.leg.br/api/schema/swagger-ui/
+406 Not Acceptable
+HTTP 406 text/html; charset=utf-8
+
+=== https://sapl.lapa.pr.leg.br/api/docs/
+
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]> <html class="no-js lt-ie9" lang="pt-br"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="pt-br">
+<!--<![endif]-->
+
+  <head>
+    <meta charset="utf-8">
+    <title>SAPL - Sistema de Apoio ao Processo Legislativo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+      <link rel="icon" href="/static/sapl/frontend/img/favicon.ico"  type="image/png" >
+
+        
+        <link href="/static/sapl/frontend/css/chunk-vendors.045ec640.css" rel="stylesheet" />
+<link href="/static/sapl/frontend/css/global.042f6737.css" rel="stylesheet" />
+
+    
+  </head>
+
+  <body>
+    <div class="page fadein">
+
+      
+      
+      <nav class="navbar navbar-inverse navbar-static-top">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+          </div>
+          <div id="navbar" class="navbar-collapse collapse">
+
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+      
+
+      
+      
+      <header class="masthead">
+        <div class="container">
+          <div class="navbar-header">
+            <a class="navbar-brand" 
+=== https://sapl.lapa.pr.leg.br/api/schema/
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Sapl API - docs",
+        "version": "1.0.0",
+        "description": "Sapl API  - Docs"
+    },
+    "paths": {
+        "/api/audiencia/anexoaudienciapublica/": {
+            "get": {
+                "operationId": "api_audiencia_anexoaudienciapublica_list",
+                "description": "",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "arquivo",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Arquivo"
+                    },
+                    {
+                        "in": "query",
+                        "name": "arquivo__contains",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Arquivo"
+                    },
+                    {
+                        "in": "query",
+                        "name": "arquivo__endswith",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Arquivo"
+                    },
+                    {
+                        "in": "query",
+                        "name": "arquivo__gt",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "descr

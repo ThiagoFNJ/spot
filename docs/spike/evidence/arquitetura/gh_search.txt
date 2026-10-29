@@ -1,0 +1,48 @@
+=== vereadores scraper
+fabricadenicho/scraper-vereadores | HTML | ★0 | 2026-04-30 | Scraper de vereadores com dashboard HTML interativo
+pellizzetti/pin3-eleicoes2016-scraper | Python | ★0 | 2018-06-13 | Web scraper utilizado para resgatar informações dos vereadores eleitos no ano de 2016. Construído para a disciplina de Projeto Integrador III - UDESC/CEAVI. 
+=== camara municipal scrapy
+=== sapl api python
+oskarols/saplo4python | Python | ★3 | 2011-04-04 | Saplo API - Python library
+saplo/saplo4python-2.0 | Python | ★3 | 2011-08-01 | Python Library for Saplo Text Analysis API 2.0
+=== transparencia scraper camara municipal
+CodeForCuritiba/cmc-transparencia-spider | Python | ★3 | 2017-07-20 | Python spider for Câmara Municipal de Curitiba
+=== camara municipal salvador
+=== vereadores language:Python
+Tomoyo-Computer-Science-Research-Unit/como-votou | Python | ★0 | 2026-10-16 | Como votou seu vereador: votações nominais, presença e proposições na Câmara Municipal do Rio de Janeiro. g0v.tomoyo.systems/vereadores
+amichiautomacoes/inteligencia-politica2 | Python | ★0 | 2026-10-16 | Para vereadores que disputaram a deputado
+g7t2024/Quiz_Premium_2027 | Python | ★0 | 2026-10-14 | Temas do banco: Poderes, STF e tribunais, Senado, Câmara, Congresso, Brasília, quantidades de deputados, senadores e vereadores, democracia, Constituição Federal, emendas, leis, decretos, projeto de lei, medida provisória e votações no Senado. Também há questões de remédios constitucionais, administração pública, eleições e história constitucional.
+Bordin-Lab/vereadores-rs | Python | ★0 | 2026-10-12 | Data and scripts for the analysis of vereadores elections in Rio Grande do Sul, Brazil
+gutoportelaa/ocr-arena | Python | ★0 | 2026-08-12 | Repositório para benchmark de bibliotecas e VMLs em meio ao desempenho em OCR - Reconhecimento Óptico de Caracteres - em documentos de prefeituras e câmaras de vereadores no Piauí
+tekoryu/contato-vereadores-nacional | Python | ★0 | 2026-06-18 | AI-powered contact extraction across thousands of heterogeneous government sites — Playwright crawling + local LLM, API-first, fully resumable.
+CamaraSinop/Painel-de-controle-vereadores | Python | ★0 | 2026-06-01 | Sistema de Controle de Tribuna Parlamentar Sistema profissional para gerenciamento de tempo de fala, apartes e exibição em telão para Câmaras Municipais. Desenvolvido em Python com interface moderna em PyQt6 e integração com Arduino para controle de hardware.
+Jitterkkk/anhanga-radar | Python | ★0 | 2026-05-25 | App desktop para registro de contatos com vereadores - Anhangá.AI
+florestaro/legisro-backend | Python | ★0 | 2026-04-19 | API backend do LegisRO — Inteligência legislativa para vereadores de Rondônia
+jhonatangomes/api-vereadores | Python | ★0 | 2026-04-08 | api dos vereadores
+=== camara municipal language:Python scraper
+Zeukio/scraper-camara-florianopolis | Python | ★1 | 2025-07-21 | Projeto em Python para raspagem de dados (scraping) do portal de proposições da Câmara Municipal de Florianópolis usando Requests e BeautifulSoup.
+heliohfs/extrator-dados-camara-cg | Python | ★0 | 2021-04-27 | Scraper para extrair dados do site da câmara municipal de Campo Grande para futuras análises.
+CodeForCuritiba/cmc-transparencia-spider | Python | ★3 | 2017-07-20 | Python spider for Câmara Municipal de Curitiba
+=== sapl scraper
+FerFiesco/Python_SAPLogon_scraper | Python | ★0 | 2023-01-06 | 
+=== sapl interlegis api
+=== diario oficial scraper municipio
+=== camara municipal presença vereadores
+Tomoyo-Computer-Science-Research-Unit/como-votou | Python | ★0 | 2026-10-16 | Como votou seu vereador: votações nominais, presença e proposições na Câmara Municipal do Rio de Janeiro. g0v.tomoyo.systems/vereadores
+pedrosolb/olho-na-camara-lapa | HTML | ★0 | 2026-10-16 | Painel cidadão com presença, votações e proposições dos vereadores da Câmara Municipal da Lapa-PR (dados do SAPL).
+TapiocaAberta/presenca-vereadores-sjc | Java | ★5 | 2017-09-19 | Projeto visando simplificar os dados de presenca de vereadors em sessoes na camara municipal de Sao Jose dos Campos.
+=== vereador in:name,description
+wagnertomaszewski-boop/cartao-wagner- | HTML | ★0 | 2026-10-16 | Cartão Digital  | Vereador Wagner Tomaszewski 
+Tomoyo-Computer-Science-Research-Unit/como-votou | Python | ★0 | 2026-10-16 | Como votou seu vereador: votações nominais, presença e proposições na Câmara Municipal do Rio de Janeiro. g0v.tomoyo.systems/vereadores
+eupedroluizz/camara-vereadores-tangamandapio-pweb-i | HTML | ★0 | 2026-10-16 | 
+Ocramzits/Camara-dos-Vereadores | HTML | ★0 | 2026-10-16 | 
+gustavonunes0/GestaoVereadores | TypeScript | ★0 | 2026-10-16 | 
+garcezmatheus-commits/LandingPageGivagoRibeiro | TypeScript | ★0 | 2026-10-16 | Site institucional do mandato do vereador Givago Ribeiro (Santa Maria/RS) — givagoribeiro.com.br
+qeloize-elyot/portal-colegio-luiz-zanchim | TypeScript | ★0 | 2026-10-15 | Portal interno do Colégio Estadual Cívico-Militar Vereador Luiz Zanchim - Centralização de serviços escolares, materiais, grêmio, enquetes e feedback anônimo.
+elanzyn/site-allan-besteiro | JavaScript | ★0 | 2026-10-15 | Site institucional do vereador Allan Besteiro, desenvolvido com React e Vite.
+paulotillmann/GG-Nego | TypeScript | ★0 | 2026-10-13 | Gestão de Gabinete - Vereador Nego
+Bordin-Lab/vereadores-rs | Python | ★0 | 2026-10-12 | Data and scripts for the analysis of vereadores elections in Rio Grande do Sul, Brazil
+=== cota parlamentar scraper
+=== portal transparencia camara scraper
+=== lupa vereadores
+=== radar vereador

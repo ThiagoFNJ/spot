@@ -1,0 +1,15 @@
+HTTP/1.1 200 OK
+Date: Fri, 16 Oct 2026 17:06:00 GMT
+Server: Apache/2.4.25 (Debian)
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+X-XSS-Protection: 1; mode=block
+X-Frame-Options: SAMEORIGIN
+Set-Cookie: PHPSESSID=uker9gqdesaruphc3lt90vqvt6; path=/; HttpOnly
+Set-Cookie: sc_actual_lang_LEGSYS=pt_br; path=/
+Set-Cookie: PHPSESSID_=bmV0bWFrZT8xN2EyZjJiMTFmZWI4MDc1; expires=Sat, 17-Oct-2026 17:06:00 GMT; Max-Age=86400
+Vary: Accept-Encoding
+Transfer-Encoding: chunked
+Content-Type: text/html; charset=ISO-8859-1
+

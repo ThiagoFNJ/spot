@@ -1,0 +1,1 @@
+{"steps":438,"count":438,"message":"Arquivo gerado com sucesso","link":"\/producao\/tmp\/sc_csv_20261027180005_573_LEG_SYS_frequencia.csv","md5":"632134634832ea25266e80d9ebd659ff","returnUrl":".\/","returnOption":"volta_grid","complete":true}

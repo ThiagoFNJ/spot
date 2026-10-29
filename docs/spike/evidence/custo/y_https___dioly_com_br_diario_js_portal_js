@@ -1,0 +1,285 @@
+// Estado global
+let currentPage = 1;
+let currentFilters = {};
+const perPageLimit = 30;   // 29/09/2026: eram 12 — o setor pediu mais por página
+
+// Inicialização
+document.addEventListener('DOMContentLoaded', () => {
+    loadSettings();
+    loadFiltros();
+    loadDiarios();
+    setupEventListeners();
+});
+
+// Carrega configurações do site (logo dinâmica do banco se existir)
+async function loadSettings() {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/settings/`);
+        if (res.ok) {
+            const data = await res.json();
+            const s = data.settings || {};
+            
+            const logoUrl = s.SITE_LOGO_URL || '';
+            const subtitulo = s.SITE_SUBTITULO || 'Diário Oficial';
+            const footerTexto = s.FOOTER_TEXTO || 'A casa do povo, a serviço da cidade.';
+            
+            // Se tiver logo no banco, usa ela
+            if (logoUrl) {
+                const navLogo = document.getElementById('navbar-logo-img');
+                navLogo.src = logoUrl;
+                navLogo.style.display = 'block';
+            }
+            
+            // Atualiza subtítulo do footer
+            const footSubtitle = document.getElementById('footer-subtitle');
+            if (footSubtitle) footSubtitle.textContent = footerTexto;
+            
+            // Atualiza título da página
+            document.title = `${subtitulo} - Câmara Municipal de Salvador`;
+        }
+    } catch (e) {
+        console.error("Erro ao carregar configurações", e);
+    }
+}
+
+// Carrega meses e anos do banco dinamicamente
+async function loadFiltros() {
+    try {
+        // Carregar meses
+        const resMeses = await fetch(`${API_BASE_URL}/api/meses`);
+        if (resMeses.ok) {
+            const meses = await resMeses.json();
+            const selectMes = document.getElementById('filter-mes');
+            selectMes.innerHTML = '<option value="">Todos os meses</option>';
+            meses.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.codigo;
+                opt.textContent = m.nome;
+                selectMes.appendChild(opt);
+            });
+        }
+
+        // Carregar anos
+        const resAnos = await fetch(`${API_BASE_URL}/api/anos`);
+        if (resAnos.ok) {
+            const anos = await resAnos.json();
+            const selectAno = document.getElementById('filter-ano');
+            selectAno.innerHTML = '<option value="">Todos os anos</option>';
+            anos.forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a.codigo;
+                opt.textContent = a.codigo;
+                selectAno.appendChild(opt);
+            });
+        }
+    } catch (e) {
+        console.error("Erro ao carregar filtros", e);
+    }
+}
+
+// Carrega listagem de diários
+async function loadDiarios(page = 1) {
+    currentPage = page;
+    const grid = document.getElementById('cards-grid');
+    const loading = document.getElementById('loading');
+    const noResults = document.getElementById('no-results');
+    const pagination = document.getElementById('pagination');
+    
+    grid.innerHTML = '';
+    pagination.innerHTML = '';
+    loading.classList.remove('hidden');
+    noResults.classList.add('hidden');
+    
+    try {
+        const queryParams = new URLSearchParams({
+            page: page,
+            per_page: perPageLimit,
+            ...currentFilters
+        });
+        
+        const res = await fetch(`${API_BASE_URL}/api/diarios/?${queryParams}`);
+        if (!res.ok) throw new Error('Falha na requisição');
+        
+        const data = await res.json();
+        const diarios = data.items || [];
+        const total = data.total || 0;
+        const totalPages = data.total_pages || Math.ceil(total / perPageLimit);
+        
+        loading.classList.add('hidden');
+        
+        if (diarios.length === 0) {
+            noResults.classList.remove('hidden');
+        } else {
+            diarios.forEach(diario => renderCard(diario));
+            renderPagination(total, page, perPageLimit, totalPages);
+        }
+    } catch (e) {
+        console.error("Erro ao carregar diários", e);
+        loading.classList.add('hidden');
+        noResults.classList.remove('hidden');
+        noResults.querySelector('p').textContent = 'Erro ao carregar os diários. Tente novamente.';
+    }
+}
+
+// Renderiza um card
+function renderCard(diario) {
+    const grid = document.getElementById('cards-grid');
+    
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.onclick = () => openPdfViewer(diario);
+    
+    const img = document.createElement('img');
+    img.className = 'card-thumbnail';
+    img.src = diario.thumbnail_url || '';
+    img.alt = diario.titulo || 'Diário Oficial';
+    img.loading = 'lazy';
+    img.onerror = () => {
+        img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ccc" width="100%" height="100%"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>';
+    };
+    
+    const info = document.createElement('div');
+    info.className = 'card-info';
+    
+    const title = document.createElement('p');
+    title.className = 'card-title';
+    title.textContent = diario.titulo || `Diário Oficial ${diario.numero || ''}`;
+    
+    info.appendChild(title);
+    card.appendChild(img);
+    card.appendChild(info);
+    
+    grid.appendChild(card);
+}
+
+// Renderiza paginação
+function renderPagination(total, page, perPage, totalPages) {
+    const pagination = document.getElementById('pagination');
+    if (totalPages <= 1) return;
+    
+    // Previous button
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '«';
+    prevBtn.disabled = page === 1;
+    prevBtn.onclick = () => loadDiarios(page - 1);
+    pagination.appendChild(prevBtn);
+    
+    // Page numbers
+    const startPage = Math.max(1, page - 2);
+    const endPage = Math.min(totalPages, page + 2);
+    
+    for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.textContent = i;
+        if (i === page) pageBtn.classList.add('active');
+        pageBtn.onclick = () => loadDiarios(i);
+        pagination.appendChild(pageBtn);
+    }
+    
+    // Next button
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = '»';
+    nextBtn.disabled = page === totalPages;
+    nextBtn.onclick = () => loadDiarios(page + 1);
+    pagination.appendChild(nextBtn);
+}
+
+// Detecta mobile
+function isMobile() {
+    return window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+// Abre modal do PDF (desktop) ou nova aba (mobile)
+function openPdfViewer(diario) {
+    const pdfUrl = diario.pdf_url || '';
+    
+    if (isMobile()) {
+        // Mobile: abre direto no navegador nativo
+        window.open(pdfUrl, '_blank');
+        return;
+    }
+    
+    // Desktop: abre no modal com iframe
+    const modal = document.getElementById('pdf-modal');
+    const iframe = document.getElementById('pdf-modal-iframe');
+    const title = document.getElementById('pdf-modal-title');
+    
+    iframe.src = pdfUrl;
+    title.textContent = diario.titulo || `Visualizando Diário ${diario.numero || ''}`;
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+// Fecha modal
+function closePdfViewer() {
+    const modal = document.getElementById('pdf-modal');
+    const iframe = document.getElementById('pdf-modal-iframe');
+    
+    modal.classList.add('hidden');
+    iframe.src = '';
+    document.body.style.overflow = '';
+}
+
+// Event listeners
+function setupEventListeners() {
+    const searchBtn = document.getElementById('search-btn');
+    const searchInput = document.getElementById('search-input');
+    const filterTipo = document.getElementById('filter-tipo');
+    const filterMes = document.getElementById('filter-mes');
+    const filterAno = document.getElementById('filter-ano');
+    
+    searchBtn.addEventListener('click', search);
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') search();
+    });
+    
+    filterTipo.addEventListener('change', search);
+    filterMes.addEventListener('change', search);
+    filterAno.addEventListener('change', search);
+    
+    const closeBtn = document.getElementById('pdf-modal-close');
+    const modal = document.getElementById('pdf-modal');
+    
+    closeBtn.addEventListener('click', closePdfViewer);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closePdfViewer();
+    });
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+            closePdfViewer();
+        }
+    });
+}
+
+// Busca com filtros
+function search() {
+    const q = document.getElementById('search-input').value.trim();
+    const tipo = document.getElementById('filter-tipo').value;
+    const mes = document.getElementById('filter-mes').value;
+    const ano = document.getElementById('filter-ano').value;
+    
+    currentFilters = {};
+    
+    if (q) {
+        // Detecta se é uma data (dd/mm/yyyy ou dd-mm-yyyy)
+        const dateMatch = q.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+        if (dateMatch) {
+            const dia = dateMatch[1].padStart(2, '0');
+            const mesNum = dateMatch[2].padStart(2, '0');
+            const anoNum = dateMatch[3];
+            currentFilters.data = `${dia}/${mesNum}/${anoNum}`;
+        } else if (/^\d+$/.test(q)) {
+            // Se digitou só números, busca por número do diário
+            currentFilters.numero = q;
+        } else {
+            currentFilters.q = q;
+        }
+    }
+    
+    if (tipo) currentFilters.tipo = tipo;
+    if (mes) currentFilters.mes = mes;
+    if (ano) currentFilters.ano = ano;
+    
+    loadDiarios(1);
+}

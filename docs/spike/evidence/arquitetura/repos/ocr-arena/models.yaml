@@ -1,0 +1,76 @@
+ollama_models:
+  olmocr2:
+    enabled: false
+    name: "richardyoung/olmocr2"
+    prompt_template: "Extract all visible text from this image, preserving natural reading order. Do not summarize, interpret, or freely correct. Preserve titles, lists, simple tables, and blocks. Indicate uncertainty for illegible sections. Do not invent content."
+    json_schema: |
+      {
+        "type": "object",
+        "properties": {
+          "page_number": {"type": "integer"},
+          "language_guess": {"type": "string"},
+          "rotation_guess": {"type": "integer"},
+          "has_tables": {"type": "boolean"},
+          "has_images": {"type": "boolean"},
+          "text_markdown": {"type": "string"},
+          "text_plain": {"type": "string"}
+        },
+        "required": ["page_number", "text_markdown", "text_plain"]
+      }
+  glm_ocr:
+    enabled: false
+    name: "glm-ocr"
+    prompt_template: "Extract all visible text from this image, preserving natural reading order. Do not summarize, interpret, or freely correct. Preserve titles, lists, simple tables, and blocks. Indicate uncertainty for illegible sections. Do not invent content."
+    json_schema: |
+      {
+        "type": "object",
+        "properties": {
+          "page_number": {"type": "integer"},
+          "language_guess": {"type": "string"},
+          "rotation_guess": {"type": "integer"},
+          "has_tables": {"type": "boolean"},
+          "has_images": {"type": "boolean"},
+          "text_markdown": {"type": "string"},
+          "text_plain": {"type": "string"}
+        },
+        "required": ["page_number", "text_markdown", "text_plain"]
+      }
+  minicpm_v:
+    enabled: false
+    name: "openbmb/minicpm-v2.5:q6_K"
+    prompt_template: "Extract all visible text from this image, preserving natural reading order. Do not summarize, interpret, or freely correct. Preserve titles, lists, simple tables, and blocks. Indicate uncertainty for illegible sections. Do not invent content."
+    json_schema: |
+      {
+        "type": "object",
+        "properties": {
+          "page_number": {"type": "integer"},
+          "language_guess": {"type": "string"},
+          "rotation_guess": {"type": "integer"},
+          "has_tables": {"type": "boolean"},
+          "has_images": {"type": "boolean"},
+          "text_markdown": {"type": "string"},
+          "text_plain": {"type": "string"}
+        },
+        "required": ["page_number", "text_markdown", "text_plain"]
+      }
+
+external_engines:
+  tesseract:
+    enabled: true
+    path: "${TESSERACT_PATH}"
+    language: "por+eng"
+  docling:
+    enabled: true
+    use_gpu: false          # CPU-only run for baseline comparison
+  docling_gpu:
+    enabled: true
+    use_gpu: true           # CUDA-accelerated run
+  marker:
+    enabled: false
+    model_path: "${MARKER_MODEL_PATH}"
+  markitdown:
+    enabled: false
+  unlimited_ocr:
+    enabled: true
+    model_name: "baidu/Unlimited-OCR"
+    torch_dtype: "bfloat16"
