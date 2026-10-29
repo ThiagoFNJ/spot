@@ -31,6 +31,19 @@ Permissões, versionamento, recuperação de dados apagados e o que ainda falta 
 Silver e gold são publicados em Parquet, uma pasta por tabela, com `_publicacao.json` (data, commit e linhas).
 `make publish` só envia depois de verificar que nenhuma coluna tem CPF ou dado bancário.
 
+## Painel
+
+O painel é uma página estática (`site/index.html`, sem build) publicada no GitHub Pages pelo workflow
+`.github/workflows/pages.yml`. O HTML vem deste repositório; os JSON e as fotos vêm do bucket gold público. O
+workflow roda a cada merge que mexa no painel, uma vez por dia e sob demanda (Actions → "Painel no GitHub Pages").
+
+Para ver localmente sem rodar o pipeline:
+
+```sh
+uv run python -m spot.cloud pull-site   # baixa JSON e fotos do bucket público, sem credencial
+python3 -m http.server -d site 8000      # abre em http://localhost:8000
+```
+
 ## Rodando localmente
 
 Requer Python 3.12 e [uv](https://docs.astral.sh/uv/).

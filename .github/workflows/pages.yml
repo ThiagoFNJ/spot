@@ -1,0 +1,55 @@
+# Publica o painel (site/) no GitHub Pages.
+# O HTML vem do repositório; os JSON e as fotos vêm do bucket gold público (gs://spot-gold-9122a143/site/),
+# baixados sem credencial por `spot.cloud pull-site`. Roda a cada merge na master que mexa no painel,
+# uma vez por dia (para pegar o `make publish` mais recente) e sob demanda.
+name: Painel no GitHub Pages
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "site/**"
+      - "src/spot/cloud.py"
+      - ".github/workflows/pages.yml"
+  schedule:
+    - cron: "0 10 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - name: Baixa JSON e fotos do bucket gold público
+        run: uv run python -m spot.cloud pull-site
+      - name: Confere que o painel tem dados
+        run: |
+          test -s site/data/vereadores.json
+          test -s site/data/meta.json
+          echo "JSON: $(ls site/data | wc -l) · fotos: $(ls site/fotos | wc -l)"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -8,12 +8,16 @@ O pipeline continua trabalhando em ``data/`` (cache local); este módulo só sin
 - ``publish``: lê ``data/silver/spot.duckdb``, separa as tabelas em silver (as que o build carrega de CSV:
   ``data/silver/*.csv`` + ``data/seeds/*.csv`` + ``presenca_mvp``) e gold (as que as métricas criam), grava cada uma
   em Parquet em ``gs://<bucket>/<tabela>/<tabela>.parquet``, carrega no BigQuery (``WRITE_TRUNCATE``) e envia o
-  JSON do painel para ``gs://<bucket-gold>/site/data/``. Antes de enviar qualquer coisa, procura CPF e dados
+  JSON e as fotos do painel para ``gs://<bucket-gold>/site/``. Antes de enviar qualquer coisa, procura CPF e dados
   bancários em todas as colunas de texto e aborta se achar.
+- ``pull-site``: baixa do bucket gold público os arquivos do painel para ``site/``, sem credencial (usado pelo
+  workflow do GitHub Pages).
 
 Quem contribui sem credencial roda tudo localmente e não precisa deste módulo.
 
-CLI: ``uv run --extra gcp python -m spot.cloud {push-bronze,pull-bronze,publish} [--dry-run] [--only silver|gold]``.
+
+CLI: ``uv run --extra gcp python -m spot.cloud {push-bronze,pull-bronze,publish} [--dry-run] [--only silver|gold]``;
+``uv run python -m spot.cloud pull-site`` não precisa do extra.
 """
 
 from __future__ import annotations
@@ -26,15 +30,17 @@ import logging
 import os
 import subprocess
 import tempfile
+import urllib.parse
+import urllib.request
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import duckdb
 
 from spot.build import DB_NAME, csv_tables
-from spot.config import BRONZE, ROOT, SEEDS, SILVER
+from spot.config import BRONZE, ROOT, SEEDS, SILVER, USER_AGENT
 
 log = logging.getLogger(__name__)
 
@@ -254,23 +260,71 @@ def publish(
                 bucket.blob("_publicacao.json").upload_from_string(
                     json.dumps(meta, ensure_ascii=False, indent=2), content_type="application/json"
                 )
-        if "gold" in alvo and site_data.exists():
+        if "gold" in alvo:
             bucket = gcs.bucket(BUCKETS["gold"])
-            for p in sorted(site_data.glob("*.json")):
-                bucket.blob(f"site/data/{p.name}").upload_from_filename(
-                    str(p), content_type="application/json"
-                )
-            log.info(
-                "painel: %d JSON em gs://%s/site/data/", len(list(site_data.glob("*.json"))), bucket.name
-            )
+            arquivos = site_files(site_data.parent)
+            for path, key, ctype in arquivos:
+                bucket.blob(key).upload_from_filename(str(path), content_type=ctype)
+            log.info("painel: %d arquivos (JSON e fotos) em gs://%s/site/", len(arquivos), bucket.name)
         return resumo
     finally:
         con.close()
 
 
+# ---------------------------------------------------------------- arquivos do painel (site/)
+
+SITE_TIPOS = {"data": ("*.json", "application/json"), "fotos": ("*.jpg", "image/jpeg")}
+GCS_PUBLIC = "https://storage.googleapis.com"
+
+
+def site_files(site_dir: Path = SITE_DATA.parent) -> list[tuple[Path, str, str]]:
+    """``(caminho local, chave no bucket gold, content-type)`` dos JSON e das fotos que o painel lê."""
+    out: list[tuple[Path, str, str]] = []
+    for sub, (glob, ctype) in SITE_TIPOS.items():
+        for p in sorted((site_dir / sub).glob(glob)):
+            out.append((p, f"site/{sub}/{p.name}", ctype))
+    return out
+
+
+def _http_get(url: str) -> bytes:
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return r.read()
+
+
+def list_public(bucket: str, prefix: str, get=_http_get) -> list[str]:
+    """Nomes dos objetos de um bucket público (API JSON do GCS, sem credencial), seguindo a paginação."""
+    nomes: list[str] = []
+    token = ""
+    while True:
+        q = {"prefix": prefix, "fields": "items(name),nextPageToken"}
+        if token:
+            q["pageToken"] = token
+        page = json.loads(get(f"{GCS_PUBLIC}/storage/v1/b/{bucket}/o?{urllib.parse.urlencode(q)}"))
+        nomes += [i["name"] for i in page.get("items", [])]
+        token = page.get("nextPageToken", "")
+        if not token:
+            return nomes
+
+
+def pull_site(site_dir: Path = SITE_DATA.parent, bucket: str = BUCKETS["gold"], get=_http_get) -> int:
+    """Baixa do bucket gold público os JSON e as fotos do painel para ``site/``. Não precisa de credencial."""
+    n = 0
+    for name in list_public(bucket, "site/", get):
+        rel = PurePosixPath(name).relative_to("site")
+        if name.endswith("/") or ".." in rel.parts or rel.parts[0] not in SITE_TIPOS:
+            continue
+        dest = site_dir.joinpath(*rel.parts)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(get(f"{GCS_PUBLIC}/{bucket}/{urllib.parse.quote(name)}"))
+        n += 1
+    log.info("painel: %d arquivos baixados de gs://%s/site/ para %s", n, bucket, site_dir)
+    return n
+
+
 def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(description="Sincroniza o bronze e publica silver/gold no GCP")
-    ap.add_argument("acao", choices=["push-bronze", "pull-bronze", "publish"])
+    ap.add_argument("acao", choices=["push-bronze", "pull-bronze", "publish", "pull-site"])
     ap.add_argument(
         "--dry-run", action="store_true", help="só mostra o que faria (publish ainda roda a trava de CPF)"
     )
@@ -288,6 +342,8 @@ def main(argv: list[str] | None = None) -> None:
         push_bronze(dry_run=args.dry_run)
     elif args.acao == "pull-bronze":
         pull_bronze(dry_run=args.dry_run, prefix=args.prefix)
+    elif args.acao == "pull-site":
+        pull_site()
     else:
         publish(camadas_alvo=(args.only,) if args.only else ("silver", "gold"), dry_run=args.dry_run)
 
