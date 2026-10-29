@@ -12,7 +12,7 @@ Legislatura 2025–2028 (dados de 2025-01 em diante). Histórico 2018+ fica para
 - `src/spot/parse/<fonte>.py` — bronze → tabelas limpas (CSV UTF-8 em `data/silver/`). Sem rede.
 - `src/spot/build.py` — monta `data/silver/spot.duckdb` a partir dos CSVs silver + `data/seeds/`.
 - `data/seeds/` — tabelas curadas à mão (`vereador_dim.csv`, `vereador_alias.csv`). Únicos dados versionados no git; nunca colocar CPF, agência ou conta nelas.
-- Dados fora do git: bronze (bucket privado no GCP), silver e gold (buckets públicos + BigQuery; migração em andamento, hoje ainda em `data/`). Toda fonte nova ganha uma linha em `docs/FONTES-BRONZE.md` (onde, quando, como). Normas citadas no painel ficam em `data/bronze/legislacao/` com manifesto. Licenças: código AGPL-3.0, dados CC BY-SA 4.0.
+- Dados fora do git: bronze (bucket privado no GCP), silver e gold (buckets + BigQuery; `data/` é cache local). Toda fonte nova ganha uma linha em `docs/FONTES-BRONZE.md` (onde, quando, como). Normas citadas no painel ficam em `data/bronze/legislacao/` com manifesto. Licenças: código AGPL-3.0, dados CC BY-SA 4.0.
 - CLI: `uv run python -m spot.collect.<fonte>`, `uv run python -m spot.parse.<fonte>`, `uv run python -m spot.build`.
 - `collect/etcm.py` (PDFs do e-TCM, Playwright/Chromium headless, ~5 min por mês) fica fora de `make collect`/`refresh`: rode `make etcm` à parte (ver `docs/etcm.md`).
 - `parse/tcm_pessoal.py` lê as planilhas da consulta de pessoal do TCM-BA exportadas **à mão** (reCAPTCHA; nunca automatizar — ver `data/bronze/tcm_pessoal/README.md`): `uv run python -m spot.parse.tcm_pessoal --ingest ~/Downloads/*.xlsx`. `metrics/custo.py` reconstrói com elas a folha de 2026 por gabinete (lotação = última matrícula vista na folha do site; `folha.fonte`, `metrica_lotacao_cobertura`).
@@ -22,8 +22,9 @@ Legislatura 2025–2028 (dados de 2025-01 em diante). Histórico 2018+ fica para
 - Testes: `uv run pytest`. Fixtures em `tests/fixtures/` (ex.: `frequencia_2025-03_tipo1.csv`, 430 linhas reais). Lint: `uv run ruff check` + `uv run ruff format` (regras em `pyproject.toml`).
 - `collect/vereadores.py --fotos` baixa as fotos oficiais dos 50 vereadores para `data/bronze/vereadores/fotos/` e copia para `site/fotos/` (reduzidas a 400 px com `sips`); o Artifact publica `site/fotos/*.jpg` junto com os JSON (CSP do visualizador bloqueia imagens de outros hosts). Redes sociais vêm do seed `data/seeds/vereador_redes.csv`.
 - Período no site: `ano = 0` é a legislatura inteira (linhas agregadas que o export acrescenta a cada tabela por ano; tabelas mensais são filtradas por competência). Toda tabela nova por ano deve ganhar a linha 0 no `export_site.py`.
+- `src/spot/cloud.py` — sincroniza o bronze com `gs://spot-bronze-9122a143` (`make push-bronze`/`pull-bronze`, nunca apaga no bucket) e publica silver/gold em Parquet no GCS + BigQuery (`make publish`, datasets `spot_silver`/`spot_gold`, `southamerica-east1`). Silver = tabelas vindas de CSV + `presenca_mvp`; gold = o resto. A publicação aborta se `find_sensitive` achar CPF ou agência/conta: corrija o parser, não a trava.
 - `src/spot/export_site.py` → `site/data/*.json`; `site/index.html` é o dashboard (HTML puro, SVG próprio, sem build). Publicado como Artifact em https://claude.ai/artifact/VjJTNXZauqBnibJ54Aobtp; para GitHub Pages basta servir a pasta `site/`. Mantenha os dois em sincronia: toda mudança de schema no JSON exige mudar a página.
-- `make` — alvos `collect`, `parse`, `build`, `metrics`, `site`, `refresh`, `test`, `lint` (ver `Makefile`).
+- `make` — alvos `collect`, `parse`, `build`, `metrics`, `site`, `refresh`, `test`, `lint`, `push-bronze`, `pull-bronze`, `publish` (ver `Makefile`). Mudanças entram sempre por PR; nunca commitar direto na master.
 
 ## Regras de coleta
 - ≤ 1 request/s por host, User-Agent identificado (`spot-cms-monitor/0.1 (+github)`), timeout explícito, retry 3x com backoff.

@@ -55,8 +55,9 @@ Ficam **no repositório**, não no bucket, porque são decisões editoriais revi
 `vereador_dim.csv`, `vereador_alias.csv`, `vereador_redes.csv` (Instagram e X), `verba_categorias.csv`,
 `parametros_custo.csv`, `pesos_v0.csv`. Cada uma tem a origem descrita em `data/seeds/README.md`.
 
-## Destino no GCP (planejado)
+## Onde o bronze fica guardado
 
-O caminho local `data/bronze/<fonte>/…` é espelhado 1:1 no bucket privado do bronze
-(`gs://<bucket-bronze>/<fonte>/…`), com o mesmo `manifest.jsonl`. Silver e gold vão para buckets de leitura
-pública e para datasets do BigQuery. Quem precisar do bronze para pesquisa pode pedir acesso de leitura.
+O caminho local `data/bronze/<fonte>/…` é espelhado 1:1 em `gs://spot-bronze-9122a143/<fonte>/…`, com o mesmo
+`manifest.jsonl` (`make push-bronze` e `make pull-bronze`, módulo `src/spot/cloud.py`). O bucket é privado, tem
+versionamento e bloqueio de acesso público. As evidências binárias do spike estão em
+`gs://spot-bronze-9122a143/_evidencias_spike/`. Quem precisar do bronze para pesquisa pode pedir acesso de leitura.

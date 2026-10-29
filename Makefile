@@ -3,7 +3,7 @@ PY := uv run python
 CUR := $(shell date +%Y-%m)
 PREV := $(shell date -v-1m +%Y-%m 2>/dev/null || date -d "-1 month" +%Y-%m)
 
-.PHONY: all collect etcm parse build metrics site refresh test lint
+.PHONY: all collect etcm parse build metrics site refresh test lint push-bronze pull-bronze publish
 
 all: collect parse build metrics site
 
@@ -59,3 +59,14 @@ test:
 
 lint:
 	uv run ruff check src tests && uv run ruff format --check src tests
+
+# GCP (requer credencial: `gcloud auth application-default login`). Bronze privado; silver/gold públicos + BigQuery.
+GCP := uv run --extra gcp python -m spot.cloud
+push-bronze:
+	$(GCP) push-bronze
+
+pull-bronze:
+	$(GCP) pull-bronze
+
+publish:
+	$(GCP) publish
