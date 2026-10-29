@@ -70,3 +70,49 @@ def test_find_sensitive_bloqueia_cpf_e_banco_mas_aceita_mascara_e_cnpj() -> None
         ("verba", "texto", "agencia_conta"),
         ("verba", "texto", "cpf_rotulado"),
     }
+
+
+def test_site_files_lista_json_e_fotos(tmp_path: Path) -> None:
+    (tmp_path / "data").mkdir()
+    (tmp_path / "fotos").mkdir()
+    (tmp_path / "data" / "meta.json").write_text("{}")
+    (tmp_path / "fotos" / "beca.jpg").write_bytes(b"jpg")
+    (tmp_path / "index.html").write_text("<html>")
+    got = [(k, t) for _, k, t in cloud.site_files(tmp_path)]
+    assert got == [("site/data/meta.json", "application/json"), ("site/fotos/beca.jpg", "image/jpeg")]
+
+
+def _fake_bucket(objetos: dict[str, bytes]):
+    """Simula a API JSON pública do GCS com páginas de 1 item, para exercitar a paginação."""
+    import json as _json
+    from urllib.parse import parse_qs, unquote, urlparse
+
+    nomes = sorted(objetos)
+
+    def get(url: str) -> bytes:
+        u = urlparse(url)
+        if u.path.startswith("/storage/v1/"):
+            q = parse_qs(u.query)
+            i = int(q.get("pageToken", ["0"])[0])
+            page = {"items": [{"name": nomes[i]}]} if i < len(nomes) else {}
+            if i + 1 < len(nomes):
+                page["nextPageToken"] = str(i + 1)
+            return _json.dumps(page).encode()
+        return objetos[unquote(u.path.split("/", 2)[2])]
+
+    return get
+
+
+def test_pull_site_pagina_baixa_e_ignora_caminhos_estranhos(tmp_path: Path) -> None:
+    get = _fake_bucket(
+        {
+            "site/data/meta.json": b"{}",
+            "site/fotos/beca.jpg": b"jpg",
+            "site/../fora.txt": b"x",
+            "site/outra/coisa.txt": b"x",
+        }
+    )
+    assert cloud.pull_site(tmp_path, bucket="b", get=get) == 2
+    assert (tmp_path / "data" / "meta.json").read_bytes() == b"{}"
+    assert (tmp_path / "fotos" / "beca.jpg").read_bytes() == b"jpg"
+    assert not (tmp_path.parent / "fora.txt").exists() and not (tmp_path / "outra").exists()
