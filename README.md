@@ -11,14 +11,23 @@ TCM-BA). Cada número aponta para a fonte e a norma de origem.
 | Camada | O que é | Onde fica | Acesso |
 |---|---|---|---|
 | Bronze | Arquivos brutos, imutáveis, como a fonte entregou, com manifesto de origem | Bucket no GCP | **Privado** (contém CPF e dados bancários) |
-| Silver | Tabelas limpas, uma por entidade, sem CPF nem conta | Bucket no GCP e dataset no BigQuery | Leitura pública |
-| Gold | Métricas por vereador, gabinete e mês, e o JSON do painel | Bucket no GCP e dataset no BigQuery | Leitura pública |
+| Silver | Tabelas limpas, uma por entidade, sem CPF nem conta | Bucket no GCP e dataset no BigQuery | Leitura pública (a liberar) |
+| Gold | Métricas por vereador, gabinete e mês, e o JSON do painel | Bucket no GCP e dataset no BigQuery | Leitura pública (a liberar) |
 | Seeds | Tabelas curadas à mão (identidade dos vereadores, redes sociais, constantes legais, pesos) | Este repositório, `data/seeds/` | Público, revisável por PR |
 
 O bronze é privado, mas é **reconstruível**: [`docs/FONTES-BRONZE.md`](docs/FONTES-BRONZE.md) diz onde, quando e
 como cada arquivo foi obtido, e o código de coleta está todo em `src/spot/collect/`.
 
-A migração do armazenamento local para o GCP está em andamento; hoje o pipeline ainda lê e grava em `data/`.
+O pipeline trabalha em `data/` como cache local e sincroniza com o GCP (projeto na região `southamerica-east1`):
+
+| Recurso | Nome |
+|---|---|
+| Bronze | `gs://spot-bronze-9122a143` (privado, versionado) |
+| Silver | `gs://spot-silver-9122a143` e dataset BigQuery `spot_silver` |
+| Gold | `gs://spot-gold-9122a143` (inclui `site/data/`) e dataset BigQuery `spot_gold` |
+
+Silver e gold são publicados em Parquet, uma pasta por tabela, com `_publicacao.json` (data, commit e linhas).
+`make publish` só envia depois de verificar que nenhuma coluna tem CPF ou dado bancário.
 
 ## Rodando localmente
 
@@ -33,6 +42,11 @@ make build     # data/silver/spot.duckdb
 make metrics   # gold: tabelas metrica_* e relatórios em docs/relatorios/
 make site      # site/data/*.json para o painel em site/index.html
 make test lint
+
+# Com credencial do GCP (`gcloud auth application-default login`):
+make pull-bronze   # baixa o bronze do bucket privado (pede acesso de leitura)
+make push-bronze   # envia ao bucket o que a coleta trouxe de novo
+make publish       # silver e gold: Parquet no GCS + carga no BigQuery
 ```
 
 Convenções do código (layout, regras de coleta, sentinelas, política de atualização): [`CLAUDE.md`](CLAUDE.md).
