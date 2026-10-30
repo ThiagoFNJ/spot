@@ -210,8 +210,10 @@ def _con(tmp_path: Path) -> tuple[duckdb.DuckDBPyConnection, Path]:
         "gabinete_cc_codigo BIGINT)"
     )
     con.executemany("INSERT INTO vereador_dim VALUES (?, ?, ?, ?, ?)", DIM)
-    con.execute("CREATE TABLE presenca_mvp (vereador_id VARCHAR, data_sessao DATE, em_exercicio BOOLEAN)")
-    con.executemany("INSERT INTO presenca_mvp VALUES (?, ?::DATE, true)", GRADE)
+    con.execute(
+        "CREATE TABLE presenca_mvp (vereador_id VARCHAR, data_sessao DATE, em_exercicio BOOLEAN, status VARCHAR)"
+    )
+    con.executemany("INSERT INTO presenca_mvp VALUES (?, ?::DATE, true, 'Presente')", GRADE)
     params = tmp_path / "parametros_custo.csv"
     params.write_text(PARAMS_CSV, encoding="utf-8")
     return con, params
@@ -511,7 +513,8 @@ def test_verba_fallback_mes_emissao_segue_ocupante(con_verba: duckdb.DuckDBPyCon
 
 def test_verba_anual_e_ranking(con_verba: duckdb.DuckDBPyConnection) -> None:
     anual = {r["vereador_id"]: r for r in mc._rows(con_verba, "SELECT * FROM metrica_custo_anual")}
-    assert (anual["ana"]["meses_com_verba"], anual["ana"]["verba_compensatoria_observada"]) == (2, 100.0)
+    # só o mês com ressarcimento conta (o outro mês tem verba 0, não "com verba")
+    assert (anual["ana"]["meses_com_verba"], anual["ana"]["verba_compensatoria_observada"]) == (1, 100.0)
     assert (
         anual["bob"]["verba_compensatoria_observada"] == 70.0
         and anual["tom"]["verba_compensatoria_observada"] is None
@@ -651,4 +654,51 @@ def test_verba_empenho_duplicado_e_competencia_do_processo(tmp_path: Path) -> No
         ("2025NE000289", "2025NE000302"),
         ("2025NE000303", "2025NE000302"),
     ]
+    con.close()
+
+
+def test_verba_processo_de_outro_vereador_e_pago_so_no_etcm(tmp_path: Path) -> None:
+    # NE 652/2025 é de bob mas o objeto cita o PP 2116/2025, que é de ana e cita o NE 644: não é duplicata.
+    # PP 1613/2026 de bob (jul/2026) foi pago segundo o e-TCM, mas o NE 549 citado não está no portal: entra pelo
+    # total do processo. PP 1700/2026 de ana cita um empenho ausente, mas ana já tem empenho no mês: não entra.
+    con, params = _con(tmp_path)
+    cols = (
+        "numero, tipo, data, ano, valor, credor, categoria, anulacao, competencia_ref, processo, anula_numero"
+    )
+    con.execute(f"CREATE TABLE empenho ({mc.EMPENHO_COLS})")
+    con.executemany(
+        f"INSERT INTO empenho ({cols}) VALUES (?, 'Original', ?, 2025, ?, ?, 'verba_compensatoria', false, ?, ?, NULL)",
+        [
+            ("2025NE000644", "2025-09-09", 28421.2, "Ana Silva Civil", "2025-08", "2116/2025"),
+            ("2025NE000652", "2025-09-11", 34113.52, "Bob Lima Civil", "2025-08", "2116/2025"),
+            ("2026NE000600", "2026-08-01", 500.0, "Ana Silva Civil", "2026-07", "1650/2026"),
+        ],
+    )
+    con.executemany("INSERT INTO vereador_alias VALUES (?, ?, ?)", ALIAS_EMPENHO)
+    con.execute(
+        "CREATE TABLE verba_processo (pp_numero BIGINT, ano_processo BIGINT, empenho_numero VARCHAR, competencia VARCHAR, "
+        "vereador_id VARCHAR, total_declarado DOUBLE, data_pagamento DATE, confianca VARCHAR, arquivo VARCHAR)"
+    )
+    con.executemany(
+        "INSERT INTO verba_processo VALUES (?, ?, ?, ?, ?, ?, ?, 'alta', ?)",
+        [
+            (2116, 2025, "2025NE000644", "2025-08", "ana", 28421.2, "2025-09-10", "a.pdf"),
+            (1613, 2026, "2026NE000549", "2026-07", "bob", 39000.0, "2026-08-06", "b.pdf"),
+            (1700, 2026, "2026NE000560", "2026-07", "ana", 300.0, "2026-08-06", "c.pdf"),
+        ],
+    )
+    mc.compute(con, params)
+    rows = {
+        (r["vereador_id"], r["competencia"]): r for r in mc._rows(con, "SELECT * FROM metrica_verba_vereador")
+    }
+    assert rows[("bob", "2025-08")]["verba_compensatoria_observada"] == 34113.52
+    assert rows[("ana", "2025-08")]["verba_compensatoria_observada"] == 28421.2
+    assert mc.empenhos_descartados(con) == []
+    bob = rows[("bob", "2026-07")]
+    assert (bob["verba_compensatoria_observada"], bob["n_pagos_so_etcm"], bob["empenhos"]) == (
+        39000.0,
+        1,
+        "2026NE000549",
+    )
+    assert rows[("ana", "2026-07")]["verba_compensatoria_observada"] == 500.0
     con.close()
