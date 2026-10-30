@@ -1495,6 +1495,8 @@
     { label: "Transporte e combustível", color: "var(--s3)", cats: ["VIII", "XIV", "XV"] },
     { label: "Infraestrutura, tecnologia e expediente", color: "var(--s4)", cats: ["I", "II", "IV", "V", "VI", "XI"] },
     { label: "Formação e assinaturas", color: "var(--s5)", cats: ["III"] },
+    // "-": processo sem tabela de categorias, ou parte do valor pago que o documento não permite atribuir a um inciso
+    { label: "Sem divisão por categoria", color: "var(--line-2)", cats: ["-"] },
   ];
   function renderVerbaCategorias() {
     const wrap = $("#vcat-wrap"); const VC = D.verba_cat;
@@ -1520,7 +1522,7 @@
     rows.forEach(r => { byC[r.categoria] = (byC[r.categoria] || 0) + r.valor; });
     const tot = Object.values(byC).reduce((a, b) => a + b, 0);
     const crows = Object.entries(byC).sort((a, b) => b[1] - a[1]);
-    barsChart($("#vcat15-bars"), crows.map(([cat, v]) => ({ id: null, label: `${cat} · ${desc[cat] || ""}`, value: v,
+    barsChart($("#vcat15-bars"), crows.map(([cat, v]) => ({ id: null, label: cat === "-" ? "Sem divisão por categoria" : `${cat} · ${desc[cat] || ""}`, value: v,
       segs: [{ v, color: grupoDe(cat).color, label: grupoDe(cat).label, text: fmtBRL.format(v) }], valueText: `${fmtBRL.format(v)}<small>${fmtPct(tot ? v / tot : 0)}</small>` })));
     $("#vcat-sub").textContent = `${fmtBRL.format(tot)} em ${nMeses} ${nMeses === 1 ? "mês" : "meses"}`;
     const cob = VC.cobertura && VC.cobertura[String(state.ano)];
@@ -1529,9 +1531,9 @@
     else if (cob) {
       const meses = (cob.meses_sem_categorias || []).map(fmtComp);
       cobTxt = `Cobertura em ${anoLabel(state.ano)}: ${fmtInt.format(cob.processos)} processos lidos, ${fmtInt.format(cob.com_categorias)} com despesas por categoria.` +
-        (cob.sem_categorias ? ` Os ${fmtInt.format(cob.sem_categorias)} processos de ${meses.join(" e ")} só trazem o total autorizado, sem categorias, e ficam fora destes gráficos.` : "");
+        (cob.sem_categorias ? ` Os ${fmtInt.format(cob.sem_categorias)} processos de ${meses.length > 1 ? meses.slice(0, -1).join(", ") + " e " + meses[meses.length - 1] : meses[0]} só trazem o total autorizado e entram como "sem divisão por categoria".` : "");
     }
-    $("#vcat-note").textContent = `Fonte: processos de pagamento da verba compensatória enviados pela Câmara ao TCM-BA (e-TCM, Consulta Pública). De junho de 2025 em diante eles trazem o resumo das despesas por inciso da Lei 9.828/2025, art. 14; em janeiro e fevereiro, uma linha por documento fiscal, agrupada aqui pela categoria da lei. As notas fiscais em si não acompanham o processo. ${cobTxt}`;
+    $("#vcat-note").textContent = `Fonte: processos de pagamento da verba compensatória enviados pela Câmara ao TCM-BA (e-TCM, Consulta Pública). De junho de 2025 em diante eles trazem o resumo das despesas por inciso da Lei 9.828/2025, art. 14; em janeiro e fevereiro, uma linha por documento fiscal, agrupada aqui pela categoria da lei. As notas fiscais em si não acompanham o processo. Os valores são os efetivamente pagos (empenhos); quando a soma das categorias lidas no documento não fecha com o pago, a diferença (ou o processo inteiro, se as categorias passam do pago) aparece como "sem divisão por categoria". ${cobTxt}`;
   }
 
   // ---------- Reembolsos da verba por mês e categoria (Perfil) ----------
@@ -1550,10 +1552,9 @@
     const proc = Object.fromEntries(procs.map(p => [`${p.ano_processo}-${p.pp}`, p]));
     const desc = Object.fromEntries((VC.categorias || []).map(c => [c.romano, c.descricao]));
     const ordem = Object.fromEntries((VC.categorias || []).map(c => [c.romano, c.ordem]));
-    const todas = [
-      ...(VC.por_vereador || []).filter(r => r.vereador_id === id && proc[`${r.ano_processo}-${r.pp}`]).map(r => ({ competencia: r.competencia, cat: r.categoria, valor: r.valor, p: proc[`${r.ano_processo}-${r.pp}`] })),
-      ...procs.filter(p => p.layout === "nenhum").map(p => ({ competencia: p.competencia, cat: "-", valor: p.total, p })),
-    ].sort((a, b) => b.competencia.localeCompare(a.competencia) || (b.valor - a.valor));
+    const todas = (VC.por_vereador || []).filter(r => r.vereador_id === id && proc[`${r.ano_processo}-${r.pp}`])
+      .map(r => ({ competencia: r.competencia, cat: r.categoria, valor: r.valor, p: proc[`${r.ano_processo}-${r.pp}`] }))
+      .sort((a, b) => b.competencia.localeCompare(a.competencia) || (b.valor - a.valor));
     const catLbl = c => c === "-" ? "Sem divisão por categoria" : `${c} · ${(desc[c] || "").split(/[(,/]/)[0].trim()}`;
     // filtros: só opções que existem para este vereador no período
     const meses = [...new Set(todas.map(r => r.competencia))].sort().reverse();
@@ -1585,14 +1586,14 @@
     t.querySelector("thead").replaceChildren(el("tr", {}, ...["Mês", "Categoria (Lei 9.828/2025, art. 14)", "Valor", "Processo no TCM-BA"].map(h => el("th", { scope: "col", class: h === "Valor" ? "num" : "", style: h.startsWith("Categoria") || h.startsWith("Processo") ? "text-align:left" : "", text: h }))));
     t.querySelector("tbody").replaceChildren(...(shown.length ? shown.map(r => el("tr", { class: r.cat === "-" ? "sem" : "" },
       el("td", { class: "num", text: fmtComp(r.competencia).replace("/20", "/") }),
-      el("td", { class: "cat", title: r.cat === "-" ? "O processo traz só o total autorizado, sem dizer em que foi gasto" : desc[r.cat] || "" }, catLbl(r.cat)),
+      el("td", { class: "cat", title: r.cat === "-" ? (r.p.layout === "nenhum" ? "O processo traz só o total autorizado, sem dizer em que foi gasto" : "Parte do valor pago que não foi possível atribuir a uma categoria na leitura do documento") : desc[r.cat] || "" }, catLbl(r.cat)),
       el("td", { class: "num", text: fmtBRL.format(r.valor) }),
       el("td", { class: "proc" },
         el("a", { href: ETCM_URL, target: "_blank", rel: "noopener", title: caminho(r.p) }, `PP ${r.p.pp}/${String(r.p.ano_processo).slice(2)} ↗`),
         el("span", { class: "muted", text: `prestação ${fmtComp(r.p.mes_prestacao).replace("/20", "/")}` })))) : [el("tr", {}, el("td", { colspan: 4, class: "muted", style: "text-align:left;white-space:normal", text: mesSemProc ? `O processo de pagamento de ${fmtComp(mesSemProc)} ainda não está na consulta do TCM-BA. A Câmara envia a prestação cerca de 40 dias depois do fim do mês; o valor do gráfico vem dos empenhos.` : "Nenhum reembolso com esses filtros." }))]));
     const ex = shown[0] ? shown[0].p : procs[0];
     $("#vp-note").replaceChildren(
-      el("p", {}, el("b", { text: "De onde vem: " }), "processos de pagamento da verba compensatória que a Câmara envia todo mês ao Tribunal de Contas dos Municípios (TCM-BA), publicados na consulta pública do e-TCM. Cada processo traz o total autorizado ao gabinete e, na maioria dos meses, a divisão por categoria da Lei 9.828/2025 (em janeiro e fevereiro de 2025, a categoria vem da descrição de cada despesa declarada). Alguns processos, sobretudo de fevereiro a junho de 2025, só trazem o total e aparecem como \"sem divisão por categoria\". As notas fiscais não acompanham o processo."),
+      el("p", {}, el("b", { text: "De onde vem: " }), "processos de pagamento da verba compensatória que a Câmara envia todo mês ao Tribunal de Contas dos Municípios (TCM-BA), publicados na consulta pública do e-TCM. Cada processo traz o total autorizado ao gabinete e, na maioria dos meses, a divisão por categoria da Lei 9.828/2025 (em janeiro e fevereiro de 2025, a categoria vem da descrição de cada despesa declarada). Os valores são os efetivamente pagos (empenhos da Câmara), os mesmos do gráfico. Alguns processos, sobretudo de fevereiro a junho de 2025, só trazem o total e aparecem como \"sem divisão por categoria\"; o mesmo vale para a parte do valor que não se consegue ler no documento escaneado. As notas fiscais não acompanham o processo."),
       el("p", {}, el("b", { text: "Como abrir o documento: " }), "o portal do TCM não permite link direto para um arquivo. O link abre a consulta pública; lá, siga o caminho do processo (passe o mouse sobre o número para ver). Por exemplo, para ", el("b", { text: `PP ${ex.pp}/${ex.ano_processo}` }), ":"),
       el("ol", {}, ...["Período: Mensal", `Ano ${ex.mes_prestacao.slice(0, 4)}, mês ${MESES_LONGOS[+ex.mes_prestacao.slice(5, 7) - 1]} (o mês da prestação, não o da despesa)`, "Município SALVADOR, entidade Câmara Municipal de Salvador, e Pesquisar", `Abra a prestação e procure o documento "${ex.arquivo}"`].map(x => el("li", { text: x }))));
   }
@@ -1928,13 +1929,13 @@
     const mesesCat = Object.keys(porCat).length;
     $("#pf-verba-title").textContent = `Verba compensatória recebida em ${anoLabel(ano)}`;
     $("#pf-verba-big").replaceChildren(el("b", { text: fmtBRL.format(verbaAno) }), el("span", { text: `em ${vb.length} meses · média ${fmtBRL.format(vb.length ? verbaAno / vb.length : 0)}/mês · ${fmtPct(tetoAno ? verbaAno / tetoAno : 0)} do teto acumulado` }));
-    $("#pf-verba-legend").replaceChildren(...VGRUPOS.map(g => el("span", { style: `--c:${g.color}`, text: g.label })), el("span", { style: "--c:var(--line-2)", text: "sem detalhamento por categoria" }));
+    $("#pf-verba-legend").replaceChildren(...VGRUPOS.map(g => el("span", { style: `--c:${g.color}`, text: g.label })));
     columnChart($("#pf-verba-bars"), comps.map(c => {
       const emp = vb.filter(x => x.competencia === c).reduce((a, x) => a + x.verba_compensatoria_observada, 0);
       const cats = porCat[c] || {}; const byG = {}; Object.entries(cats).forEach(([cat, val]) => { const g = grupoDe(cat).label; byG[g] = (byG[g] || 0) + val; });
       const somaCat = Object.values(byG).reduce((a, b) => a + b, 0), resto = Math.max(0, emp - somaCat);
       const segs = VGRUPOS.filter(g => byG[g.label]).map(g => ({ v: byG[g.label], color: g.color, label: g.label, text: fmtBRL.format(byG[g.label]) }));
-      if (resto > 0.5) segs.push({ v: resto, color: "var(--line-2)", label: somaCat ? "diferença entre empenho e categorias" : "sem detalhamento por categoria", text: fmtBRL.format(resto) });
+      if (resto > 0.5) segs.push({ v: resto, color: "var(--line-2)", label: somaCat ? "Sem divisão por categoria" : "Sem prestação de contas no TCM-BA ainda", text: fmtBRL.format(resto) });
       const teto = tetoMes(c);
       return { key: c, label: mesLbl(c), full: fmtComp(c), segs, ref: teto, refLabel: `teto ${fmtMil(teto)}`, flag: emp > teto + 0.5 ? "acima do teto" : "",
         tip: `${fmtPct((emp || somaCat) / teto)} do teto do mês (${fmtBRL.format(teto)})${Object.keys(cats).length ? ` · ${Object.keys(cats).length} categorias declaradas` : " · prestação sem categorias"}` };

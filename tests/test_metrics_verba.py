@@ -6,7 +6,8 @@ Cenário:
 - bob: PP 12 2025-08 total 300 mas incisos somam 250 (confianca baixa) e o empenho da competência é 280 -> divergência;
   o empenho de mesmo número vale 300 (bate pelo nº);
 - PP 13 sem vereador_id (requerente desconhecido) 2026-01 -> aparece em cobertura/casa com vereador NULL, avisado;
-- categoria XV sem itens -> não aparece.
+- categoria XV sem itens -> não aparece;
+- as categorias de cada processo somam o valor pago: os R$ 50 de bob sem inciso legível ficam na categoria "-".
 """
 
 from __future__ import annotations
@@ -162,7 +163,9 @@ def test_metrica_verba_categoria(con: duckdb.DuckDBPyConnection) -> None:
     assert rows == [
         ("ana", 2025, "I", "Softwares", 300.0, 2, 2, 85.7),
         ("ana", 2025, "XIV", "Combustível", 50.0, 1, 1, 14.3),
-        ("bob", 2025, "I", "Softwares", 250.0, 1, 1, 100.0),
+        ("bob", 2025, "I", "Softwares", 250.0, 1, 1, 83.3),
+        # o que o pago (empenho NE3, 300) tem a mais que os incisos lidos (250) fica como não identificado
+        ("bob", 2025, "-", "Não identificada no documento", 50.0, 1, 1, 16.7),
         (None, 2026, "XIV", "Combustível", 40.0, 1, 1, 100.0),
     ]
 
@@ -176,6 +179,7 @@ def test_tabela_longa(con: duckdb.DuckDBPyConnection) -> None:
         ("ana", "2025-07", "I", 100.0),
         ("ana", "2025-07", "XIV", 50.0),
         ("ana", "2025-08", "I", 200.0),
+        ("bob", "2025-08", "-", 50.0),
         ("bob", "2025-08", "I", 250.0),
         (None, "2026-01", "XIV", 40.0),
     ]
@@ -186,8 +190,9 @@ def test_casa(con: duckdb.DuckDBPyConnection) -> None:
         "SELECT ano, categoria_romano, total, n_vereadores, n_processos, pct FROM metrica_verba_casa_categoria ORDER BY ano, categoria_ordem"
     ).fetchall()
     assert rows == [
-        (2025, "I", 550.0, 2, 3, 91.7),
-        (2025, "XIV", 50.0, 1, 1, 8.3),
+        (2025, "I", 550.0, 2, 3, 84.6),
+        (2025, "XIV", 50.0, 1, 1, 7.7),
+        (2025, "-", 50.0, 1, 1, 7.7),
         (2026, "XIV", 40.0, 0, 1, 100.0),
     ]
 
@@ -241,7 +246,36 @@ def test_run_grava_relatorio(tmp_path: Path) -> None:
     out = mv.run(db, tmp_path / "rel.md", hoje=date(2026, 10, 28))
     text = out.read_text("utf-8")
     assert "# Verba compensatória por categoria" in text
-    assert "### Casa — 2025" in text and "| I | Softwares | R$ 550,00 | 91.7 | 2 | 3 | 2 |" in text
+    assert "### Casa — 2025" in text and "| I | Softwares | R$ 550,00 | 84.6 | 2 | 3 | 2 |" in text
     assert "| Ana Silva | 2 | 0.3 | 0.3 | 0.1 | · |" in text
     assert "processo 12/2025" in text
     assert "2026-10-28" in text
+
+
+def test_categorias_somam_o_pago() -> None:
+    # incisos acima do pago (o total lido como item, PP 1282/2025) e processo sem tabela: o processo inteiro vai
+    # para "-"; o pago vem dos empenhos do processo (sem os descartados), não do total declarado
+    c = duckdb.connect()
+    _load(c)
+    c.execute("INSERT INTO verba_processo_item VALUES (10, 2025, '2025-07', 'XV', 'x', 150.0)")
+    c.execute(
+        "CREATE TABLE metrica_verba_empenho (numero VARCHAR, processo VARCHAR, valor_liquido DOUBLE, descartado BOOLEAN)"
+    )
+    c.executemany(
+        "INSERT INTO metrica_verba_empenho VALUES (?, ?, ?, ?)",
+        [("NE1", "10/2025", 150.0, False), ("NE2", "11/2025", 190.0, False), ("NE9", "11/2025", 190.0, True)],
+    )
+    mv.compute(c)
+    pago = dict(c.execute("SELECT pp_numero, valor_pago FROM metrica_verba_processo").fetchall())
+    assert pago == {10: 150.0, 11: 190.0, 12: 300.0, 13: None}
+    rows = c.execute(
+        "SELECT pp_numero, categoria_romano, valor FROM metrica_verba_vereador_categoria_mes ORDER BY 1, 2"
+    ).fetchall()
+    assert rows == [
+        (10, "-", 150.0),  # I 100 + XIV 50 + XV 150 = 300 > 150 pagos
+        (11, "-", 190.0),  # I 200 > 190 pagos (glosa sem inciso identificado)
+        (12, "-", 50.0),
+        (12, "I", 250.0),
+        (13, "XIV", 40.0),
+    ]
+    c.close()

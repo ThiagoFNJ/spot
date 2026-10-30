@@ -182,7 +182,11 @@ ALIAS_EMPENHO = [
 
 def _add_empenhos(con: duckdb.DuckDBPyConnection) -> None:
     con.execute(f"CREATE TABLE empenho ({mc.EMPENHO_COLS})")
-    con.executemany("INSERT INTO empenho VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", EMPENHOS)
+    con.executemany(
+        "INSERT INTO empenho (numero, tipo, data, ano, valor, credor, categoria, anulacao, competencia_ref) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        EMPENHOS,
+    )
     con.executemany("INSERT INTO vereador_alias VALUES (?, ?, ?)", ALIAS_EMPENHO)
 
 
@@ -592,3 +596,59 @@ def test_custo_real_em_tmp(tmp_path: Path) -> None:
             assert all(u["n_empenhos"] >= 1 for u in mc.verba_nao_mapeada(con))
     finally:
         con.close()
+
+
+def test_verba_empenho_duplicado_e_competencia_do_processo(tmp_path: Path) -> None:
+    # PP 780/2025: três empenhos originais para o mesmo processo, sem anulação publicada; o e-TCM cita só o 302.
+    # PP 367/2025: empenho sem mês no objeto, emitido em fevereiro; o processo do e-TCM é de janeiro.
+    # PP 1279/2025: dois originais, mas o que o e-TCM não cita foi anulado por inteiro: nada a descartar.
+    con, params = _con(tmp_path)
+    cols = (
+        "numero, tipo, data, ano, valor, credor, categoria, anulacao, competencia_ref, processo, anula_numero"
+    )
+    con.execute(f"CREATE TABLE empenho ({mc.EMPENHO_COLS})")
+    con.executemany(
+        f"INSERT INTO empenho ({cols}) VALUES (?, 'Original', ?, 2025, ?, 'Ana Silva Civil', 'verba_compensatoria', ?, ?, ?, ?)",
+        [
+            ("2025NE000157", "2025-02-26", 14375.75, False, None, "367/2025", None),
+            ("2025NE000289", "2025-04-01", 33889.12, False, "2025-03", "780/2025", None),
+            ("2025NE000302", "2025-04-02", 33309.12, False, "2025-03", "780/2025", None),
+            ("2025NE000303", "2025-04-02", 33889.12, False, "2025-03", "780/2025", None),
+            ("2025NE000400", "2025-04-03", 100.0, True, None, None, "2025NE000303"),
+            ("2025NE000453", "2025-06-01", 43100.0, False, "2025-05", "1279/2025", None),
+            ("2025NE000464", "2025-06-02", 43100.0, True, "2025-05", None, "2025NE000453"),
+            ("2025NE000473", "2025-06-03", 43100.0, False, "2025-05", "1279/2025", None),
+        ],
+    )
+    con.executemany("INSERT INTO vereador_alias VALUES (?, ?, ?)", ALIAS_EMPENHO)
+    con.execute(
+        "CREATE TABLE verba_processo (pp_numero BIGINT, ano_processo BIGINT, empenho_numero VARCHAR, competencia VARCHAR)"
+    )
+    con.executemany(
+        "INSERT INTO verba_processo VALUES (?, 2025, ?, ?)",
+        [
+            (367, "2025NE000157", "2025-01"),
+            (780, "2025NE000302", "2025-03"),
+            (780, "2025NE000302", "2025-03"),
+            (1279, "2025NE000473", "2025-05"),
+        ],
+    )
+    mc.compute(con, params)
+    rows = {
+        r["competencia"]: r
+        for r in mc._rows(con, "SELECT * FROM metrica_verba_vereador WHERE vereador_id = 'ana'")
+    }
+    assert set(rows) == {"2025-01", "2025-03", "2025-05"}
+    assert rows["2025-05"]["verba_compensatoria_observada"] == 43100.0
+    assert rows["2025-05"]["empenhos_descartados"] is None
+    assert rows["2025-01"]["verba_compensatoria_observada"] == 14375.75
+    assert (rows["2025-01"]["n_competencia_processo"], rows["2025-01"]["n_fallback_mes_emissao"]) == (1, 0)
+    mar = rows["2025-03"]
+    assert mar["verba_compensatoria_observada"] == 33309.12 and mar["empenhos"] == "2025NE000302"
+    # a anulação (parcial) de um empenho descartado sai junto com ele
+    assert mar["empenhos_descartados"] == "2025NE000289|2025NE000303|2025NE000400"
+    assert [(d["numero"], d["empenho_citado"]) for d in mc.empenhos_descartados(con)] == [
+        ("2025NE000289", "2025NE000302"),
+        ("2025NE000303", "2025NE000302"),
+    ]
+    con.close()

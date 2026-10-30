@@ -79,13 +79,21 @@ def _require(con: duckdb.DuckDBPyConnection, *tables: str) -> None:
 
 
 def sql_processo(
-    tem_mes_prestacao: bool, tem_verba_vereador: bool, tem_empenho: bool, tem_layout: bool = False
+    tem_mes_prestacao: bool,
+    tem_verba_vereador: bool,
+    tem_empenho: bool,
+    tem_layout: bool = False,
+    tem_verba_empenho: bool = False,
 ) -> str:
     """``metrica_verba_processo``: um processo por linha, com soma dos incisos e as colunas de conciliação.
 
     ``layout`` diz que página de categorias o processo traz: ``resumo`` (tabela I..XV, jun/2025 em diante),
     ``detalhamento`` (formulário antigo, item a item, prestações de fev–mar/2025) ou ``nenhum`` (abr–mai/2025:
-    só o total autorizado — não entra nas tabelas por categoria)."""
+    só o total autorizado — não entra nas tabelas por categoria).
+
+    ``valor_pago``: Σ líquido dos empenhos cujo objeto cita o processo (``metrica_verba_empenho``, sem os
+    descartados por duplicidade); sem empenho com o nº do processo, o empenho de mesmo número
+    (``valor_empenho_numero``)."""
     mes_prestacao = "p.mes_prestacao" if tem_mes_prestacao else "NULL::VARCHAR"
     layout = "d.layout" if tem_layout else "CASE WHEN it.n_itens > 0 THEN 'resumo' ELSE 'nenhum' END"
     verba_emp = (
@@ -98,6 +106,12 @@ def sql_processo(
         "(SELECT round(sum(CASE WHEN e.anulacao THEN -e.valor ELSE e.valor END), 2) FROM empenho e "
         " WHERE e.numero = d.empenho_numero)"
         if tem_empenho
+        else "NULL::DOUBLE"
+    )
+    pago = (
+        "(SELECT round(sum(x.valor_liquido), 2) FROM metrica_verba_empenho x"
+        " WHERE NOT x.descartado AND x.processo = d.pp_numero::VARCHAR || '/' || d.ano_processo::VARCHAR)"
+        if tem_verba_empenho
         else "NULL::DOUBLE"
     )
     return f"""
@@ -127,6 +141,7 @@ def sql_processo(
            {layout} AS layout,
            {verba_emp} AS verba_empenhada_competencia,
            {emp_num} AS valor_empenho_numero,
+           coalesce({pago}, {emp_num}) AS valor_pago,
            round(d.total_declarado - {verba_emp}, 2) AS dif_empenho_competencia,
            round(d.total_declarado - {emp_num}, 2) AS dif_empenho_numero
     FROM d
@@ -136,18 +151,43 @@ def sql_processo(
     """
 
 
-SQL_MES = """
+# Categoria das linhas que o documento não permite dividir (``layout = 'nenhum'``, ou incisos ilegíveis).
+CATEGORIA_NAO_IDENTIFICADA = ("-", 99, "Não identificada no documento")
+
+# As categorias de um processo sempre somam o que foi pago (``valor_pago``; sem empenho, o total declarado):
+# - incisos que somam até o pago: entram como lidos, e o que faltar (OCR que perdeu um valor) vai para "-";
+# - incisos que passam do pago (a linha do total lida como item, glosa de item não identificado), processo sem
+#   tabela (``nenhum``) ou sem incisos: o processo inteiro vai para "-".
+SQL_MES = f"""
 CREATE OR REPLACE TABLE metrica_verba_vereador_categoria_mes AS
 WITH it AS (
-    SELECT DISTINCT pp_numero, ano_processo, categoria_romano, valor FROM verba_processo_item
+    SELECT pp_numero, ano_processo, categoria_romano, round(sum(valor), 2) AS valor
+    FROM (SELECT DISTINCT pp_numero, ano_processo, categoria_romano, valor FROM verba_processo_item)
+    GROUP BY ALL
+),
+p AS (
+    SELECT *, coalesce(valor_pago, total_declarado) AS base,
+           layout <> 'nenhum' AND soma_itens > 0
+           AND soma_itens <= coalesce(valor_pago, total_declarado) + {TOLERANCIA} AS itens_validos
+    FROM metrica_verba_processo WHERE coalesce(valor_pago, total_declarado) > 0
+),
+linhas AS (
+    SELECT p.pp_numero, p.ano_processo, it.categoria_romano, it.valor
+    FROM p JOIN it USING (pp_numero, ano_processo) WHERE p.itens_validos
+    UNION ALL
+    SELECT pp_numero, ano_processo, '{CATEGORIA_NAO_IDENTIFICADA[0]}',
+           round(base - CASE WHEN itens_validos THEN soma_itens ELSE 0 END, 2)
+    FROM p WHERE base - CASE WHEN itens_validos THEN soma_itens ELSE 0 END > {TOLERANCIA}
 )
-SELECT p.vereador_id, p.nome_parlamentar, p.competencia, p.ano, c.categoria_romano, c.categoria_ordem,
-       c.categoria_descricao, round(sum(it.valor), 2) AS valor, p.pp_numero, p.ano_processo, p.confianca
-FROM it
-JOIN metrica_verba_processo p USING (pp_numero, ano_processo)
-JOIN verba_categorias c USING (categoria_romano)
+SELECT p.vereador_id, p.nome_parlamentar, p.competencia, p.ano, l.categoria_romano,
+       coalesce(c.categoria_ordem, {CATEGORIA_NAO_IDENTIFICADA[1]}) AS categoria_ordem,
+       coalesce(c.categoria_descricao, '{CATEGORIA_NAO_IDENTIFICADA[2]}') AS categoria_descricao,
+       round(sum(l.valor), 2) AS valor, p.pp_numero, p.ano_processo, p.confianca
+FROM linhas l
+JOIN p USING (pp_numero, ano_processo)
+LEFT JOIN verba_categorias c USING (categoria_romano)
 GROUP BY ALL
-ORDER BY p.competencia, p.vereador_id NULLS LAST, c.categoria_ordem
+ORDER BY p.competencia, p.vereador_id NULLS LAST, categoria_ordem
 """
 
 SQL_CATEGORIA = """
@@ -216,7 +256,7 @@ def compute(con: duckdb.DuckDBPyConnection) -> dict[str, int]:
             "metrica_verba_vereador ausente (rode spot.metrics.custo antes): sem conciliação por competência"
         )
     tem_layout = "layout" in _columns(con, "verba_processo")
-    con.execute(sql_processo(tem_mes, tem_vv, tem_emp, tem_layout))
+    con.execute(sql_processo(tem_mes, tem_vv, tem_emp, tem_layout, "metrica_verba_empenho" in tabelas))
     con.execute(SQL_MES)
     con.execute(SQL_CATEGORIA)
     con.execute(SQL_CASA)
