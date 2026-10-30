@@ -314,6 +314,67 @@ def verba_categorias(con: duckdb.DuckDBPyConnection) -> dict[str, Any]:
     return {"categorias": categorias, "por_vereador": por_vereador, "cobertura": cobertura, "notas": notas}
 
 
+def composicao_camara(con: duckdb.DuckDBPyConnection) -> dict[str, Any]:
+    """``camara.json``: quem ocupa as cadeiras, a Mesa Diretora e o tamanho da equipe de assessores.
+
+    - ``cadeiras``: ``vereador_id`` em exercício na última sessão ordinária da frequência (sem sentinelas), com a
+      data em ``referencia``. É a lista que fecha 43, ao contrário da ``situacao`` do site da Câmara, que mistura
+      suplentes que já saíram.
+    - ``mesa``: seed ``mesa_diretora.csv`` (página oficial /mesa-diretora), ``[{ordem, cargo, v, tipo}]``.
+    - ``assessores``: matrículas distintas com função ``ASSESSOR PARLAMENTAR%`` (inclui o Especial G-30) na última
+      competência completa da consulta de pessoal do TCM-BA (meses com menos de 75% da mediana são descartados,
+      como em ``metrics/custo.py``). ``null`` sem a tabela ``tcm_pessoal``.
+    """
+    ref = con.execute(
+        "select max(data_sessao) from presenca_mvp where tipo_sessao_codigo = 1 and not sentinela"
+    ).fetchone()[0]
+    cadeiras = [
+        r["vereador_id"]
+        for r in rows(
+            con,
+            f"""
+            select distinct vereador_id from presenca_mvp
+            where data_sessao = DATE '{ref}' and tipo_sessao_codigo = 1 and not sentinela and em_exercicio
+              and vereador_id is not null
+            order by 1
+            """,
+        )
+    ]
+    mesa = (
+        rows(con, "select ordem, cargo, vereador_id as v, tipo from mesa_diretora order by ordem")
+        if _has_table(con, "mesa_diretora")
+        else []
+    )
+    assessores = None
+    if _has_table(con, "tcm_pessoal"):
+        meses = rows(
+            con,
+            """
+            select competencia, count(distinct matricula) as total,
+                   count(distinct matricula) filter (where funcao ilike 'ASSESSOR PARLAMENTAR%') as n,
+                   count(distinct matricula) filter (where funcao ilike 'ASSESSOR PARLAMENTAR ESPECIAL%') as especiais
+            from tcm_pessoal group by 1 order by 1
+            """,
+        )
+        if meses:
+            mediana = sorted(m["total"] for m in meses)[len(meses) // 2]
+            completos = [m for m in meses if m["total"] >= 0.75 * mediana]
+            ult = completos[-1]
+            assessores = {
+                "n": ult["n"],
+                "especiais": ult["especiais"],
+                "servidores": ult["total"],
+                "competencia": ult["competencia"],
+                "fonte": "TCM-BA, consulta de pessoal",
+            }
+    return {
+        "referencia": str(ref) if ref else None,
+        "cadeiras": cadeiras,
+        "mesa": mesa,
+        "assessores": assessores,
+    }
+
+
 def export(db: Path = DB_DEFAULT, out: Path = OUT_DEFAULT, hoje: date | None = None) -> Path:
     """Gera os JSON de ``site/data/``. Chaves acrescentadas pelo backlog do dashboard:
 
@@ -390,6 +451,16 @@ def export(db: Path = DB_DEFAULT, out: Path = OUT_DEFAULT, hoje: date | None = N
         cargos.setdefault(r["vereador_id"], {})[r["ano"]] = cargo_mesa(r["centro_custo_label"])
     for v in vereadores:
         v["cargo_mesa"] = cargos.get(v["vereador_id"], {})
+    # Bloco político (seed curado data/seeds/vereador_bloco.csv, com fonte por linha): "base" | "oposicao" | null.
+    blocos = (
+        {r["vereador_id"]: r for r in rows(con, "select vereador_id, bloco, lideranca from vereador_bloco")}
+        if _has_table(con, "vereador_bloco")
+        else {}
+    )
+    for v in vereadores:
+        b = blocos.get(v["vereador_id"], {})
+        v["bloco"] = b.get("bloco") or None
+        v["lideranca"] = b.get("lideranca") or None
 
     presenca = rows(
         con,
@@ -815,6 +886,7 @@ def export(db: Path = DB_DEFAULT, out: Path = OUT_DEFAULT, hoje: date | None = N
 
     _write(out, "meta.json", meta)
     _write(out, "vereadores.json", vereadores)
+    _write(out, "camara.json", composicao_camara(con))
     _write(
         out, "presenca.json", {"vereadores": presenca, "sessoes": sessoes, "faltas": faltas, "grade": grade}
     )

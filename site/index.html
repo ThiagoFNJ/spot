@@ -81,9 +81,10 @@
   .seg button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: var(--shadow); }
 
   .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 18px; }
+  .kpi { container-type: inline-size; }
   .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px 10px; min-width: 0; }
   .kpi .label { font-size: 12.5px; color: var(--fg-2); }
-  .kpi .value { font-family: var(--display); font-size: 30px; line-height: 1.1; margin-top: 3px; }
+  .kpi .value { font-family: var(--display); font-size: min(30px, 12cqi); line-height: 1.1; margin-top: 3px; white-space: nowrap; }
   .kpi .sub { font-size: 12px; color: var(--fg-3); margin-top: 3px; }
 
   .grid-2 { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; margin-top: 16px; }
@@ -108,17 +109,23 @@
   .tops li:first-child { border-top: 0; } .tops li .n { cursor: pointer; } .tops li .n:hover { color: var(--accent); text-decoration: underline; } .tops li .v { font-variant-numeric: tabular-nums; color: var(--fg-2); white-space: nowrap; }
   .tops .split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; } .tops .lbl { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-3); margin: 6px 0 2px; }
   ul.alerts { margin: 0; padding-left: 0; list-style: none; } ul.alerts li { padding: 7px 0; border-top: 1px solid var(--line); font-size: 13.5px; display: flex; gap: 10px; align-items: baseline; } ul.alerts li:first-child { border-top: 0; }
+  ul.alerts li > span:not(.tag) { min-width: 0; overflow-wrap: anywhere; } ul.alerts li { min-width: 0; }
   ul.alerts .tag { flex: 0 0 auto; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--s1); color: var(--s1); }
   ul.alerts .tag.neutral { border-color: var(--line-2); color: var(--fg-2); } ul.alerts .n { cursor: pointer; } ul.alerts .n:hover { text-decoration: underline; color: var(--accent); }
   table.cob { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 720px; } table.cob th, table.cob td { padding: 5px 6px; text-align: center; border-top: 1px solid var(--line); white-space: nowrap; }
   table.cob th:first-child, table.cob td:first-child { text-align: left; } table.cob thead th { border-top: 0; color: var(--fg-2); font-weight: 500; }
   table.cob td.ok { background: color-mix(in srgb, var(--s2) 22%, transparent); } table.cob td.parcial { background: color-mix(in srgb, var(--s4) 35%, transparent); } table.cob td.ausente { color: var(--fg-3); }
   .cob-legend span { font-size: 12px; padding: 1px 8px; border-radius: 999px; } .cob-legend .ok { background: color-mix(in srgb, var(--s2) 22%, transparent); } .cob-legend .parcial { background: color-mix(in srgb, var(--s4) 35%, transparent); } .cob-legend .ausente { color: var(--fg-3); border: 1px solid var(--line); }
+  table.plain td { white-space: normal; overflow-wrap: anywhere; }
   table.plain { width: 100%; min-width: 0; table-layout: fixed; border-collapse: collapse; font-size: 13.5px; } table.plain td.v { width: 48%; } table.plain td { padding: 6px 0; border-top: 1px solid var(--line); vertical-align: top; } table.plain tr:first-child td { border-top: 0; } table.plain td.v { text-align: right; color: var(--fg-2); font-variant-numeric: tabular-nums; } table.plain td { word-break: break-word; }
   @media (max-width: 820px) { .grid-2 { grid-template-columns: 1fr; } }
   .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px 14px; min-width: 0; }
   .card-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: center; margin-bottom: 10px; }
   .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--fg-2); }
+  .legend .lg-btn { cursor: pointer; border-radius: 6px; padding: 2px 6px; margin: -2px -6px; transition: opacity .15s; }
+  .legend .lg-btn:hover, .legend .lg-btn:focus-visible { color: var(--fg); background: var(--surface-2); outline: none; }
+  .legend .lg-btn.on { color: var(--fg); font-weight: 600; background: var(--surface-2); }
+  .legend .lg-btn.off { opacity: .45; }
   .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
 
   /* Detalhe do vereador selecionado */
@@ -132,7 +139,7 @@
   .fact .sub { font-size: 11.5px; color: var(--fg-3); }
   .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
   .strip { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 8px; } .strip a { display: block; width: 11px; height: 16px; border-radius: 2px; background: var(--line-2); }
-  .strip a.P { background: var(--s2); } .strip a.A { background: var(--s1); } .strip a.L { background: var(--line-2); } .strip a:hover, .strip a:focus { outline: 2px solid var(--fg); outline-offset: 1px; }
+  .strip a.P { background: var(--s1); } .strip a.A { background: var(--s2); } .strip a.L { background: var(--line-2); } .strip a:hover, .strip a:focus { outline: 2px solid var(--fg); outline-offset: 1px; }
   .strip-legend { display: flex; gap: 14px; font-size: 12px; color: var(--fg-2); margin-top: 6px; } .strip-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
   .chip { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--fg-2); }
   .detail .sub-chart { margin-top: 12px; max-width: 620px; }
@@ -140,6 +147,10 @@
   /* Barras horizontais */
   .bars { display: grid; grid-template-columns: minmax(120px, 170px) minmax(0, 1fr) auto; gap: 0 10px; align-items: center; }
   .bars .row { display: contents; }
+  .bars.ranked { grid-template-columns: 2.4em minmax(120px, 170px) minmax(48px, 1fr) auto; }
+  @media (max-width: 600px) { .bars.ranked { grid-template-columns: 2.2em minmax(92px, 130px) minmax(48px, 1fr) auto; gap: 0 8px; } }
+  .bars .pos { font-size: 12.5px; color: var(--fg-3); text-align: right; padding-right: 2px; }
+  .bars .row.hl .pos { color: var(--fg); font-weight: 600; }
   .bars .name { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 5px 6px; margin-left: -6px; cursor: pointer; border-radius: 6px; }
   .bars .name:hover, .bars .name:focus-visible { color: var(--accent); }
   .bars .name.plain { cursor: default; } .bars .name.plain:hover { color: inherit; }
@@ -163,6 +174,62 @@
   .chart .hit { fill: transparent; }
   .chart .cross { stroke: var(--fg-3); stroke-width: 1; display: none; }
 
+  /* seções da página A Câmara */
+  .secao { margin-top: 44px; scroll-margin-top: 64px; }
+  .secao > .panel-head { border-top: 1px solid var(--line); padding-top: 22px; }
+  /* com subabas, cada seção abre sozinha logo abaixo dos botões; só "Dados e cobertura" mantém o divisor */
+  .subtabs ~ .secao { margin-top: 20px; } .subtabs ~ .secao:not(#sec-dados) > .panel-head { border-top: 0; padding-top: 0; }
+  .subtabs ~ #sec-dados { margin-top: 44px; }
+  .sub-h { margin: 22px 0 6px; font-size: 16px; }
+  details.tbl-det { margin-top: 16px; } details.tbl-det > summary { cursor: pointer; color: var(--accent); font-size: 14px; padding: 6px 0; }
+  details.tbl-det h3 { margin-top: 16px; }
+  .tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6; background: var(--bg); }
+  .subtabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 16px 0 4px; }
+  .subtabs button { appearance: none; border: 1px solid var(--line); background: transparent; color: var(--fg-2); font: 600 13.5px var(--sans); padding: 6px 14px; border-radius: 999px; cursor: pointer; }
+  .subtabs button:hover { color: var(--fg); border-color: var(--line-2); }
+  .subtabs button[aria-selected="true"] { color: var(--bg); background: var(--fg); border-color: var(--fg); }
+  /* introdução da Câmara */
+  .intro { display: grid; gap: 12px; margin: 10px 0 20px; }
+  .intro p { margin: 0; line-height: 1.55; }
+  .intro-lede { font-size: 16.5px; }
+  .intro-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 640px) { .intro-grid { grid-template-columns: minmax(0, 1fr); } }
+  .intro-grid > div { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 12px 14px; }
+  .intro-grid h3 { margin: 0 0 4px; font-size: 15px; }
+  .intro-grid p { font-size: 14px; color: var(--fg-2); }
+  /* composição da Câmara */
+  .comp { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 8px 32px; align-items: center; }
+  @media (max-width: 760px) { .comp { grid-template-columns: minmax(0, 1fr); } }
+  .hemi { width: 100%; height: auto; display: block; max-width: 560px; margin: 0 auto; }
+  .hemi .seat { cursor: pointer; transition: opacity .15s; }
+  .hemi .seat:hover, .hemi .seat:focus-visible { opacity: .75; outline: none; }
+  .hemi .seat.lider { stroke: var(--fg); stroke-width: 2.5; }
+  .hemi .num { font: 600 54px/1 var(--display); fill: var(--fg); }
+  .hemi .numlbl { font: 500 14px var(--sans); fill: var(--fg-2); }
+  .comp-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 20px; }
+  .comp-stat .v { font: 600 34px/1.05 var(--display); letter-spacing: -.01em; }
+  .comp-stat .l { font-size: 13px; color: var(--fg-2); margin-top: 4px; }
+  .comp-stat .l small { display: block; color: var(--fg-3); font-size: 12px; }
+  .comp-stat .sw { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+  .comp-partidos { font-size: 12.5px; color: var(--fg-2); margin-top: 6px; line-height: 1.45; }
+  .mesa { display: grid; grid-template-columns: repeat(auto-fill, minmax(208px, 1fr)); gap: 10px; }
+  .mesa-card { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; align-items: center; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); cursor: pointer; text-align: left; font: inherit; color: inherit; }
+  .mesa-card:hover, .mesa-card:focus-visible { border-color: var(--line-2); background: var(--surface-2); outline: none; }
+  .mesa-card img, .mesa-card .ini { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; background: var(--surface-2); border: 1px solid var(--line); display: grid; place-items: center; font-weight: 600; color: var(--fg-3); }
+  .mesa-card .c { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--fg-3); }
+  .mesa-card .n { font-weight: 600; font-size: 14px; line-height: 1.25; }
+  .mesa-card .p { font-size: 12.5px; color: var(--fg-2); } .mesa-card .p .sw { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+  .mesa-card.destaque { grid-column: span 2; grid-template-columns: 72px minmax(0, 1fr); padding: 14px; }
+  .mesa-card.destaque img, .mesa-card.destaque .ini { width: 72px; height: 72px; }
+  .mesa-card.destaque .n { font-size: 17px; }
+  @media (max-width: 600px) {
+    .mesa { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .mesa-card { grid-template-columns: minmax(0, 1fr); gap: 6px; padding: 10px; align-content: start; }
+    .mesa-card img, .mesa-card .ini { width: 44px; height: 44px; }
+    .mesa-card.destaque { grid-template-columns: 64px minmax(0, 1fr); }
+    .mesa-card.destaque img, .mesa-card.destaque .ini { width: 64px; height: 64px; }
+    .mesa-card .n { font-size: 13.5px; }
+  }
   .tip { position: fixed; z-index: 50; pointer-events: none; background: var(--fg); color: var(--bg); font-size: 12.5px; line-height: 1.4; padding: 7px 10px; border-radius: 6px; max-width: 280px; box-shadow: var(--shadow); display: none; }
   .tip b { font-weight: 600; }
 
@@ -228,6 +295,8 @@
   table.props td.ementa a { color: var(--fg); text-decoration-color: var(--line-2); }
   table.props td.ementa a:hover { color: var(--accent); }
   table.props td.ementa .cod { display: block; font-size: 11.5px; color: var(--fg-3); margin-top: 2px; }
+  [hidden] { display: none !important; }
+  table.nf td.desc .tag { margin-left: 6px; }
   table.nf { min-width: 760px; } table.nf td.desc { text-align: left; white-space: normal; min-width: 220px; max-width: 420px; }
   table.props td.ementa .tag { font-size: 11px; color: var(--fg-3); background: var(--surface-2); border-radius: 999px; padding: 0 7px; margin-left: 6px; }
   table.props th.ementa { text-align: left; }
@@ -267,23 +336,197 @@
   <div id="status" class="status">Carregando dados…</div>
 
   <div class="tabs" role="tablist" id="tabs" hidden>
-    <button type="button" role="tab" id="tab-resumo" aria-selected="true" aria-controls="panel-resumo">Resumo</button>
-    <button type="button" role="tab" id="tab-produtividade" aria-selected="false" aria-controls="panel-produtividade">Produtividade</button>
-    <button type="button" role="tab" id="tab-presenca" aria-selected="false" aria-controls="panel-presenca">Presença</button>
-    <button type="button" role="tab" id="tab-custo" aria-selected="false" aria-controls="panel-custo">Custo</button>
+    <button type="button" role="tab" id="tab-resumo" aria-selected="true" aria-controls="panel-resumo">A Câmara</button>
     <button type="button" role="tab" id="tab-perfil" aria-selected="false" aria-controls="panel-perfil">Perfil</button>
   </div>
 
   <!-- ===== Resumo ===== -->
   <section class="panel" id="panel-resumo" role="tabpanel" aria-labelledby="tab-resumo" hidden>
+    <div class="subtabs" role="tablist" aria-label="Seções de A Câmara">
+      <button type="button" role="tab" id="sub-geral" aria-controls="sec-geral">Visão geral</button>
+      <button type="button" role="tab" id="sub-presenca" aria-controls="sec-presenca">Presença</button>
+      <button type="button" role="tab" id="sub-produtividade" aria-controls="sec-producao">Produtividade</button>
+      <button type="button" role="tab" id="sub-custo" aria-controls="sec-custo">Custo</button>
+    </div>
+    <section class="secao" id="sec-geral" aria-label="Visão geral">
     <div class="panel-head">
       <div>
         <h2 id="res-h2">A Câmara em números</h2>
-        <p id="res-lede">Presença, produção legislativa e custo dos 43 gabinetes, com os extremos do ano e o que merece atenção. Clique em um nome para ver o vereador em cada aba.</p>
       </div>
     </div>
-    <div class="kpis" id="res-kpis"></div>
-    <div class="grid-3" id="res-tops"></div>
+    <div class="intro">
+      <p class="intro-lede">A Câmara Municipal é o Poder Legislativo de Salvador. Os 43 vereadores são eleitos a cada quatro anos para representar a população da cidade e têm duas tarefas principais. A última eleição aconteceu em 2024 e a próxima ocorrerá em 2028.</p>
+      <p class="intro-lede">O vereador é um servidor do povo, que tem as atribuições de propor, discutir e votar as leis da cidade, inclusive o orçamento, que define como a Prefeitura pode gastar o dinheiro público. Além disso, é <strong>papel</strong> do vereador fiscalizar, acompanhar e controlar o trabalho do prefeito e da Prefeitura, inclusive abrir comissões de inquérito para apurar irregularidades.</p>
+      <p class="intro-lede"><strong>O mandato não é um privilégio pessoal: o salário, os assessores e a verba do gabinete existem para que ele cumpra essas tarefas.</strong></p>
+      <p class="small muted">Fonte: Lei Orgânica do Município de Salvador, art. 21.</p>
+    </div>
+    <div class="card" id="casa-card">
+      <div class="card-head"><h3>Quem compõe a Câmara hoje</h3><span class="small muted" id="casa-sub"></span></div>
+      <div class="comp">
+        <div id="casa-hemi"></div>
+        <div>
+          <div class="comp-stats" id="casa-stats"></div>
+          <div class="comp-partidos" id="casa-partidos"></div>
+        </div>
+      </div>
+      <h3 style="margin:22px 0 10px">Mesa Diretora</h3>
+      <div class="mesa" id="casa-mesa"></div>
+      <p class="small muted" id="casa-mesa-sup" style="margin:10px 0 0"></p>
+      <h3 style="margin:22px 0 10px">Lideranças</h3>
+      <div class="mesa" id="casa-lid"></div>
+      <p class="small muted" id="casa-note" style="margin:14px 0 0"></p>
+    </div>
+    </section>
+
+    <section class="secao" id="sec-presenca" aria-label="Presença">
+    <div class="panel-head">
+      <div>
+        <h2>Presença</h2>
+        <p>Faltas registradas pela Câmara em sessões ordinárias. Licenças não contam como falta. A Lei Orgânica (art. 27) prevê perda de mandato para quem faltar a um terço das sessões ordinárias do ano sem justificativa.</p>
+      </div>
+    </div>
+    <div class="kpis" id="pres-kpis"></div>
+    <div id="pres-detail"></div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h3>Ranking de faltas em sessões ordinárias</h3><span class="small muted" id="pres-sub"></span></div>
+        <div class="bars" id="pres-bars"></div>
+        <div class="more" id="pres-more-wrap"><button type="button" class="btn" id="pres-more">Mostrar todos</button></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3 id="pres-tl-title">Presença da Casa por sessão</h3><span class="small muted">% de presentes, sem licenciados</span></div>
+        <div id="pres-timeline"></div>
+        <p class="small muted" id="pres-tl-note" style="margin:8px 0 0"></p>
+      </div>
+    </div>
+    <details class="tbl-det"><summary>Ver a tabela com todos os vereadores</summary><div class="tablewrap"><table id="pres-table"><thead></thead><tbody></tbody></table></div></details>
+      </section>
+    <section class="secao" id="sec-producao" aria-label="Produção legislativa">
+    <div class="panel-head">
+      <div>
+        <h2 id="prod-h2">Produção legislativa <button type="button" class="info" id="tipos-info" aria-label="O que é cada tipo de proposição" title="O que é cada tipo de proposição">i</button></h2>
+        <p>Proposições protocoladas por cada vereador como primeiro autor, em números absolutos e por tipo. Um projeto de lei e uma moção contam igualmente no total; o tipo mostra o que foi produzido.</p>
+      </div>
+    </div>
+    <div class="kpis" id="prod-kpis"></div>
+    <div id="prod-detail"></div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-head"><h3 id="prod-title">Proposições por tipo</h3><div class="legend" id="prod-legend"></div></div>
+      <div class="bars" id="prod-bars"></div>
+      <div class="more" id="prod-more-wrap"><button type="button" class="btn" id="prod-more">Mostrar todos</button></div>
+    </div>
+    <details class="tbl-det"><summary>Ver a tabela com todos os vereadores</summary><div class="tablewrap"><table id="prod-table"><thead></thead><tbody></tbody></table></div></details>
+    <p class="note" id="prod-note"></p>
+
+      </section>
+    <section class="secao" id="sec-custo" aria-label="Custo">
+    <div class="panel-head">
+      <div>
+        <h2 id="custo-h2">Quanto custa cada gabinete por mês</h2>
+        <p id="custo-lede">Subsídio do vereador, folha dos assessores lotados no gabinete, bolsas de estagiários e verba compensatória efetivamente ressarcida, por mês. Diárias ainda não entram.</p>
+      </div>
+    </div>
+
+    <!-- Visão Câmara -->
+    <div id="custo-cam">
+      <h3 class="sub-h">A Câmara inteira</h3>
+      <p class="note" id="cam-note">A visão Câmara cobre toda a folha publicada pela Câmara em 2025: gabinetes dos vereadores e estrutura administrativa (Presidência, Diretorias, Procuradoria, Comunicação…). Os filtros de partido e vereador não se aplicam aqui.</p>
+      <div class="kpis" id="cam-kpis"></div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><h3>Por regime</h3><span class="small muted" id="cam-regime-sub">média mensal</span></div>
+          <div class="bars" id="cam-regime-bars"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Custo total por mês</h3><span class="small muted">folha + bolsas + subsídios + verba</span></div>
+          <div id="cam-timeline"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px" id="cam-funcao-card">
+        <div class="card-head">
+          <h3>Por função exercida</h3>
+          <div class="seg" role="group" aria-label="Onde">
+            <button type="button" id="cf-todas" aria-pressed="true">Toda a Câmara</button>
+            <button type="button" id="cf-gab" aria-pressed="false">Gabinetes</button>
+            <button type="button" id="cf-estr" aria-pressed="false">Estrutura</button>
+          </div>
+          <div class="legend" id="cam-funcao-legend"></div>
+        </div>
+        <div class="bars" id="cam-funcao-bars"></div>
+        <div class="more" id="cam-funcao-more-wrap"><button type="button" class="btn" id="cam-funcao-more">Mostrar todas</button></div>
+        <p class="small muted" style="margin:10px 0 0">Os 26 graus de assessor parlamentar aparecem agrupados numa função só; a distribuição por grau está na visão Gabinetes.</p>
+      </div>
+      <div class="grid-2" id="cam-estrutura-grid">
+        <div class="card">
+          <div class="card-head"><h3>Estrutura por setor</h3><span class="small muted">centros de custo fora dos gabinetes</span></div>
+          <div class="bars" id="cam-setor-bars"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Gabinetes × estrutura por mês</h3><div class="legend" id="cam-split-legend"></div></div>
+          <div class="cols-wrap" id="cam-split-bars"></div>
+        </div>
+      </div>
+      <details class="tbl-det" id="cam-tabelas"><summary>Ver os centros de custo e todas as funções</summary>
+      <h3 style="margin-top:24px">Centros de custo da estrutura</h3>
+      <div class="tablewrap"><table id="cam-setor-table"><thead></thead><tbody></tbody></table></div>
+      <h3 style="margin-top:24px">Todas as funções</h3>
+      <div class="tablewrap"><table id="cam-funcao-table"><thead></thead><tbody></tbody></table></div>
+      </details>
+    </div>
+      <!-- Visão Gabinetes -->
+    <div id="custo-gab">
+      <h3 class="sub-h">Os gabinetes dos vereadores</h3>
+      <p class="note" id="custo-note" hidden></p>
+      <div class="kpis" id="custo-kpis"></div>
+      <div id="custo-detail"></div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><h3 id="custo-rank-title">Ranking do custo médio mensal por gabinete</h3><div class="legend" id="custo-legend"></div></div>
+          <div class="bars" id="custo-bars"></div>
+          <div class="more" id="custo-more-wrap"><button type="button" class="btn" id="custo-more">Mostrar todos</button></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3 id="custo-tl-title">Custo observado por mês</h3><span class="small muted" id="custo-tl-sub"></span></div>
+          <div id="custo-timeline"></div>
+          <p class="small muted" style="margin:8px 0 0">Janeiro sem subsídio: a lei do subsídio vigora a partir de fevereiro de 2025. Estagiários só publicados de abril a novembro.</p>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:16px">
+        <div class="card">
+          <div class="card-head"><h3 id="vteto-title">Verba ressarcida por mês e o teto</h3><span class="small muted" id="vteto-sub"></span></div>
+          <div class="cols-wrap" id="vteto-bars"></div>
+          <p class="small muted" style="margin:10px 0 0" id="vteto-note"></p>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Meses acima do teto</h3><span class="small muted" id="vteto2-sub"></span></div>
+          <div class="bars" id="vteto2-bars"></div>
+          <div class="more" id="vteto2-more-wrap"><button type="button" class="btn" id="vteto2-more">Mostrar todos</button></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="card-head"><h3 id="verba-title">Verba compensatória por vereador</h3><span class="small muted" id="verba-sub"></span></div>
+        <div class="bars" id="verba-bars"></div>
+        <div class="more" id="verba-more-wrap"><button type="button" class="btn" id="verba-more">Mostrar todos</button></div>
+        <p class="small muted" style="margin:10px 0 0" id="verba-note"></p>
+      </div>
+      <div class="grid-2" id="vcat-wrap" hidden>
+        <div class="card">
+          <div class="card-head"><h3 id="vcat-title">Em que a verba foi gasta</h3><div class="legend" id="vcat-legend"></div></div>
+          <div class="bars" id="vcat-bars"></div>
+          <div class="more" id="vcat-more-wrap"><button type="button" class="btn" id="vcat-more">Mostrar todos</button></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3 id="vcat15-title">Por categoria da lei</h3><span class="small muted" id="vcat-sub"></span></div>
+          <div class="bars" id="vcat15-bars"></div>
+          <p class="small muted" style="margin:10px 0 0" id="vcat-note"></p>
+        </div>
+      </div>
+      <details class="tbl-det"><summary>Ver a tabela com todos os gabinetes</summary><div class="tablewrap"><table id="custo-table"><thead></thead><tbody></tbody></table></div></details>
+    </div>
+
+    </section>
+    <section class="secao" id="sec-dados" aria-label="Dados e cobertura">
+    <div class="panel-head"><div><h2>Dados e cobertura</h2><p>Até quando vai cada fonte, o que merece atenção e quais meses têm dado completo.</p></div></div>
     <div class="grid-2" style="margin-top:16px">
       <div class="card">
         <div class="card-head"><h3>O que merece atenção</h3><span class="small muted" id="res-alert-sub"></span></div>
@@ -300,6 +543,7 @@
       <div class="tablewrap" style="margin-top:8px"><table class="cob" id="res-cob"><thead></thead><tbody></tbody></table></div>
       <p class="small muted" style="margin:10px 0 0" id="cob-note"></p>
     </div>
+    </section>
   </section>
 
   <!-- ===== Perfil do vereador ===== -->
@@ -321,6 +565,12 @@
         <div class="pf-big" id="pf-verba-big"></div>
         <div class="cols-wrap" id="pf-verba-bars"></div>
         <p class="small muted" id="pf-verba-note" style="margin:10px 0 0"></p>
+      </div>
+    <div class="card" id="vnf-wrap" hidden style="margin-top:16px">
+        <div class="card-head"><h3 id="vnf-title">Notas fiscais declaradas</h3><span class="small muted" id="vnf-sub"></span></div>
+        <div class="tablewrap" style="margin-top:8px"><table id="vnf-table" class="props nf"><thead></thead><tbody></tbody></table></div>
+        <div class="more" id="vnf-more-wrap"><button type="button" class="btn" id="vnf-more">Mostrar todas</button></div>
+        <p class="small muted" style="margin:10px 0 0" id="vnf-note"></p>
       </div>
       <div class="grid-2" style="margin-top:16px">
         <div class="card" style="grid-column: 1 / -1"><div class="card-head"><h3>Composição do gabinete</h3><span class="small muted" id="pf-gab-sub"></span></div><div class="bars" id="pf-gab-bars"></div><p class="small muted" id="pf-gab-note" style="margin:10px 0 0"></p><div class="lei" id="pf-gab-lei">
@@ -381,32 +631,6 @@
   </section>
 
   <!-- ===== Produtividade ===== -->
-  <section class="panel" id="panel-produtividade" role="tabpanel" aria-labelledby="tab-produtividade" hidden>
-    <div class="panel-head">
-      <div>
-        <h2 id="prod-h2">Quem mais produziu, e o que produziu <button type="button" class="info" id="tipos-info" aria-label="O que é cada tipo de proposição" title="O que é cada tipo de proposição">i</button></h2>
-        <p>Proposições protocoladas como primeiro autor. A contagem bruta trata uma moção de pesar igual a um projeto de lei; a ponderada pesa cada tipo, exclui homenagens, nomes de rua e moções de pesar, e normaliza por meses em exercício.</p>
-      </div>
-      <div class="seg" role="group" aria-label="Modo">
-        <button type="button" id="m-bruto" aria-pressed="false">Contagem bruta</button>
-        <button type="button" id="m-pond" aria-pressed="true">Ponderada / 12 meses</button>
-      </div>
-    </div>
-    <div class="kpis" id="prod-kpis"></div>
-    <div class="card" style="margin-top:16px" id="part-prod-card">
-      <div class="card-head"><h3>Por partido</h3><span class="small muted" id="part-prod-sub">produção ponderada média por vereador; clique para filtrar</span></div>
-      <div class="bars" id="part-prod"></div>
-    </div>
-    <div id="prod-detail"></div>
-    <div class="card" style="margin-top:16px">
-      <div class="card-head"><h3 id="prod-title">Proposições por tipo</h3><div class="legend" id="prod-legend"></div></div>
-      <div class="bars" id="prod-bars"></div>
-      <div class="more" id="prod-more-wrap"><button type="button" class="btn" id="prod-more">Mostrar todos</button></div>
-    </div>
-    <div class="tablewrap"><table id="prod-table"><thead></thead><tbody></tbody></table></div>
-    <p class="note" id="prod-note"></p>
-
-  </section>
 
   <dialog class="tipos" id="gloss-dlg">
     <div class="dlg">
@@ -451,166 +675,7 @@
     </div>
   </dialog>
 
-  <!-- ===== Presença ===== -->
-  <section class="panel" id="panel-presenca" role="tabpanel" aria-labelledby="tab-presenca" hidden>
-    <div class="panel-head">
-      <div>
-        <h2>Quem mais faltou às sessões ordinárias</h2>
-        <p>Faltas registradas pela Câmara em sessões ordinárias. Licenças não contam como falta nem entram na taxa. Vereadores com menos de 10 sessões no período aparecem sem taxa.</p>
-      </div>
-    </div>
-    <div class="kpis" id="pres-kpis"></div>
-    <div id="pres-detail"></div>
-    <div class="card" style="margin-top:16px" id="part-pres-card">
-      <div class="card-head"><h3>Por partido</h3><span class="small muted" id="part-pres-sub">presença média por vereador; clique para filtrar</span></div>
-      <div class="bars" id="part-pres"></div>
-    </div>
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-head"><h3>Faltas em sessões ordinárias</h3><span class="small muted" id="pres-sub"></span></div>
-        <div class="bars" id="pres-bars"></div>
-        <div class="more" id="pres-more-wrap"><button type="button" class="btn" id="pres-more">Mostrar todos</button></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><h3 id="pres-tl-title">Presença da Casa por sessão</h3><span class="small muted">% de presentes, sem licenciados</span></div>
-        <div id="pres-timeline"></div>
-        <p class="small muted" id="pres-tl-note" style="margin:8px 0 0"></p>
-      </div>
-    </div>
-    <div class="tablewrap"><table id="pres-table"><thead></thead><tbody></tbody></table></div>
-  </section>
 
-  <!-- ===== Custo ===== -->
-  <section class="panel" id="panel-custo" role="tabpanel" aria-labelledby="tab-custo" hidden>
-    <div class="panel-head">
-      <div>
-        <h2 id="custo-h2">Quanto custa cada gabinete por mês</h2>
-        <p id="custo-lede">Subsídio do vereador, folha dos assessores lotados no gabinete, bolsas de estagiários e verba compensatória efetivamente ressarcida, por mês. Diárias ainda não entram.</p>
-      </div>
-      <div class="seg" role="group" aria-label="Visão">
-        <button type="button" id="cv-gab" aria-pressed="true">Gabinetes</button>
-        <button type="button" id="cv-cam" aria-pressed="false">Câmara</button>
-      </div>
-    </div>
-    <p class="note" id="custo-note" hidden></p>
-
-    <!-- Visão Gabinetes -->
-    <div id="custo-gab">
-      <div class="kpis" id="custo-kpis"></div>
-      <div id="custo-detail"></div>
-      <div class="card" style="margin-top:16px" id="part-custo-card">
-        <div class="card-head"><h3>Por partido</h3><span class="small muted" id="part-custo-sub">custo médio mensal por gabinete; clique para filtrar</span></div>
-        <div class="bars" id="part-custo"></div>
-      </div>
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-head"><h3>Custo médio mensal por gabinete</h3><div class="legend" id="custo-legend"></div></div>
-          <div class="bars" id="custo-bars"></div>
-          <div class="more" id="custo-more-wrap"><button type="button" class="btn" id="custo-more">Mostrar todos</button></div>
-        </div>
-        <div class="card">
-          <div class="card-head"><h3 id="custo-tl-title">Custo observado por mês</h3><span class="small muted" id="custo-tl-sub"></span></div>
-          <div id="custo-timeline"></div>
-          <p class="small muted" style="margin:8px 0 0">Janeiro sem subsídio: a lei do subsídio vigora a partir de fevereiro de 2025. Estagiários só publicados de abril a novembro.</p>
-        </div>
-      </div>
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-head"><h3 id="grau-title">Assessores por grau</h3><span class="small muted">média mensal de pessoas e folha</span></div>
-          <div class="bars" id="grau-bars"></div>
-          <p class="small muted" style="margin:10px 0 0">Todos os servidores lotados em gabinetes de vereadores são assessores parlamentares comissionados (símbolo CC10), do grau G-05 ao G-30. O grau define o vencimento; a composição de graus é a única diferença de "função" entre gabinetes.</p>
-        </div>
-        <div class="card">
-          <div class="card-head"><h3>Composição do custo</h3><span class="small muted" id="comp-sub"></span></div>
-          <div class="bars" id="comp-bars"></div>
-          <p class="small muted" style="margin:10px 0 0">Por regime: assessores comissionados, subsídio do vereador (agente político) e estagiários. Não há estatutários lotados em gabinetes.</p>
-        </div>
-      </div>
-      <div class="grid-2" style="margin-top:16px">
-        <div class="card">
-          <div class="card-head"><h3 id="vteto-title">Verba ressarcida por mês e o teto</h3><span class="small muted" id="vteto-sub"></span></div>
-          <div class="cols-wrap" id="vteto-bars"></div>
-          <p class="small muted" style="margin:10px 0 0" id="vteto-note"></p>
-        </div>
-        <div class="card">
-          <div class="card-head"><h3>Meses acima do teto</h3><span class="small muted" id="vteto2-sub"></span></div>
-          <div class="bars" id="vteto2-bars"></div>
-          <div class="more" id="vteto2-more-wrap"><button type="button" class="btn" id="vteto2-more">Mostrar todos</button></div>
-        </div>
-      </div>
-      <div class="card" style="margin-top:16px">
-        <div class="card-head"><h3 id="verba-title">Verba compensatória por vereador</h3><span class="small muted" id="verba-sub"></span></div>
-        <div class="bars" id="verba-bars"></div>
-        <div class="more" id="verba-more-wrap"><button type="button" class="btn" id="verba-more">Mostrar todos</button></div>
-        <p class="small muted" style="margin:10px 0 0" id="verba-note"></p>
-      </div>
-      <div class="grid-2" id="vcat-wrap" hidden>
-        <div class="card">
-          <div class="card-head"><h3 id="vcat-title">Em que a verba foi gasta</h3><div class="legend" id="vcat-legend"></div></div>
-          <div class="bars" id="vcat-bars"></div>
-          <div class="more" id="vcat-more-wrap"><button type="button" class="btn" id="vcat-more">Mostrar todos</button></div>
-        </div>
-        <div class="card">
-          <div class="card-head"><h3 id="vcat15-title">Por categoria da lei</h3><span class="small muted" id="vcat-sub"></span></div>
-          <div class="bars" id="vcat15-bars"></div>
-          <p class="small muted" style="margin:10px 0 0" id="vcat-note"></p>
-        </div>
-      </div>
-      <div class="card" id="vnf-wrap" hidden style="margin-top:16px">
-        <div class="card-head"><h3 id="vnf-title">Notas fiscais declaradas</h3><span class="small muted" id="vnf-sub"></span></div>
-        <div class="tablewrap" style="margin-top:8px"><table id="vnf-table" class="props nf"><thead></thead><tbody></tbody></table></div>
-        <div class="more" id="vnf-more-wrap"><button type="button" class="btn" id="vnf-more">Mostrar todas</button></div>
-        <p class="small muted" style="margin:10px 0 0" id="vnf-note"></p>
-      </div>
-      <div class="tablewrap"><table id="custo-table"><thead></thead><tbody></tbody></table></div>
-    </div>
-
-    <!-- Visão Câmara -->
-    <div id="custo-cam" hidden>
-      <p class="note" id="cam-note">A visão Câmara cobre toda a folha publicada pela Câmara em 2025: gabinetes dos vereadores e estrutura administrativa (Presidência, Diretorias, Procuradoria, Comunicação…). Os filtros de partido e vereador não se aplicam aqui.</p>
-      <div class="kpis" id="cam-kpis"></div>
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-head"><h3>Por regime</h3><span class="small muted" id="cam-regime-sub">média mensal</span></div>
-          <div class="bars" id="cam-regime-bars"></div>
-        </div>
-        <div class="card">
-          <div class="card-head"><h3>Custo total por mês</h3><span class="small muted">folha + bolsas + subsídios + verba</span></div>
-          <div id="cam-timeline"></div>
-        </div>
-      </div>
-      <div class="card" style="margin-top:16px" id="cam-funcao-card">
-        <div class="card-head">
-          <h3>Por função exercida</h3>
-          <div class="seg" role="group" aria-label="Onde">
-            <button type="button" id="cf-todas" aria-pressed="true">Toda a Câmara</button>
-            <button type="button" id="cf-gab" aria-pressed="false">Gabinetes</button>
-            <button type="button" id="cf-estr" aria-pressed="false">Estrutura</button>
-          </div>
-          <div class="legend" id="cam-funcao-legend"></div>
-        </div>
-        <div class="bars" id="cam-funcao-bars"></div>
-        <div class="more" id="cam-funcao-more-wrap"><button type="button" class="btn" id="cam-funcao-more">Mostrar todas</button></div>
-        <p class="small muted" style="margin:10px 0 0">Os 26 graus de assessor parlamentar aparecem agrupados numa função só; a distribuição por grau está na visão Gabinetes.</p>
-      </div>
-      <div class="grid-2" id="cam-estrutura-grid">
-        <div class="card">
-          <div class="card-head"><h3>Estrutura por setor</h3><span class="small muted">centros de custo fora dos gabinetes</span></div>
-          <div class="bars" id="cam-setor-bars"></div>
-        </div>
-        <div class="card">
-          <div class="card-head"><h3>Gabinetes × estrutura por mês</h3><div class="legend" id="cam-split-legend"></div></div>
-          <div class="cols-wrap" id="cam-split-bars"></div>
-        </div>
-      </div>
-      <div id="cam-tabelas">
-      <h3 style="margin-top:24px">Centros de custo da estrutura</h3>
-      <div class="tablewrap"><table id="cam-setor-table"><thead></thead><tbody></tbody></table></div>
-      <h3 style="margin-top:24px">Todas as funções</h3>
-      <div class="tablewrap"><table id="cam-funcao-table"><thead></thead><tbody></tbody></table></div>
-      </div>
-    </div>
-  </section>
 
   <footer class="method" id="method" hidden>
     <div>
@@ -662,8 +727,12 @@
   const fmt1 = v => (v == null ? "—" : v.toLocaleString("pt-BR", { maximumFractionDigits: 1 }));
   const fmtDate = s => { const [y, m, d] = s.split("-"); return `${d}/${m}/${y}`; };
   const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  const escH = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const fmtData = d => { if (!d) return "—"; const [y, m, dd] = String(d).slice(0, 10).split("-"); return `${dd}/${m}/${y}`; };
   const fmtComp = c => { const [y, m] = c.split("-"); return `${MESES[+m - 1]}/${y}`; };
-  const TABS = ["resumo", "produtividade", "presenca", "custo", "perfil"];
+  const TABS = ["resumo", "perfil"];
+  // Presença, Produtividade e Custo são subabas de A Câmara; o hash usa o nome da subaba no lugar de "resumo".
+  const SUBS = { geral: "sec-geral", presenca: "sec-presenca", produtividade: "sec-producao", custo: "sec-custo" };
   // Período: 0 = legislatura inteira (2025–2028, até onde há dado); 2025/2026 = um ano. Tabelas agregadas têm linhas
   // com ano 0; tabelas mensais/por sessão são filtradas por competência com inComp/inAno.
   const anoLabel = a => a === 0 ? "2025–2028" : String(a);
@@ -671,16 +740,16 @@
   const inComp = (c, ano) => ano === 0 || String(c).startsWith(String(ano));
   const mesLbl = c => state.ano === 0 ? fmtComp(c).replace("/20", "/") : fmtComp(c).slice(0, 3);
 
-  const state = { tab: "resumo", ano: 0, partido: "", ver: "", modo: "pond", custoView: "gab", funcOnde: "todas",
+  const state = { tab: "resumo", sub: "geral", ano: 0, partido: "", ver: "", modo: "bruto", prodGrupo: null, custoSeg: null, custoView: "gab", funcOnde: "todas",
                   showAll: { equipe: false, prod: false, pres: false, custo: false, verba: false, vcat: false, vnf: false, vteto2: false, "cam-funcao": false },
-                  sort: { prod: { key: "pond", dir: -1 }, pres: { key: "ausentes", dir: -1 }, custo: { key: "custo", dir: -1 }, camsetor: { key: "media", dir: -1 }, camfuncao: { key: "media", dir: -1 } } };
+                  sort: { prod: { key: "n_total", dir: -1 }, pres: { key: "ausentes", dir: -1 }, custo: { key: "custo", dir: -1 }, camsetor: { key: "media", dir: -1 }, camfuncao: { key: "media", dir: -1 } } };
   // Estado na URL: #<aba>-<ano>-<partido sem acento ou "todos">-<gab|cam|x>[-<vereador_id>]. Só letras, dígitos e hífens.
   const fold = s => String(s || "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
   let hashPartido = null;
   function readHash() {
     const parts = location.hash.slice(1).split("-");
-    if (!TABS.includes(parts[0])) return false;
-    state.tab = parts[0];
+    if (!TABS.includes(parts[0]) && !SUBS[parts[0]]) return false;
+    if (SUBS[parts[0]]) { state.tab = "resumo"; state.sub = parts[0]; } else { state.tab = parts[0]; if (parts[0] === "resumo") state.sub = "geral"; }
     if (parts.length >= 2 && (/^\d{4}$/.test(parts[1]) || parts[1] === "leg")) state.ano = parts[1] === "leg" ? 0 : +parts[1];
     if (parts.length >= 2) { hashPartido = parts.length >= 3 && parts[2] !== "todos" ? parts[2] : ""; state.ver = parts.length >= 5 ? parts.slice(4).join("-") : ""; }
     if (parts.length >= 4 && (parts[3] === "cam" || parts[3] === "gab")) state.custoView = parts[3];
@@ -688,7 +757,8 @@
   }
   function writeHash() {
     const p = state.partido ? fold(state.partido).replace(/[^a-z0-9]/g, "") || "p" : "todos";
-    const h = `${state.tab}-${state.ano === 0 ? "leg" : state.ano}-${p}-${state.tab === "custo" ? state.custoView : "x"}${state.ver ? "-" + state.ver : ""}`;
+    const aba = state.tab === "resumo" && state.sub !== "geral" ? state.sub : state.tab;
+    const h = `${aba}-${state.ano === 0 ? "leg" : state.ano}-${p}-${aba === "custo" ? state.custoView : "x"}${state.ver ? "-" + state.ver : ""}`;
     if (location.hash !== "#" + h) history.replaceState(null, "", "#" + h);
   }
   function resolveHashState() {
@@ -721,6 +791,7 @@
     d.proposicoes = null;
     d.byId = Object.fromEntries(d.vereadores.map(v => [v.vereador_id, v]));
     try { const r = await fetch("data/verba_categorias.json"); d.verba_cat = r.ok ? await r.json() : null; } catch (_) { d.verba_cat = null; }
+    try { const r = await fetch("data/camara.json"); d.camara = r.ok ? await r.json() : null; } catch (_) { d.camara = null; }
     return d;
   }
   const V = id => D.byId[id] || { vereador_id: id, nome_parlamentar: id, partido: "" };
@@ -759,6 +830,8 @@
     root.replaceChildren();
     if (!rows.length) { root.append(el("div", { class: "empty", style: "grid-column: 1 / -1", text: "Nenhum vereador neste recorte." })); return; }
     const max = Math.max(1e-9, ...rows.map(r => r.value));
+    const ranked = rows.some(r => "rank" in r);
+    root.classList.toggle("ranked", ranked);
     const px = Math.max(300, root.clientWidth ? root.clientWidth * 0.6 : 600);
     const gap = 2 * 1000 / px, rad = 4 * 1000 / px;
     rows.forEach(r => {
@@ -782,12 +855,32 @@
       });
       track.append(s);
       const cls = ["row", r.nd ? "nd" : "", r.hl ? "hl" : "", r.dim ? "dim" : ""].filter(Boolean).join(" ");
-      root.append(el("div", { class: cls }, name, track, el("div", { class: "val num", html: r.valueText })));
+      const pos = ranked ? el("div", { class: "pos num", text: r.rank ? `${r.rank}º` : "–", title: r.rank ? (r.empate ? `${r.rank}º lugar, empatado com outros ${r.empate - 1}` : `${r.rank}º lugar`) : "sem posição: menos de 10 sessões em exercício" }) : null;
+      root.append(el("div", { class: cls }, pos, name, track, el("div", { class: "val num", html: r.valueText })));
     });
   }
-  function rankingRows(rows, key) {
+  // Legenda que filtra o ranking: clicar numa categoria escolhe (sel = índice), clicar de novo volta ao total.
+  function legendaFiltro(root, itens, sel, pick, totalLbl) {
+    root.replaceChildren(...itens.map((g, i) => el("span", {
+      class: "lg-btn" + (sel != null ? (sel === i ? " on" : " off") : ""), style: `--c:${g.color}`, text: g.label, role: "button", tabindex: 0,
+      "aria-pressed": String(sel === i), title: sel === i ? `Voltar ao ${totalLbl}` : `Ordenar o ranking por ${g.label.toLowerCase()}`,
+      onclick: () => pick(sel === i ? null : i), onkeydown: e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(sel === i ? null : i); } } })));
+  }
+  function rankingRows(rows, key, opts = {}) {
     // Com vereador selecionado, mostra a lista inteira do partido/Casa com o selecionado em destaque.
-    const all = rows.slice();
+    let all = rows.slice();
+    if (opts.rank) {
+      // Posição no padrão de competição: empatados dividem a posição e a seguinte pula (1º, 2º, 3º, 3º, 5º).
+      // Quem não tem dado suficiente (nd) vai para o fim, sem posição. A posição vem da lista inteira, antes do corte.
+      all = [...all.filter(r => !r.nd), ...all.filter(r => r.nd)];
+      const cont = {}; all.forEach(r => { if (!r.nd) cont[r.value] = (cont[r.value] || 0) + 1; });
+      let prev = null, pos = 0;
+      all = all.map((r, i) => {
+        if (r.nd) return { ...r, rank: null };
+        if (r.value !== prev) { pos = i + 1; prev = r.value; }
+        return { ...r, rank: pos, empate: cont[r.value] > 1 ? cont[r.value] : 0 };
+      });
+    }
     const shown = state.showAll[key] || state.ver ? all : all.slice(0, 12);
     const wrap = $(`#${key}-more-wrap`);
     wrap.hidden = all.length <= 12 || !!state.ver;
@@ -958,10 +1051,12 @@
     const d = (ritmo / ritmoPrev - 1) * 100; return ` · ritmo ${d >= 0 ? "+" : "−"}${Math.abs(d).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}% vs ${ano - 1}`;
   }
   function renderProd() {
-    const ano = state.ano, pond = state.modo === "pond";
-    $("#m-bruto").setAttribute("aria-pressed", String(!pond)); $("#m-pond").setAttribute("aria-pressed", String(pond));
+    const ano = state.ano, pond = false;
     const scope = prodRows(ano).filter(r => (!state.partido || V(r.vereador_id).partido === state.partido));
-    const rows = scope.filter(r => r.n_total > 0).sort((a, b) => pond ? b.vol_ponderado_12m - a.vol_ponderado_12m : b.n_total - a.n_total);
+    // Legenda clicável: com uma categoria escolhida, o ranking mostra só ela, reordenado (state.prodGrupo = índice em GRUPOS).
+    const gSel = state.prodGrupo != null ? GRUPOS[state.prodGrupo] : null;
+    const valor = r => gSel ? grp(r, gSel) : r.n_total;
+    const rows = scope.filter(r => valor(r) > 0).sort((a, b) => valor(b) - valor(a) || b.n_total - a.n_total);
     const tot = scope.reduce((a, r) => a + r.n_total, 0), exc = scope.reduce((a, r) => a + r.n_excluidas_regex, 0);
     const pl = scope.reduce((a, r) => a + grp(r, GRUPOS[0]), 0), ind = scope.reduce((a, r) => a + grp(r, GRUPOS[2]) + grp(r, GRUPOS[3]), 0);
     const casaTot = prodRows(ano).reduce((a, r) => a + r.n_total, 0);
@@ -969,19 +1064,16 @@
       kpi("Proposições", fmtInt.format(tot), state.partido ? `${fmtPct(tot / casaTot)} da Casa (${fmtInt.format(casaTot)})` : `${scope.filter(r => r.n_total > 0).length} autores${refProd(ano, tot)}`),
       kpi("Projetos de lei e afins", fmtInt.format(pl), tot ? `${fmtPct(pl / tot)} do total` : ""),
       kpi("Indicações e moções", fmtInt.format(ind), tot ? `${fmtPct(ind / tot)} do total` : ""),
-      kpi("Fora da ponderação", fmtInt.format(exc), "homenagens, nomes de rua e votos de pesar: contam no total, não no ranking ponderado"),
+      kpi("Requerimentos", fmtInt.format(scope.reduce((a, r) => a + grp(r, GRUPOS[1]), 0)), tot ? `${fmtPct(scope.reduce((a, r) => a + grp(r, GRUPOS[1]), 0) / tot)} do total` : ""),
     );
-    $("#prod-title").textContent = pond ? `Volume ponderado, normalizado para 12 meses · ${scopeLabel()}` : `Proposições protocoladas, por tipo · ${scopeLabel()}`;
-    partidoBars("part-prod", prodRows(ano).filter(r => r.n_total > 0).map(r => ({ id: r.vereador_id, v: pond ? r.vol_ponderado_12m : r.n_total })), fmt1, "var(--s1)", pond ? "produção ponderada média" : "proposições por vereador");
-    $("#part-prod-sub").textContent = pond ? "produção ponderada média por vereador · linha tracejada = Casa · clique para filtrar" : "proposições por vereador · linha tracejada = Casa · clique para filtrar";
-    $("#prod-legend").replaceChildren(...GRUPOS.map(g => el("span", { style: `--c:${g.color}`, text: g.label })));
-    if (pond) $("#prod-legend").replaceChildren();
+    $("#prod-title").textContent = gSel ? `Ranking de ${gSel.label.toLowerCase()} · ${scopeLabel()}` : `Ranking de proposições protocoladas, por tipo · ${scopeLabel()}`;
+    legendaFiltro($("#prod-legend"), GRUPOS, state.prodGrupo, i => { state.prodGrupo = i; renderProd(); }, "total de proposições");
     barsChart($("#prod-bars"), rankingRows(rows.map(r => { const v = V(r.vereador_id); return {
-      id: r.vereador_id, label: v.nome_parlamentar, sub: v.partido, value: pond ? r.vol_ponderado_12m : r.n_total,
-      segs: pond ? [{ v: r.vol_ponderado_12m, color: "var(--s1)", label: "Volume ponderado / 12 meses", text: fmt1(r.vol_ponderado_12m) }] : GRUPOS.map(g => ({ v: grp(r, g), color: g.color, label: g.label, text: String(grp(r, g)) })),
-      tipExtra: `${r.n_total} proposições em ${r.meses_exercicio} meses · ${r.n_excluidas_regex} excluídas`,
-      valueText: pond ? `${fmt1(r.vol_ponderado_12m)}<small>${r.n_total} brutas</small>` : `${r.n_total}<small>${fmt1(r.vol_ponderado_12m)} pond.</small>`,
-    }; }), "prod"));
+      id: r.vereador_id, label: v.nome_parlamentar, sub: v.partido, value: valor(r),
+      segs: (gSel ? [gSel] : GRUPOS).map(g => ({ v: grp(r, g), color: g.color, label: g.label, text: String(grp(r, g)) })),
+      tipExtra: `${r.n_total} proposições em ${r.meses_exercicio} meses de mandato`,
+      valueText: gSel ? `${valor(r)}<small>de ${r.n_total}</small>` : `${r.n_total}`,
+    }; }), "prod", { rank: true }));
     // detalhe
     const det = $("#prod-detail"); det.replaceChildren();
     if (state.ver) {
@@ -1006,9 +1098,7 @@
       { key: "req", label: "Requerimentos", get: r => r.req, text: r => fmtInt.format(r.req) },
       { key: "pin", label: "Indicações", get: r => r.pin, text: r => fmtInt.format(r.pin) },
       { key: "moc", label: "Moções", get: r => r.moc, text: r => fmtInt.format(r.moc) },
-      { key: "exc", label: "Excluídas", get: r => r.exc, text: r => fmtInt.format(r.exc) },
       { key: "meses", label: "Meses", get: r => r.meses, text: r => fmtInt.format(r.meses) },
-      { key: "pond", label: "Produção ponderada (ritmo anual)", get: r => r.pond, text: r => fmt1(r.pond) },
     ];
     table("prod-table", cols, scope.map(r => { const v = V(r.vereador_id); return { id: r.vereador_id, nome: v.nome_parlamentar, partido: v.partido, situacao: v.situacao, n_total: r.n_total, pl: grp(r, GRUPOS[0]), req: grp(r, GRUPOS[1]), pin: r.n_pin, moc: r.n_moc, exc: r.n_excluidas_regex, meses: r.meses_exercicio, pond: r.vol_ponderado_12m }; }), "prod");
     const outros = D.produtividade.outros_autores.filter(o => o.ano === ano);
@@ -1198,7 +1288,7 @@
     return [
       el("p", { class: "small muted", style: "margin:12px 0 0", text: `Sessão por sessão em ${anoLabel(ano)} (${g.n.length} ordinárias em exercício)${seq >= 3 ? ` · maior sequência de faltas: ${seq} sessões seguidas` : ""}` }),
       el("div", { class: "strip" }, ...cells),
-      el("div", { class: "strip-legend" }, el("span", {}, el("i", { style: "background:var(--s2)" }), "presente"), el("span", {}, el("i", { style: "background:var(--s1)" }), "falta"), el("span", {}, el("i", { style: "background:var(--line-2)" }), "licença"), el("span", { class: "muted", text: "clique abre a ata" })),
+      el("div", { class: "strip-legend" }, el("span", {}, el("i", { style: "background:var(--s1)" }), "presente"), el("span", {}, el("i", { style: "background:var(--s2)" }), "falta"), el("span", {}, el("i", { style: "background:var(--line-2)" }), "licença"), el("span", { class: "muted", text: "clique abre a ata" })),
     ];
   }
   function renderPres() {
@@ -1211,21 +1301,17 @@
     const ult = sessAll[sessAll.length - 1];
     $("#pres-kpis").replaceChildren(
       kpi("Sessões ordinárias", fmtInt.format(sessAll.length), ano === 2025 ? "ano completo" : `até ${fmtDate(ult.data_sessao)} (${ult.num_sessao}ª de ${ult.ano})`),
-      state.ver ? kpi(`Presença · ${scopeLabel()}`, (() => { const r = presRows(ano).find(x => x.vereador_id === state.ver); return r && !r.sem_dado ? fmtPct(r.taxa_presenca) : "—"; })(), `Casa: ${fmtPct(casaP / (casaP + casaA))}`)
-                : kpi(`Presença · ${scopeLabel()}`, fmtPct(P / (P + A)), state.partido ? `Casa: ${fmtPct(casaP / (casaP + casaA))}` : `${scope.length} vereadores${refPres(ano, P / (P + A))}`),
       kpi("Faltas registradas", fmtInt.format(A), state.partido ? `${fmtPct(A / casaA)} das faltas da Casa` : ""),
       kpi("Licenças", fmtInt.format(L), "licenças contadas por sessão"),
     );
     $("#pres-sub").textContent = `${scope.length} vereadores · ${sessAll.length} sessões`;
-    partidoBars("part-pres", presRows(ano).filter(r => !r.sem_dado).map(r => ({ id: r.vereador_id, v: r.taxa_presenca })), fmtPct, "var(--s2)", "presença média");
-    $("#part-pres-sub").textContent = "presença média por vereador · linha tracejada = Casa · clique para filtrar";
     barsChart($("#pres-bars"), rankingRows(rows.map(r => { const v = V(r.vereador_id), base = r.presentes + r.ausentes; return {
       id: r.vereador_id, label: v.nome_parlamentar, sub: v.partido, value: r.ausentes, nd: r.sem_dado,
       pill: alertaPres(r, ano), pillTitle: r.alerta_lom27 ? "Faltou a um terço ou mais das sessões ordinárias do ano (Lei Orgânica, art. 27)" : "Em 2026, ritmo de faltas que levaria a um terço das sessões do ano",
-      segs: [{ v: r.sem_dado ? 0 : r.ausentes, color: "var(--s1)", label: "Faltas", text: `${r.ausentes} de ${base} sessões` }],
+      segs: [{ v: r.sem_dado ? 0 : r.ausentes, color: "var(--s2)", label: "Faltas", text: `${r.ausentes} de ${base} sessões` }],
       tipExtra: `Presente ${r.presentes} · Licenciado ${r.licenciado}` + (r.sem_dado ? " · menos de 10 sessões em exercício" : ""),
-      valueText: `${r.ausentes}<small>${r.sem_dado ? "menos de 10 sessões" : fmtPct(r.taxa_presenca)}</small>`,
-    }; }), "pres"));
+      valueText: `${r.ausentes}<small>${r.sem_dado ? "< 10 sessões" : fmtPct(r.taxa_presenca)}</small>`,
+    }; }), "pres", { rank: true }));
     // série: Casa (sempre), ou do vereador se selecionado (presente/ausente por sessão não é série contínua, então a Casa fica)
     $("#pres-tl-title").textContent = "Presença da Casa por sessão";
     lineChart($("#pres-timeline"), sessAll.map(s => ({ y: s.presentes / (s.presentes + s.ausentes), label: ano === 0 ? fmtDate(s.data_sessao).slice(3, 5) + "/" + String(s.ano).slice(2) : fmtDate(s.data_sessao).slice(0, 5),
@@ -1265,14 +1351,9 @@
   // ---------- CUSTO ----------
   const SEGC = [{ k: "folha_assessores", label: "Assessores", color: "var(--s1)" }, { k: "subsidio", label: "Subsídio", color: "var(--s2)" }, { k: "bolsas_estagiarios", label: "Estagiários", color: "var(--s3)" }, { k: "verba_compensatoria_observada", label: "Verba compensatória", color: "var(--s4)" }];
   function renderCusto() {
-    const gab = state.custoView === "gab";
-    $("#cv-gab").setAttribute("aria-pressed", String(gab)); $("#cv-cam").setAttribute("aria-pressed", String(!gab));
-    $("#custo-gab").hidden = !gab; $("#custo-cam").hidden = gab;
-    $("#custo-h2").textContent = gab ? "Quanto custa cada gabinete por mês" : "Quanto custa a Câmara por mês";
-    $("#custo-lede").textContent = gab
-      ? "Subsídio do vereador, folha dos assessores lotados no gabinete, bolsas de estagiários e verba compensatória efetivamente ressarcida, por mês. Diárias de viagem ficam de fora: em 2025–26 houve uma só a vereador (R$ 1,4 mil, Hélio Ferreira, agosto de 2026); as demais, R$ 164 mil, foram a servidores."
-      : `Folha completa de pessoal da Câmara em ${anoLabel(state.ano)} (estatutários e comissionados de todos os setores), mais bolsas de estagiários e subsídios dos vereadores. Não inclui encargos patronais, contratos, obras nem custeio, que só aparecem agregados no SIGA.`;
-    if (gab) renderCustoGab(); else renderCustoCam();
+    $("#custo-h2").textContent = "Custo";
+    $("#custo-lede").textContent = "Quanto custa a Câmara por mês: primeiro a Casa inteira (toda a folha de pessoal, bolsas de estagiários, subsídios e verba compensatória) e depois cada gabinete de vereador. Não inclui encargos patronais, contratos, obras nem custeio, que só aparecem agregados no SIGA.";
+    renderCustoCam(); renderCustoGab();
   }
   const fmtN = v => v == null ? "—" : v.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
   function renderCustoGab() {
@@ -1301,17 +1382,26 @@
                 : kpi(`Custo mensal · ${scopeLabel()}`, fmtBRL.format(media), state.partido ? `Casa: ${fmtBRL.format(casaMedia)}` : `média ${periodo}, ${anual.length} vereadores`),
       kpi(noPeriodo(state.ano), fmtBRL.format(totAno), `subsídios + assessores + estagiários + verba compensatória · ${serie.length} meses`),
       kpi("Assessores", fmt1(assMed), `média mensal, ${anual.length} vereadores (titulares e suplentes)`),
+      (() => {
+        const vb = D.custo.verba.filter(v => v.vereador_id && inComp(v.competencia, state.ano) && (!state.partido || V(v.vereador_id).partido === state.partido));
+        const tot = vb.reduce((x, v) => x + v.verba_compensatoria_observada, 0), comps = [...new Set(vb.map(v => v.competencia))].sort();
+        return kpi("Verba compensatória / mês", comps.length ? fmtBRL.format(tot / comps.length) : "—", comps.length ? `${fmtBRL.format(tot)} ressarcidos de ${fmtComp(comps[0])} a ${fmtComp(comps[comps.length - 1])}` : "sem ressarcimentos no período");
+      })(),
       kpi("Por gabinete", fmtBRL.format(media / Math.max(1, Math.round(fevDez.reduce((a, c) => a + c.n, 0) / Math.max(1, fevDez.length)))), "custo médio mensal"),
     );
-    $("#custo-legend").replaceChildren(...SEGC.map(g => el("span", { style: `--c:${g.color}`, text: g.label })));
-    partidoBars("part-custo", anualAno.map(r => ({ id: r.vereador_id, v: r.media_mensal_custo_observado })), fmtBRL.format, "var(--s3)", "custo médio mensal");
-    $("#part-custo-sub").textContent = "custo médio mensal por gabinete · linha tracejada = Casa · clique para filtrar";
-    barsChart($("#custo-bars"), rankingRows(rows.map(r => { const v = V(r.vereador_id), m = r.meses_com_folha || 1, cargo = cargoMesa(v, state.ano); return {
-      id: r.vereador_id, label: v.nome_parlamentar, sub: cargo ? `${v.partido} · ${cargo}` : v.partido, value: r.media_mensal_custo_observado,
-      segs: SEGC.map(s => ({ v: (r[s.k] || 0) / m, color: s.color, label: s.label + " (média mensal)", text: fmtBRL.format((r[s.k] || 0) / m) })),
+    // Legenda clicável: com um componente escolhido (state.custoSeg = índice em SEGC), o ranking mostra só ele, reordenado.
+    const sSel = state.custoSeg != null ? SEGC[state.custoSeg] : null;
+    const compMes = (r, sg) => (r[sg.k] || 0) / (r.meses_com_folha || 1);
+    const valorC = r => sSel ? compMes(r, sSel) : r.media_mensal_custo_observado;
+    $("#custo-rank-title").textContent = sSel ? `Ranking de ${sSel.label.toLowerCase()} por gabinete (média mensal)` : "Ranking do custo médio mensal por gabinete";
+    legendaFiltro($("#custo-legend"), SEGC, state.custoSeg, i => { state.custoSeg = i; renderCustoGab(); }, "custo total");
+    const rowsC = rows.filter(r => valorC(r) > 0).sort((a, b) => valorC(b) - valorC(a) || b.media_mensal_custo_observado - a.media_mensal_custo_observado);
+    barsChart($("#custo-bars"), rankingRows(rowsC.map(r => { const v = V(r.vereador_id), cargo = cargoMesa(v, state.ano); return {
+      id: r.vereador_id, label: v.nome_parlamentar, sub: cargo ? `${v.partido} · ${cargo}` : v.partido, value: valorC(r),
+      segs: (sSel ? [sSel] : SEGC).map(sg => ({ v: compMes(r, sg), color: sg.color, label: sg.label + " (média mensal)", text: fmtBRL.format(compMes(r, sg)) })),
       tipExtra: `${fmt1(r.media_assessores_parlamentares)} assessores em média · ${r.meses_com_folha} meses com folha`,
-      valueText: `${fmtBRL.format(r.media_mensal_custo_observado)}<small>${fmt1(r.media_assessores_parlamentares)} assess.</small>`,
-    }; }), "custo"));
+      valueText: sSel ? `${fmtBRL.format(valorC(r))}<small>de ${fmtBRL.format(r.media_mensal_custo_observado)}</small>` : `${fmtBRL.format(r.media_mensal_custo_observado)}<small>${fmt1(r.media_assessores_parlamentares)} assess.</small>`,
+    }; }), "custo", { rank: true }));
     $("#custo-tl-title").textContent = `Custo observado por mês · ${scopeLabel()}`;
     $("#custo-tl-sub").textContent = state.ver ? "gabinete" : `${anual.length} gabinete${anual.length > 1 ? "s" : ""}`;
     const serieVer = state.ver ? mensal.filter(m => m.vereador_id === state.ver).sort((a, b) => a.competencia.localeCompare(b.competencia)).map(m => ({ competencia: m.competencia, folha: m.folha_assessores, sub: m.subsidio || 0, bol: m.bolsas_estagiarios || 0, verba: m.verba_compensatoria_observada || 0, tot: m.custo_observado, ass: m.n_assessores })) : serie;
@@ -1377,24 +1467,6 @@
       tipExtra: `ressarcido ${fmtBRL.format(r.total)} · teto do ano até agora ${fmtBRL.format(tetoAno)}${r.total > tetoAno + 0.5 ? " · acima do teto do ano" : ""}`,
       valueText: `${r.acima}<small>de ${r.meses} meses</small>` })), "vteto2"));
     renderVerbaCategorias();
-    // Assessores por grau (escopo: Casa / partido / vereador)
-    const scopeIds = new Set(anual.filter(r => !state.ver || r.vereador_id === state.ver).map(r => r.vereador_id));
-    const byGrau = {};
-    D.custo_camara.gab_grau.filter(g => (g.ano ?? 2025) === state.ano && scopeIds.has(g.vereador_id)).forEach(g => { const k = g.grau || "sem grau"; const o = byGrau[k] ||= { grau: k, n: 0, rs: 0 }; o.n += g.n_medio; o.rs += g.media_mensal; });
-    const graus = Object.values(byGrau).sort((a, b) => b.grau.localeCompare(a.grau));
-    $("#grau-title").textContent = `Assessores por grau · ${scopeLabel()}`;
-    barsChart($("#grau-bars"), graus.map(g => ({ id: null, label: g.grau, value: g.rs, segs: [{ v: g.rs, color: "var(--s1)", label: "Folha mensal", text: fmtBRL.format(g.rs) }],
-      tipExtra: `${fmtN(g.n)} assessores em média · ${fmtBRL.format(g.n ? g.rs / g.n : 0)} por assessor`, valueText: `${fmtBRL.format(g.rs)}<small>${fmtN(g.n)} pessoas</small>` })));
-    // Composição por regime do escopo (média mensal fev–dez)
-    const comp = [
-      { label: "Assessores comissionados (CC10)", v: fevDez.reduce((a, c) => a + c.folha, 0) / Math.max(1, fevDez.length), color: "var(--s1)" },
-      { label: "Subsídio dos vereadores", v: fevDez.reduce((a, c) => a + c.sub, 0) / Math.max(1, fevDez.length), color: "var(--s2)" },
-      { label: "Bolsas de estagiários", v: fevDez.reduce((a, c) => a + c.bol, 0) / Math.max(1, fevDez.length), color: "var(--s3)" },
-      { label: "Verba compensatória (ressarcimentos)", v: fevDez.reduce((a, c) => a + c.verba, 0) / Math.max(1, fevDez.length), color: "var(--s4)" },
-    ];
-    const compTot = comp.reduce((a, c) => a + c.v, 0);
-    $("#comp-sub").textContent = `média mensal · ${scopeLabel()}`;
-    barsChart($("#comp-bars"), comp.map(c => ({ id: null, label: c.label, value: c.v, segs: [{ v: c.v, color: c.color, label: "Média mensal", text: fmtBRL.format(c.v) }], valueText: `${fmtBRL.format(c.v)}<small>${fmtPct(compTot ? c.v / compTot : 0)}</small>` })));
   }
 
   // ---------- Verba por categoria (processos de pagamento no e-TCM) ----------
@@ -1441,7 +1513,6 @@
         (cob.sem_categorias ? ` Os ${fmtInt.format(cob.sem_categorias)} processos de ${meses.join(" e ")} só trazem o total autorizado, sem categorias, e ficam fora destes gráficos.` : "");
     }
     $("#vcat-note").textContent = `Fonte: processos de pagamento da verba compensatória enviados pela Câmara ao TCM-BA (e-TCM, Consulta Pública). De junho de 2025 em diante eles trazem o resumo das despesas por inciso da Lei 9.828/2025, art. 14; em janeiro e fevereiro, uma linha por documento fiscal (tabela abaixo). As notas fiscais em si não acompanham o processo. ${cobTxt}`;
-    renderVerbaNotas(VC);
   }
 
   // ---------- Notas fiscais declaradas (formulário antigo, competências jan–fev/2025) ----------
@@ -1460,11 +1531,12 @@
     $("#vnf-title").textContent = `Notas fiscais declaradas · ${meses.map(fmtComp).join(" e ")} · ${scopeLabel()}`;
     $("#vnf-sub").textContent = `${fmtInt.format(rows.length)} documentos · ${fmtBRL.format(tot)} reembolsados${glosa ? ` · ${fmtBRL.format(glosa)} glosados` : ""}`;
     const t = $("#vnf-table");
-    t.querySelector("thead").replaceChildren(el("tr", {}, ...["Vereador", "Competência", "Categoria (lei)", "Despesa declarada", "Documento", "Emissão", "Apresentado", "Glosa", "Reembolsado"].map((h, i) => el("th", { scope: "col", class: i >= 6 ? "num" : "" }, h))));
+    const comNome = !state.ver;
+    t.querySelector("thead").replaceChildren(el("tr", {}, ...[...(comNome ? ["Vereador"] : []), "Competência", "Categoria (lei)", "Despesa declarada", "Documento", "Emissão", "Apresentado", "Glosa", "Reembolsado"].map((h, i) => el("th", { scope: "col", class: ["Apresentado", "Glosa", "Reembolsado"].includes(h) ? "num" : "" }, h))));
     t.querySelector("tbody").replaceChildren(...shown.map(r => {
       const v = r.vereador_id ? V(r.vereador_id) : null;
       return el("tr", {},
-        v ? el("td", { class: "v name", onclick: () => selectVer(r.vereador_id) }, v.nome_parlamentar, el("span", { class: "pt", text: v.partido })) : el("td", { class: "v", text: "não identificado" }),
+        !comNome ? null : v ? el("td", { class: "v name", onclick: () => selectVer(r.vereador_id) }, v.nome_parlamentar, el("span", { class: "pt", text: v.partido })) : el("td", { class: "v", text: "não identificado" }),
         el("td", { class: "num", text: fmtComp(r.competencia) }),
         el("td", { title: desc[r.categoria] || "" }, r.categoria ? `${r.categoria} · ${(desc[r.categoria] || "").split(/[(,/]/)[0].trim()}` : "—"),
         el("td", { class: "desc" }, r.descricao || "—", r.inciso_fonte && r.inciso_fonte !== r.categoria ? el("span", { class: "tag", title: "Inciso que o gabinete escreveu no formulário", text: `declarado como ${r.inciso_fonte}` }) : null),
@@ -1592,7 +1664,7 @@
     let t = 0; for (let y = y0; y <= y1; y++) for (let m = (y === y0 ? m0 : 1); m <= (y === y1 ? m1 : 12); m++) t += tetoMes(`${y}-${String(m).padStart(2, "0")}`); return t;
   }
   // ---------- RESUMO (aba inicial) ----------
-  const goTo = (tab, id, extra) => { state.tab = tab; state.ver = id || ""; if (extra) Object.assign(state, extra); renderAll(); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const goTo = (tab, id, extra) => { if (SUBS[tab]) { state.sub = tab; tab = "resumo"; } state.tab = tab; state.ver = id || ""; if (extra) Object.assign(state, extra); renderAll(); window.scrollTo({ top: 0, behavior: "smooth" }); };
   function topList(title, sub, rows, fmt, tab, extra) {
     // rows: [{id, v}] ordenado do maior para o menor; mostra os 5 maiores e os 5 menores
     const li = r => el("li", {}, el("span", { class: "n", text: V(r.id).nome_parlamentar, title: `${V(r.id).partido} · abrir perfil`, onclick: () => goTo("perfil", r.id) }), el("span", { class: "v", text: fmt(r.v) }));
@@ -1600,7 +1672,65 @@
     return el("div", { class: "card tops" }, el("h3", { text: title }), el("div", { class: "sub", text: sub }),
       el("div", { class: "split" }, el("div", {}, el("div", { class: "lbl", text: "Maiores" }), el("ol", {}, ...hi.map(li))), el("div", {}, el("div", { class: "lbl", text: "Menores" }), el("ol", {}, ...lo.map(li)))));
   }
+  // ---------- composição da Câmara (hemiciclo, Mesa, lideranças) ----------
+  const BLOCOS = { oposicao: { label: "Oposição", color: "var(--s2)" }, base: { label: "Base do governo", color: "var(--s1)" }, null: { label: "Sem classificação", color: "var(--line-2)" } };
+  // Cadeiras de um hemiciclo: fileiras com nº de assentos proporcional ao raio, ordenadas da esquerda para a direita.
+  function hemiSeats(n, rows) {
+    const r0 = 0.5, radii = Array.from({ length: rows }, (_, i) => r0 + (1 - r0) * i / (rows - 1));
+    const tot = radii.reduce((a, b) => a + b, 0);
+    const per = radii.map(r => Math.round(n * r / tot));
+    per[rows - 1] += n - per.reduce((a, b) => a + b, 0);
+    const seats = [];
+    radii.forEach((r, i) => { for (let j = 0; j < per[i]; j++) seats.push({ r, a: Math.PI * (1 - j / (per[i] - 1)) }); });
+    return seats.sort((x, y) => y.a - x.a || x.r - y.r);
+  }
+  function renderComposicao() {
+    const C = D.camara, card = $("#casa-card");
+    if (!C || !C.cadeiras || !C.cadeiras.length) { card.hidden = true; return; }
+    card.hidden = false;
+    const ordem = { oposicao: 0, base: 1 };
+    const vs = C.cadeiras.map(V).sort((a, b) => (ordem[a.bloco] ?? 2) - (ordem[b.bloco] ?? 2) || (a.partido || "").localeCompare(b.partido || "", "pt-BR") || a.nome_parlamentar.localeCompare(b.nome_parlamentar, "pt-BR"));
+    const n = vs.length, rows = n > 60 ? 5 : 4, seats = hemiSeats(n, rows);
+    const R = 230, nOut = seats.filter(s => s.r === 1).length, rowGap = R * 0.5 / (rows - 1);
+    const dot = Math.min(R * Math.PI / (nOut - 1), rowGap) * 0.41, pad = dot + 6, W = 2 * (R + pad), cx = W / 2, cy = R + pad;
+    const root = svg("svg", { class: "hemi", viewBox: `0 0 ${W.toFixed(0)} ${(cy + pad).toFixed(0)}`, role: "img", "aria-label": `Hemiciclo com ${n} cadeiras: ` + Object.entries(BLOCOS).map(([k, b]) => `${vs.filter(v => String(v.bloco) === k).length} ${b.label.toLowerCase()}`).filter(t => !t.startsWith("0 ")).join(", ") });
+    seats.forEach((st, i) => {
+      const v = vs[i], b = BLOCOS[v.bloco] || BLOCOS.null;
+      const c = svg("circle", { class: "seat" + (v.lideranca ? " lider" : ""), cx: (cx + R * st.r * Math.cos(st.a)).toFixed(1), cy: (cy - R * st.r * Math.sin(st.a)).toFixed(1), r: dot.toFixed(1), fill: b.color, tabindex: 0, role: "link", "aria-label": `${v.nome_parlamentar} (${v.partido}), ${b.label}` });
+      const lid = v.lideranca === "lider_governo" ? "<br>Líder do governo" : v.lideranca === "lider_oposicao" ? "<br>Líder da oposição" : "";
+      tipOn(c, `<b>${escH(v.nome_parlamentar)}</b> · ${escH(v.partido || "")}<br>${b.label}${lid}`);
+      c.addEventListener("click", () => goTo("perfil", v.vereador_id));
+      c.addEventListener("keydown", e => { if (e.key === "Enter") goTo("perfil", v.vereador_id); });
+      root.append(c);
+    });
+    root.append(svg("text", { class: "num", x: cx, y: cy - 26, "text-anchor": "middle", text: String(n) }), svg("text", { class: "numlbl", x: cx, y: cy - 2, "text-anchor": "middle", text: "cadeiras" }));
+    $("#casa-hemi").replaceChildren(root);
+    const cont = k => vs.filter(v => String(v.bloco) === k);
+    const A = C.assessores;
+    const stat = (val, label, extra, sw) => el("div", { class: "comp-stat" }, el("div", { class: "v", text: val }), el("div", { class: "l" }, sw ? el("span", { class: "sw", style: `background:${sw}` }) : null, label, extra ? el("small", { text: extra }) : null));
+    $("#casa-stats").replaceChildren(
+      stat(String(n), "vereadores", `cadeiras ocupadas na sessão de ${fmtData(C.referencia)}`),
+      stat(A ? fmtInt.format(A.n) : "—", "assessores parlamentares", A ? `${fmtInt.format(A.especiais)} especiais G-30 · folha de ${fmtComp(A.competencia)}` : "sem folha"),
+      stat(String(cont("base").length), "base do governo", null, BLOCOS.base.color),
+      stat(String(cont("oposicao").length), "oposição", null, BLOCOS.oposicao.color));
+    const partidos = k => { const m = {}; cont(k).forEach(v => { m[v.partido] = (m[v.partido] || 0) + 1; }); return Object.entries(m).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR")).map(([p, q]) => `${p} ${q}`).join(" · "); };
+    $("#casa-partidos").replaceChildren(el("div", { html: `<b>Base:</b> ${escH(partidos("base"))}` }), el("div", { html: `<b>Oposição:</b> ${escH(partidos("oposicao"))}` }));
+    $("#casa-sub").textContent = `${n} cadeiras · sessão de ${fmtData(C.referencia)}`;
+    const pessoa = (id, cargo, destaque) => {
+      const v = V(id), ini = v.nome_parlamentar.split(" ").map(w => w[0]).slice(0, 2).join("");
+      return el("button", { type: "button", class: "mesa-card" + (destaque ? " destaque" : ""), onclick: () => goTo("perfil", id), "aria-label": `${cargo}: ${v.nome_parlamentar}, ver perfil` },
+        v.foto ? el("img", { src: v.foto, alt: "", loading: "lazy" }) : el("div", { class: "ini", text: ini }),
+        el("div", {}, el("div", { class: "c", text: cargo }), el("div", { class: "n", text: v.nome_parlamentar }), el("div", { class: "p" }, v.bloco ? el("span", { class: "sw", style: `background:${(BLOCOS[v.bloco] || BLOCOS.null).color}`, title: (BLOCOS[v.bloco] || BLOCOS.null).label }) : null, v.partido || "")));
+    };
+    const tit = C.mesa.filter(m => m.tipo === "titular"), sup = C.mesa.filter(m => m.tipo === "suplente");
+    $("#casa-mesa").replaceChildren(...tit.map((m, i) => pessoa(m.v, m.cargo, i === 0)));
+    $("#casa-mesa-sup").textContent = sup.length ? "Suplentes da Mesa: " + sup.map(m => `${V(m.v).nome_parlamentar} (${m.cargo.replace(" suplente", "")})`).join(", ") + "." : "";
+    const lid = [["lider_governo", "Líder do governo"], ["lider_oposicao", "Líder da oposição"]].map(([k, l]) => { const v = vs.find(x => x.lideranca === k); return v ? pessoa(v.vereador_id, l) : null; }).filter(Boolean);
+    $("#casa-lid").replaceChildren(...lid);
+    $("#casa-note").innerHTML = `Cadeiras: lista de frequência da última sessão ordinária (${fmtData(C.referencia)}), que inclui suplentes em exercício. Mesa Diretora: <a href="https://www.cms.ba.gov.br/mesa-diretora" target="_blank" rel="noopener">página oficial da Câmara</a>. Base e oposição: a Câmara não publica essa lista. A classificação segue os vereadores nomeados como oposição em reportagens de outubro de 2026 (<a href="https://bahia.ba/politica/oposicao-da-camara-de-salvador-vota-contra-titulo-a-flavio-bolsonaro/" target="_blank" rel="noopener">bahia.ba</a>, <a href="https://www.bahianoticias.com.br/noticia/323062-oposicao-na-camara-de-salvador-deve-se-reunir-com-aleluia-e-levar-termo-de-compromisso-antes-de-decidir-apoio" target="_blank" rel="noopener">Bahia Notícias</a>); os demais estão na base. Assessores: ${A ? `matrículas de Assessor Parlamentar na consulta de pessoal do TCM-BA, ${fmtComp(A.competencia)}` : "—"}.`;
+  }
   function renderResumo() {
+    renderComposicao();
     const ano = state.ano, scopeF = r => inScope(r.vereador_id);
     const pres = presRows(ano).filter(scopeF), prod = prodRows(ano).filter(scopeF);
     const P = pres.reduce((a, r) => a + r.presentes, 0), A = pres.reduce((a, r) => a + r.ausentes, 0);
@@ -1615,34 +1745,18 @@
     const camFd = camMensal.filter(m => m.competencia >= "2025-02"), camMed = camFd.length ? camFd.reduce((a, m) => a + (m.custo_total || 0), 0) / camFd.length : null;
     const esc = scopeLabel();
     $("#res-h2").textContent = state.ver ? `${esc} em ${anoLabel(ano)}` : state.partido ? `${esc} em ${anoLabel(ano)}` : `A Câmara em ${anoLabel(ano)}`;
-    $("#res-kpis").replaceChildren(
-      kpi(`Presença · ${esc}`, P + A ? fmtPct(P / (P + A)) : "—", `${pres.length} vereadores · ${D.presenca.sessoes.filter(s => inAno(s.ano, ano)).length} sessões ordinárias`),
-      kpi("Proposições", fmtInt.format(nProp), `${fmtInt.format(nPL)} projetos de lei e afins`),
-      kpi(`Custo dos gabinetes / mês`, anual.length ? fmtBRL.format(custoMes) : "—", `${anual.length} vereadores (titulares e suplentes) · subsídio + assessores + estagiários + verba`),
-      kpi("Verba compensatória no ano", fmtBRL.format(verbaAno), `${verbaMeses} meses de ressarcimentos`),
-      ...(state.ver || state.partido ? [] : [kpi("Custo total da Câmara / mês", camMed ? fmtBRL.format(camMed) : "—", "folha completa + bolsas + subsídios + verba")]),
-    );
-    // extremos
-    const presRank = presRows(ano).filter(r => !r.sem_dado && (!state.partido || V(r.vereador_id).partido === state.partido)).map(r => ({ id: r.vereador_id, v: r.taxa_presenca })).sort((a, b) => b.v - a.v);
-    const prodRank = prodRows(ano).filter(r => r.n_total > 0 && (!state.partido || V(r.vereador_id).partido === state.partido)).map(r => ({ id: r.vereador_id, v: r.vol_ponderado_12m })).sort((a, b) => b.v - a.v);
-    const custoRank = D.custo.anual.filter(r => (r.ano ?? 2025) === ano && (!state.partido || V(r.vereador_id).partido === state.partido)).map(r => ({ id: r.vereador_id, v: r.media_mensal_custo_observado })).sort((a, b) => b.v - a.v);
-    $("#res-tops").replaceChildren(
-      topList("Presença nas sessões", "percentual de sessões ordinárias com presença", presRank, fmtPct, "presenca"),
-      topList("Produção legislativa", "produção ponderada, ritmo anual", prodRank, fmt1, "produtividade"),
-      topList("Custo do gabinete", "média mensal: subsídio, assessores, estagiários e verba", custoRank, fmtBRL.format, "custo", { custoView: "gab" }),
-    );
     // alertas
     const al = [];
     const nome = id => el("span", { class: "n", text: V(id).nome_parlamentar, onclick: () => goTo(al_tab(id), id) });
     const al_tab = () => "presenca";
     presRows(ano).filter(r => r.alerta_lom27 && (!state.partido || V(r.vereador_id).partido === state.partido)).forEach(r =>
-      al.push(el("li", {}, el("span", { class: "tag", text: "LOM 27" }), el("span", {}, el("span", { class: "n", text: V(r.vereador_id).nome_parlamentar, onclick: () => goTo("presenca", r.vereador_id) }), ` faltou a ${fmtPct(r.fracao_faltas_lom27)} das sessões ordinárias do ano; a Lei Orgânica prevê perda de mandato a partir de um terço.`))));
+      al.push(el("li", {}, el("span", { class: "tag", text: "LOM 27" }), el("span", {}, el("span", { class: "n", text: V(r.vereador_id).nome_parlamentar, onclick: () => goTo("perfil", r.vereador_id) }), ` faltou a ${fmtPct(r.fracao_faltas_lom27)} das sessões ordinárias do ano; a Lei Orgânica prevê perda de mandato a partir de um terço.`))));
     if (ano === 2026) presRows(ano).filter(r => !r.alerta_lom27 && !r.sem_dado && r.fracao_faltas_lom27 >= 0.25 && (!state.partido || V(r.vereador_id).partido === state.partido)).forEach(r =>
-      al.push(el("li", {}, el("span", { class: "tag", text: "ritmo" }), el("span", {}, el("span", { class: "n", text: V(r.vereador_id).nome_parlamentar, onclick: () => goTo("presenca", r.vereador_id) }), ` faltou a ${fmtPct(r.fracao_faltas_lom27)} das sessões ordinárias realizadas até agora; a Lei Orgânica prevê perda de mandato a partir de um terço no ano.`))));
+      al.push(el("li", {}, el("span", { class: "tag", text: "ritmo" }), el("span", {}, el("span", { class: "n", text: V(r.vereador_id).nome_parlamentar, onclick: () => goTo("perfil", r.vereador_id) }), ` faltou a ${fmtPct(r.fracao_faltas_lom27)} das sessões ordinárias realizadas até agora; a Lei Orgânica prevê perda de mandato a partir de um terço no ano.`))));
     const byV = {}; D.custo.verba.filter(v => inComp(v.competencia, ano) && v.vereador_id && (!state.partido || V(v.vereador_id).partido === state.partido)).forEach(v => { const o = byV[v.vereador_id] ||= { t: 0, teto: 0, acima: 0 }; o.t += v.verba_compensatoria_observada; o.teto += v.verba_compensatoria_teto; o.acima += v.acima_do_teto ? 1 : 0; });
     const tetoAno = tetoAnual(ano);
     Object.entries(byV).filter(([, o]) => o.t > tetoAno + 0.5).sort((a, b) => b[1].t - a[1].t).forEach(([id, o]) =>
-      al.push(el("li", {}, el("span", { class: "tag", text: "verba" }), el("span", {}, el("span", { class: "n", text: V(id).nome_parlamentar, onclick: () => goTo("custo", id, { custoView: "gab" }) }), ` recebeu ${fmtBRL.format(o.t)} de verba no ano, ${fmtBRL.format(o.t - tetoAno)} acima da soma dos tetos mensais até agora (${fmtBRL.format(tetoAno)}; a validar: pode ser empenho atribuído ao mês errado).`))));
+      al.push(el("li", {}, el("span", { class: "tag", text: "verba" }), el("span", {}, el("span", { class: "n", text: V(id).nome_parlamentar, onclick: () => goTo("perfil", id) }), ` recebeu ${fmtBRL.format(o.t)} de verba no ano, ${fmtBRL.format(o.t - tetoAno)} acima da soma dos tetos mensais até agora (${fmtBRL.format(tetoAno)}; a validar: pode ser empenho atribuído ao mês errado).`))));
     const nAcima = Object.values(byV).filter(o => o.acima >= 3).length;
     if (nAcima) al.push(el("li", {}, el("span", { class: "tag neutral", text: "verba" }), el("span", { text: `${nAcima} vereadores tiveram 3 ou mais meses acima do teto mensal da verba; a lei permite usar saldo não gasto de meses anteriores.` })));
     const cob = (D.custo_camara.lotacao_cobertura || []).filter(c => inComp(c.competencia, ano));
@@ -1782,6 +1896,7 @@
       return { label: mesLbl(c), full: fmtComp(c), segs, ref: teto, refLabel: `teto ${fmtMil(teto)}`, flag: emp > teto + 0.5 ? "acima do teto" : "",
         tip: `${fmtPct((emp || somaCat) / teto)} do teto do mês (${fmtBRL.format(teto)})${Object.keys(cats).length ? ` · ${Object.keys(cats).length} categorias declaradas` : " · prestação sem categorias"}` };
     }), { aria: `Verba compensatória recebida por mês em ${anoLabel(ano)}, por categoria, com a linha do teto` });
+    if (D.verba_cat) renderVerbaNotas(D.verba_cat); else $("#vnf-wrap").hidden = true;
     $("#pf-verba-note").textContent = `Barras: valor ressarcido por mês (empenhos da Câmara), dividido pelas categorias da Lei 9.828/2025 declaradas na prestação de contas enviada ao TCM-BA (${mesesCat} de ${comps.length} meses com categorias). Meses sem detalhamento mostram só o total. As notas fiscais em si não são publicadas, salvo janeiro e fevereiro de 2025.`;
     // gabinete: composição e graus
     if (cu) {
@@ -1821,10 +1936,16 @@
   function renderTab() {
     TABS.forEach(t => { $(`#tab-${t}`).setAttribute("aria-selected", String(t === state.tab)); $(`#panel-${t}`).hidden = t !== state.tab; });
     $("#tab-perfil").textContent = state.ver ? `Perfil · ${V(state.ver).nome_parlamentar.split(" ")[0]}` : "Perfil";
-    if (state.tab === "resumo") renderResumo(); else if (state.tab === "produtividade") renderProd(); else if (state.tab === "presenca") renderPres(); else if (state.tab === "perfil") renderPerfil(); else renderCusto();
+    if (state.tab === "perfil") { renderPerfil(); return; }
+    // A Câmara é a visão da Casa: o vereador selecionado só vale no Perfil.
+    const ver = state.ver; state.ver = "";
+    Object.entries(SUBS).forEach(([k, id]) => { $(`#sub-${k}`).setAttribute("aria-selected", String(k === state.sub)); $("#" + id).hidden = k !== state.sub; });
+    $("#sec-dados").hidden = state.sub !== "geral";
+    const render = { geral: renderResumo, presenca: renderPres, produtividade: renderProd, custo: renderCusto }[state.sub];
+    try { render(); } finally { state.ver = ver; }
   }
   function renderAll() { pp.page = 0; pp.etapa = ""; equipePage = 0; fillFilters(); renderTab(); writeHash(); }
-  function selectVer(id) { state.ver = state.ver === id ? "" : id; renderAll(); if (state.ver && window.innerWidth > 600 && state.tab !== "perfil") $("#filters").scrollIntoView({ block: "start", behavior: "smooth" }); }
+  function selectVer(id) { goTo("perfil", id); }
   function setTab(t) { state.tab = t; renderTab(); writeHash(); }
 
   load().then(d => {
@@ -1832,7 +1953,8 @@
     $("#status").hidden = true; $("#tabs").hidden = false; $("#method").hidden = false;
     resolveHashState(); renderMethod(); renderAll();
     TABS.forEach(t => $(`#tab-${t}`).addEventListener("click", () => setTab(t)));
-    window.addEventListener("hashchange", () => { if (readHash()) { resolveHashState(); renderAll(); } else { const t = location.hash.slice(1); if (TABS.includes(t) && t !== state.tab) setTab(t); } });
+    Object.keys(SUBS).forEach(k => $(`#sub-${k}`).addEventListener("click", () => { state.sub = k; setTab("resumo"); }));
+    window.addEventListener("hashchange", () => { if (readHash()) { resolveHashState(); renderAll(); } else { const t = location.hash.slice(1); if (SUBS[t]) { state.sub = t; setTab("resumo"); } else if (TABS.includes(t)) { if (t === "resumo") state.sub = "geral"; setTab(t); } } });
     $("#f-link").addEventListener("click", () => {
       const b = $("#f-link"), done = () => { b.textContent = "Link copiado"; setTimeout(() => { b.textContent = "Copiar link"; }, 1800); };
       const fallback = () => { const i = el("input", { value: location.href, readonly: true, style: "position:fixed;left:-9999px" }); document.body.append(i); i.select(); try { document.execCommand("copy"); done(); } catch (_) { b.textContent = "Copie da barra de endereço"; } i.remove(); };
@@ -1845,10 +1967,8 @@
     $("#f-ano").addEventListener("change", e => { state.ano = +e.target.value; try { localStorage.setItem("spot.ano", String(state.ano)); } catch (_) {} renderAll(); });
     $("#pp-dol").addEventListener("change", e => { pp.dol = e.target.checked; pp.page = 0; renderProps(); });
     $("#f-partido").addEventListener("change", e => { state.partido = e.target.value; renderAll(); });
-    $("#f-ver").addEventListener("change", e => { state.ver = e.target.value; renderAll(); });
+    $("#f-ver").addEventListener("change", e => { if (e.target.value) goTo("perfil", e.target.value); else { state.ver = ""; renderAll(); } });
     $("#f-reset").addEventListener("click", () => { state.ano = 0; state.partido = ""; state.ver = ""; try { localStorage.setItem("spot.ano", "0"); } catch (_) {} renderAll(); });
-    $("#m-bruto").addEventListener("click", () => { state.modo = "bruto"; state.sort.prod = { key: "n_total", dir: -1 }; renderTab(); });
-    $("#m-pond").addEventListener("click", () => { state.modo = "pond"; state.sort.prod = { key: "pond", dir: -1 }; renderTab(); });
     $("#pp-tipo").addEventListener("change", e => { pp.tipo = e.target.value; pp.page = 0; renderProps(); });
     $("#pp-sit").addEventListener("change", e => { pp.sit = e.target.value; pp.page = 0; renderProps(); });
     $("#pp-q").addEventListener("input", e => { pp.q = e.target.value; pp.page = 0; renderProps(); });
@@ -1858,8 +1978,6 @@
     dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
     $("#prod-more").addEventListener("click", () => { state.showAll.prod = !state.showAll.prod; renderTab(); });
     $("#pres-more").addEventListener("click", () => { state.showAll.pres = !state.showAll.pres; renderTab(); });
-    $("#cv-gab").addEventListener("click", () => { state.custoView = "gab"; renderTab(); });
-    $("#cv-cam").addEventListener("click", () => { state.custoView = "cam"; renderTab(); });
     ["todas", "gab", "estr"].forEach(k => $(`#cf-${k}`).addEventListener("click", () => { state.funcOnde = k; renderTab(); }));
     $("#cam-funcao-more").addEventListener("click", () => { state.showAll["cam-funcao"] = !state.showAll["cam-funcao"]; renderTab(); });
     $("#vcat-more").addEventListener("click", () => { state.showAll.vcat = !state.showAll.vcat; renderTab(); });
