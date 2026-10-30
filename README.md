@@ -1,10 +1,56 @@
-# spot
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/img/spot-marca-escuro.png">
+    <img src="docs/img/spot-marca-claro.png" alt="Spot: uma luminária ilumina um vereador" width="347">
+  </picture>
+</p>
 
-Monitoramento dos vereadores da Câmara Municipal de Salvador (CMS): presença nas sessões, produção legislativa,
-custo do mandato e do gabinete, e uso da verba compensatória. Escopo atual: legislatura 2025–2028.
+<p align="center"><strong>Vereadores de Salvador: presença, produção e custo, a partir de dados públicos.</strong><br>
+<a href="https://thiagofnj.github.io/spot/">Abrir o painel</a> · <a href="https://thiagofnj.github.io/spot/#sobre">Manifesto</a></p>
 
-Tudo o que o painel mostra vem de fontes públicas oficiais (sistemas da Câmara, Diário Oficial do Legislativo,
-TCM-BA). Cada número aponta para a fonte e a norma de origem.
+# Spot
+
+O Spot é uma iniciativa de inovação cívica para que qualquer pessoa em Salvador possa acompanhar e fiscalizar o
+trabalho da Câmara Municipal (CMS). O painel mostra quem vai às sessões, o que cada vereador propõe, quanto custa
+cada gabinete e como a verba compensatória é usada. O escopo atual é a legislatura 2025–2028.
+
+O nome vem de *spotlight*. A luminária do símbolo se vira para jogar luz sobre o que já é público, mas fica
+escondido em sistemas difíceis de consultar. O Spot é inspirado no **Parlametria**, que acompanha o Congresso
+Nacional, e une dados e inteligência artificial para levar o mesmo tipo de acompanhamento à Câmara de Salvador.
+
+### Todos os dados são públicos
+
+Nada aqui vem de fonte privada, de pedido especial ou de vazamento. Tudo sai de sistemas que a própria Câmara, o
+Tribunal de Contas dos Municípios (TCM-BA) e o TSE publicam:
+
+- a grade de frequência das sessões e o catálogo de sessões e atas;
+- o sistema legislativo, com as proposições e a tramitação, e o Diário Oficial do Legislativo;
+- a folha de pessoal e os empenhos do portal da transparência da Câmara;
+- as prestações de contas mensais enviadas ao TCM-BA (e-TCM), com os processos da verba compensatória;
+- a consulta de pessoal do TCM-BA e os dados abertos do TSE sobre as eleições.
+
+A lista completa de fontes, com endereço, data de coleta e método, está em
+[`docs/FONTES-BRONZE.md`](docs/FONTES-BRONZE.md). No painel, cada número aponta para a fonte e a norma de origem.
+
+### O papel do Spot: tratar e cruzar
+
+O Spot não produz dado novo e não faz juízo sobre ninguém. O trabalho é transformar dado em informação. Ele coleta
+o que está espalhado em planilhas, telas de consulta e PDFs escaneados, padroniza nomes e datas e cruza as fontes.
+Assim, a presença de um vereador fica ao lado do que ele propôs e do custo do seu gabinete. Os números saem de
+regras fixas e testadas, aplicadas sempre da mesma forma aos 43 vereadores.
+
+### Onde entra a inteligência artificial
+
+A inteligência artificial é ferramenta de construção. Ela ajudou a escrever o código que coleta, lê e cruza os
+documentos, a encontrar inconsistências entre as fontes e a desenhar o painel. O pipeline não chama modelos de IA:
+cada valor exibido sai de código determinístico e tem um caminho rastreável até o documento oficial de onde veio.
+
+### Limites
+
+O Spot só mostra o que as fontes publicam, no ritmo em que publicam. Há meses que chegam com atraso, documentos
+escaneados difíceis de ler e registros que a Câmara corrige depois. Quando uma fonte tem buraco, o painel diz isso
+em vez de esconder. Presença e produção medem atividade registrada, não a qualidade do mandato. Os números são um
+ponto de partida para perguntar, não um veredito.
 
 ## Como os dados estão organizados
 
