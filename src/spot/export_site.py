@@ -13,6 +13,7 @@ import csv
 import json
 import logging
 import re
+import unicodedata
 from collections.abc import Callable, Hashable
 from datetime import date, datetime
 from decimal import Decimal
@@ -246,11 +247,14 @@ def _has_table(con: duckdb.DuckDBPyConnection, name: str) -> bool:
 
 def verba_categorias(con: duckdb.DuckDBPyConnection) -> dict[str, Any]:
     """Verba compensatória por categoria (e-TCM, ``spot.metrics.verba``):
-    ``{categorias: [{romano, descricao, ordem}], por_vereador: [{vereador_id, ano, competencia, categoria, valor}],
+    ``{categorias: [{romano, descricao, ordem}],
+    por_vereador: [{vereador_id, ano, competencia, categoria, valor, pp, ano_processo}],
     cobertura: {ano: {processos, com_categorias, sem_categorias, meses_sem_categorias}},
-    notas: [{vereador_id, competencia, ano, pp_numero, item, categoria, descricao, documento, data, valor_*}]}``
-    (``notas`` só nas prestações de fev–mar/2025, formulário antigo). Sem as tabelas (métrica ainda não rodou),
-    listas/dicionário vazios."""
+    processos: [{vereador_id, ano, competencia, pp, ano_processo, mes_prestacao, arquivo, total, layout}]}``.
+    ``processos`` dá a origem de cada linha (documento do e-TCM e mês da prestação em que está) e o total dos
+    processos sem categorias (``layout = 'nenhum'``). As notas fiscais do formulário antigo (só jan–fev/2025) ficam
+    no silver/gold (``metrica_verba_nf``) e não vão para o painel, por cobrirem só parte dos reembolsos.
+    Sem as tabelas (métrica ainda não rodou), listas/dicionário vazios."""
     categorias = (
         rows(
             con,
@@ -264,11 +268,12 @@ def verba_categorias(con: duckdb.DuckDBPyConnection) -> dict[str, Any]:
         log.warning(
             "metrica_verba_vereador_categoria_mes ausente (rode spot.metrics.verba): verba_categorias vazio"
         )
-        return {"categorias": categorias, "por_vereador": [], "cobertura": {}}
+        return {"categorias": categorias, "por_vereador": [], "cobertura": {}, "processos": []}
     por_vereador = rows(
         con,
         """
-        select vereador_id, ano, competencia, categoria_romano as categoria, valor
+        select vereador_id, ano, competencia, categoria_romano as categoria, valor,
+               pp_numero as pp, ano_processo
         from metrica_verba_vereador_categoria_mes order by competencia, vereador_id nulls last, categoria_ordem
         """,
     )
@@ -292,17 +297,13 @@ def verba_categorias(con: duckdb.DuckDBPyConnection) -> dict[str, Any]:
             """,
         )
     }
-    notas = (
-        rows(
-            con,
-            """
-            select vereador_id, competencia, ano, pp_numero, item, inciso_fonte, categoria_romano as categoria, descricao,
-                   documento_fiscal as documento, data_emissao as data, valor_apresentado, valor_glosa, valor_compensado
-            from metrica_verba_nf order by competencia, vereador_id nulls last, pp_numero, item, data_emissao
-            """,
-        )
-        if _has_table(con, "metrica_verba_nf")
-        else []
+    processos = rows(
+        con,
+        f"""
+        select vereador_id, ano, competencia, pp_numero as pp, ano_processo, mes_prestacao, arquivo,
+               total_declarado as total, {layout} as layout
+        from metrica_verba_processo where vereador_id is not null order by competencia, vereador_id, pp_numero
+        """,
     )
     if cobertura:
         cobertura["0"] = {
@@ -311,7 +312,12 @@ def verba_categorias(con: duckdb.DuckDBPyConnection) -> dict[str, Any]:
             "sem_categorias": sum(c["sem_categorias"] for c in cobertura.values()),
             "meses_sem_categorias": sorted(m for c in cobertura.values() for m in c["meses_sem_categorias"]),
         }
-    return {"categorias": categorias, "por_vereador": por_vereador, "cobertura": cobertura, "notas": notas}
+    return {
+        "categorias": categorias,
+        "por_vereador": por_vereador,
+        "cobertura": cobertura,
+        "processos": processos,
+    }
 
 
 def composicao_camara(con: duckdb.DuckDBPyConnection) -> dict[str, Any]:
@@ -375,11 +381,58 @@ def composicao_camara(con: duckdb.DuckDBPyConnection) -> dict[str, Any]:
     }
 
 
+def _nome(s: str | None) -> str:
+    return " ".join(re.sub(r"[^A-Z ]", " ", _sem_acento(s or "").upper()).split())
+
+
+def _sem_acento(s: str) -> str:
+    return "".join(c for c in unicodedata.normalize("NFKD", s) if not unicodedata.combining(c))
+
+
+def subsidios_pagos(con: duckdb.DuckDBPyConnection) -> dict[str, list[dict[str, Any]]]:
+    """``{vereador_id: [{c: competencia, bruto, d13}]}`` das linhas "Agente Político" de ``tcm_pessoal``.
+
+    A consulta do TCM não traz todos os vereadores em todo mês (36 de 43 em set/2026): ausência na folha não
+    quer dizer que o subsídio não foi pago."""
+    if not _has_table(con, "tcm_pessoal"):
+        return {}
+    nomes: dict[str, str] = {}
+    if _has_table(con, "tse_candidatura_vereador"):
+        for r in rows(
+            con,
+            "select vereador_id, nome_candidato from tse_candidatura_vereador "
+            "where vereador_id is not null and ano = 2024",
+        ):
+            nomes[_nome(r["nome_candidato"])] = r["vereador_id"]
+    for r in rows(con, "select vereador_id, nome_civil from vereador_dim where nome_civil is not null"):
+        nomes.setdefault(_nome(r["nome_civil"]), r["vereador_id"])
+    pontas: dict[tuple[str, str], list[str]] = {}
+    for n, vid in nomes.items():
+        t = n.split()
+        if t:
+            pontas.setdefault((t[0], t[-1]), []).append(vid)
+    out: dict[str, list[dict[str, Any]]] = {}
+    for r in rows(
+        con,
+        """
+        select competencia, servidor, remuneracao_bruta as bruto, coalesce(decimo_terceiro, 0) as d13
+        from tcm_pessoal where regime = 'Agente Político' order by competencia
+        """,
+    ):
+        n = _nome(r["servidor"])
+        t = n.split()
+        vid = nomes.get(n) or (lambda c: c[0] if len(set(c)) == 1 else None)(pontas.get((t[0], t[-1]), []))
+        if vid:
+            out.setdefault(vid, []).append({"c": r["competencia"], "bruto": r["bruto"], "d13": r["d13"]})
+    return out
+
+
 def export(db: Path = DB_DEFAULT, out: Path = OUT_DEFAULT, hoje: date | None = None) -> Path:
     """Gera os JSON de ``site/data/``. Chaves acrescentadas pelo backlog do dashboard:
 
     - ``vereadores.json[]``: ``nascimento``, ``gabinete_numero``, ``licenca_data``, ``licenca_dias``, ``suplente_nome``
       (perfil da Câmara) e ``cargo_mesa`` = ``{"2025": "3ª Vice-Presidência" | null, ...}`` por ano com folha.
+      ``eleicoes`` = anos em que foi eleito vereador de Salvador (TSE), ex. ``[2012, 2016, 2020, 2024]``.
     - ``presenca.json.sessoes[].ata_url`` (primeira URL da ata no catálogo) e ``presenca.json.grade`` =
       ``[{"v": vereador_id, "ano": int, "n": [num_sessao...], "s": "PAL..."}]`` (ver ``compactar_grade``).
     - ``custo.json.mensal[].parcial`` e ``custo_camara.json.mensal[].parcial`` (bool, ver ``marcar_parciais``).
@@ -461,6 +514,22 @@ def export(db: Path = DB_DEFAULT, out: Path = OUT_DEFAULT, hoje: date | None = N
         b = blocos.get(v["vereador_id"], {})
         v["bloco"] = b.get("bloco") or None
         v["lideranca"] = b.get("lideranca") or None
+    # Eleições municipais em que foi eleito vereador de Salvador (TSE, parse/tse.py). Suplência exercida não conta.
+    eleicoes: dict[str, list[int]] = {}
+    if _has_table(con, "tse_candidatura_vereador"):
+        for r in rows(
+            con,
+            "select vereador_id, ano from tse_candidatura_vereador "
+            "where eleito and vereador_id is not null order by ano",
+        ):
+            eleicoes.setdefault(r["vereador_id"], []).append(int(r["ano"]))
+    for v in vereadores:
+        v["eleicoes"] = eleicoes.get(v["vereador_id"], [])
+    # Subsídio pago, mês a mês, pela consulta de pessoal do TCM-BA (regime "Agente Político"). A folha não tem
+    # vereador_id: liga pelo nome civil (TSE 2024 ou seed); se não houver nome exato, primeiro + último nome únicos.
+    pagos = subsidios_pagos(con)
+    for v in vereadores:
+        v["subsidios"] = pagos.get(v["vereador_id"], [])
 
     presenca = rows(
         con,

@@ -14,6 +14,7 @@ collect:
 	$(PY) -m spot.collect.rh
 	$(PY) -m spot.collect.vereadores
 	$(PY) -m spot.collect.empenhos
+	$(PY) -m spot.collect.tse
 
 # e-TCM (processos de pagamento, PDFs via Chromium headless): lento (~5 min/mês), por isso fora de collect/refresh.
 etcm:
@@ -27,6 +28,7 @@ parse:
 	$(PY) -m spot.parse.rh
 	$(PY) -m spot.parse.vereadores
 	$(PY) -m spot.parse.empenhos
+	$(PY) -m spot.parse.tse
 	-$(PY) -m spot.parse.etcm_vc
 	-$(PY) -m spot.parse.etcm_folha
 	-$(PY) -m spot.parse.tcm_pessoal

@@ -90,14 +90,16 @@
   .grid-2 { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; margin-top: 16px; }
   .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
   @media (max-width: 900px) { .grid-3 { grid-template-columns: 1fr; } }
-  .pf-head { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 18px 22px; align-items: start; margin-top: 18px; }
+  .pf-head { display: grid; grid-template-columns: 176px minmax(0, 1fr); gap: 18px 26px; align-items: start; margin-top: 18px; }
   @media (max-width: 600px) { .pf-head { grid-template-columns: 96px minmax(0, 1fr); gap: 12px; } }
-  .pf-foto { width: 132px; height: 132px; border-radius: 14px; object-fit: cover; background: var(--surface-2); border: 1px solid var(--line); display: block; }
-  @media (max-width: 600px) { .pf-foto { width: 96px; height: 96px; } }
+  /* fotos oficiais são retratos 5:7; a altura acompanha o bloco de texto ao lado */
+  .pf-foto { width: 176px; aspect-ratio: 5 / 7; max-width: 100%; height: auto; border-radius: 14px; object-fit: cover; object-position: top; background: var(--surface-2); border: 1px solid var(--line); display: block; }
+  @media (max-width: 600px) { .pf-foto { width: 96px; } }
   .pf-foto.ini { display: grid; place-items: center; font-size: 40px; font-weight: 600; color: var(--fg-3); }
-  .pf-head h2 { margin: 0; font-size: 26px; } .pf-meta { color: var(--fg-2); margin: 4px 0 8px; font-size: 14px; }
+  .pf-head h2 { margin: 0; font-size: 26px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+  .pf-tag { font: 600 12px var(--sans); padding: 3px 10px; border-radius: 999px; border: 1px solid var(--accent); color: var(--accent); cursor: help; white-space: nowrap; } .pf-meta { color: var(--fg-2); margin: 4px 0 8px; font-size: 14px; }
   .pf-links { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 10px; } .pf-links a { font-size: 13px; padding: 5px 11px; border: 1px solid var(--line-2); border-radius: 999px; color: var(--fg); text-decoration: none; } .pf-links a:hover { border-color: var(--accent); color: var(--accent); }
-  .pf-bio { font-size: 14.5px; line-height: 1.55; max-width: 72ch; color: var(--fg); } .pf-bio.clip { max-height: 7.8em; overflow: hidden; position: relative; }
+  .pf-bio { font-size: 14.5px; line-height: 1.55; color: var(--fg); } .pf-bio.clip { max-height: 9.3em; overflow: hidden; position: relative; }
   .pf-bio.clip::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2.4em; background: linear-gradient(transparent, var(--bg)); }
   .pf-more { font-size: 13px; margin-top: 4px; } .pf-more button { background: none; border: 0; color: var(--accent); cursor: pointer; font: inherit; padding: 0; text-decoration: underline; }
   .pf-facts { margin-top: 18px; } .pf-facts .fact .value { font-size: 22px; } .pf-facts .fact .pos { font-size: 12px; color: var(--fg-2); }
@@ -132,7 +134,8 @@
   .detail { margin-top: 16px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 12px; padding: 16px 18px; }
   .detail .who { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; }
   .detail h2 { font-size: 28px; }
-  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 12px; }
+  .facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+  @media (max-width: 700px) { .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .fact { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; min-width: 0; }
   .fact .label { font-size: 12px; color: var(--fg-2); }
   .fact .value { font-family: var(--display); font-size: 26px; line-height: 1.1; margin-top: 2px; }
@@ -178,16 +181,17 @@
   .secao { margin-top: 44px; scroll-margin-top: 64px; }
   .secao > .panel-head { border-top: 1px solid var(--line); padding-top: 22px; }
   /* com subabas, cada seção abre sozinha logo abaixo dos botões; só "Dados e cobertura" mantém o divisor */
-  .subtabs ~ .secao { margin-top: 20px; } .subtabs ~ .secao:not(#sec-dados) > .panel-head { border-top: 0; padding-top: 0; }
-  .subtabs ~ #sec-dados { margin-top: 44px; }
+  /* A Câmara é uma página corrida; os atalhos ficam presos abaixo dos filtros e as seções param logo abaixo deles */
+  #sec-geral { margin-top: 12px; } #sec-geral > .panel-head { border-top: 0; padding-top: 0; }
+  .secao { scroll-margin-top: calc(var(--sticky-h, 64px) + 8px); }
   .sub-h { margin: 22px 0 6px; font-size: 16px; }
   details.tbl-det { margin-top: 16px; } details.tbl-det > summary { cursor: pointer; color: var(--accent); font-size: 14px; padding: 6px 0; }
   details.tbl-det h3 { margin-top: 16px; }
   .tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6; background: var(--bg); }
-  .subtabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 16px 0 4px; }
+  .subtabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0 0; padding-block: 8px; position: sticky; top: var(--filters-h, 0px); z-index: 7; background: var(--bg); }
   .subtabs button { appearance: none; border: 1px solid var(--line); background: transparent; color: var(--fg-2); font: 600 13.5px var(--sans); padding: 6px 14px; border-radius: 999px; cursor: pointer; }
   .subtabs button:hover { color: var(--fg); border-color: var(--line-2); }
-  .subtabs button[aria-selected="true"] { color: var(--bg); background: var(--fg); border-color: var(--fg); }
+  .subtabs button[aria-current="true"] { color: var(--bg); background: var(--fg); border-color: var(--fg); }
   /* introdução da Câmara */
   .intro { display: grid; gap: 12px; margin: 10px 0 20px; }
   .intro p { margin: 0; line-height: 1.55; }
@@ -238,7 +242,7 @@
   .cols-wrap { margin-top: 6px; } svg.cols { width: 100%; height: auto; display: block; font-size: 11px; } svg.cols .grid line { stroke: var(--line); } svg.cols text { fill: var(--fg-2); }
   svg.cols .vlabel { font-size: 10.5px; fill: var(--fg); font-variant-numeric: tabular-nums; } svg.cols .flagmark { fill: var(--s1); } svg.cols .yr { font-size: 10px; fill: var(--fg-3); }
   svg.cols .ref { fill: none; stroke: var(--fg); stroke-width: 1.5; stroke-dasharray: 5 4; opacity: .75; } svg.cols .reflabel { font-size: 10.5px; fill: var(--fg); }
-  svg.cols rect:hover { opacity: .85; } .tbl-tools + .tablewrap { margin-top: 6px; }
+  svg.cols rect:hover { opacity: .85; } svg.cols.clicavel rect { cursor: pointer; } .tbl-tools + .tablewrap { margin-top: 6px; }
   table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 13.5px; }
   th, td { padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
   th:first-child, td:first-child { text-align: left; }
@@ -296,8 +300,13 @@
   table.props td.ementa a:hover { color: var(--accent); }
   table.props td.ementa .cod { display: block; font-size: 11.5px; color: var(--fg-3); margin-top: 2px; }
   [hidden] { display: none !important; }
-  table.nf td.desc .tag { margin-left: 6px; }
-  table.nf { min-width: 760px; } table.nf td.desc { text-align: left; white-space: normal; min-width: 220px; max-width: 420px; }
+  .vp-filtros { display: flex; flex-wrap: wrap; gap: 10px 14px; margin-top: 10px; }
+  .vp-filtros .field select { min-width: 190px; }
+  table.vp { min-width: 520px; } table.vp td.cat { text-align: left; white-space: normal; }
+  @media (max-width: 600px) { table.vp { min-width: 0; font-size: 12.5px; } table.vp th { white-space: normal; } table.vp td, table.vp th { padding-left: 5px; padding-right: 5px; } table.vp td.proc, table.vp td.proc a { white-space: normal; } table.vp td.proc { min-width: 74px; } }
+  table.vp td.proc a { white-space: nowrap; } table.vp td.proc .muted { display: block; font-size: 12px; }
+  table.vp tr.sem td.cat { color: var(--fg-2); font-style: italic; }
+  .vp-fonte { margin-top: 12px; color: var(--fg-2); line-height: 1.5; } .vp-fonte p { margin: 0 0 6px; } .vp-fonte ol { margin: 4px 0 0; padding-left: 20px; }
   table.props td.ementa .tag { font-size: 11px; color: var(--fg-3); background: var(--surface-2); border-radius: 999px; padding: 0 7px; margin-left: 6px; }
   table.props th.ementa { text-align: left; }
   table.props td.v, table.props td.d, table.props td.t, table.props td.s { text-align: left; white-space: nowrap; }
@@ -307,10 +316,15 @@
   .pager .pg { display: flex; gap: 6px; }
   .link-out { font-size: 12px; white-space: nowrap; }
   .note { margin-top: 14px; padding: 12px 14px; border-radius: 10px; background: var(--surface-2); color: var(--fg-2); font-size: 13.5px; }
-  footer.method { margin-top: 48px; border-top: 1px solid var(--line); padding-top: 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+  footer.method { margin-top: 48px; border-top: 1px solid var(--line); padding-top: 22px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  @media (max-width: 800px) { footer.method { grid-template-columns: minmax(0, 1fr); } }
   footer.method h3 { margin-bottom: 8px; }
   footer.method p, footer.method li { font-size: 13.5px; color: var(--fg-2); margin: 0 0 8px; }
   footer.method ul { padding-left: 18px; margin: 0; } footer.method li { margin-bottom: 4px; }
+  /* frames de cobertura no rodapé, ocupando a largura toda abaixo das três colunas de texto */
+  footer.method .method-dados { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 16px; align-items: start; }
+  @media (max-width: 900px) { footer.method .method-dados { grid-template-columns: minmax(0, 1fr); } }
+  footer.method .method-dados table.plain td { font-size: 13px; }
   .status { margin-top: 24px; padding: 14px 16px; border-radius: 10px; background: var(--surface-2); color: var(--fg-2); }
   @media (prefers-reduced-motion: no-preference) { .bars svg path.bar { transition: opacity .2s ease; } }
 </style>
@@ -342,12 +356,12 @@
 
   <!-- ===== Resumo ===== -->
   <section class="panel" id="panel-resumo" role="tabpanel" aria-labelledby="tab-resumo" hidden>
-    <div class="subtabs" role="tablist" aria-label="Seções de A Câmara">
-      <button type="button" role="tab" id="sub-geral" aria-controls="sec-geral">Visão geral</button>
-      <button type="button" role="tab" id="sub-presenca" aria-controls="sec-presenca">Presença</button>
-      <button type="button" role="tab" id="sub-produtividade" aria-controls="sec-producao">Produtividade</button>
-      <button type="button" role="tab" id="sub-custo" aria-controls="sec-custo">Custo</button>
-    </div>
+    <nav class="subtabs" aria-label="Seções de A Câmara">
+      <button type="button" id="sub-geral">Visão geral</button>
+      <button type="button" id="sub-presenca">Presença</button>
+      <button type="button" id="sub-produtividade">Produtividade</button>
+      <button type="button" id="sub-custo">Custo</button>
+    </nav>
     <section class="secao" id="sec-geral" aria-label="Visão geral">
     <div class="panel-head">
       <div>
@@ -525,25 +539,6 @@
     </div>
 
     </section>
-    <section class="secao" id="sec-dados" aria-label="Dados e cobertura">
-    <div class="panel-head"><div><h2>Dados e cobertura</h2><p>Até quando vai cada fonte, o que merece atenção e quais meses têm dado completo.</p></div></div>
-    <div class="grid-2" style="margin-top:16px">
-      <div class="card">
-        <div class="card-head"><h3>O que merece atenção</h3><span class="small muted" id="res-alert-sub"></span></div>
-        <ul class="alerts" id="res-alerts"></ul>
-      </div>
-      <div class="card">
-        <div class="card-head"><h3>Até quando vai cada dado</h3><span class="small muted" id="res-upd"></span></div>
-        <table class="plain" id="res-fontes"><tbody></tbody></table>
-        <p class="small muted" style="margin:10px 0 0">Fontes e limites estão detalhados no rodapé e no glossário.</p>
-      </div>
-    </div>
-    <div class="card" style="margin-top:16px">
-      <div class="card-head"><h3 id="cob-title">Cobertura dos dados, mês a mês</h3><div class="legend cob-legend"><span class="ok">completo</span><span class="parcial">parcial ou reconstruído</span><span class="ausente">sem dado</span></div></div>
-      <div class="tablewrap" style="margin-top:8px"><table class="cob" id="res-cob"><thead></thead><tbody></tbody></table></div>
-      <p class="small muted" style="margin:10px 0 0" id="cob-note"></p>
-    </div>
-    </section>
   </section>
 
   <!-- ===== Perfil do vereador ===== -->
@@ -566,11 +561,15 @@
         <div class="cols-wrap" id="pf-verba-bars"></div>
         <p class="small muted" id="pf-verba-note" style="margin:10px 0 0"></p>
       </div>
-    <div class="card" id="vnf-wrap" hidden style="margin-top:16px">
-        <div class="card-head"><h3 id="vnf-title">Notas fiscais declaradas</h3><span class="small muted" id="vnf-sub"></span></div>
-        <div class="tablewrap" style="margin-top:8px"><table id="vnf-table" class="props nf"><thead></thead><tbody></tbody></table></div>
-        <div class="more" id="vnf-more-wrap"><button type="button" class="btn" id="vnf-more">Mostrar todas</button></div>
-        <p class="small muted" style="margin:10px 0 0" id="vnf-note"></p>
+      <div class="card" id="vp-wrap" hidden style="margin-top:16px">
+        <div class="card-head"><h3 id="vp-title">Reembolsos da verba por mês e categoria</h3><span class="small muted" id="vp-sub"></span></div>
+        <div class="vp-filtros">
+          <div class="field"><label for="vp-mes">Mês da despesa</label><select id="vp-mes"></select></div>
+          <div class="field"><label for="vp-cat">Categoria</label><select id="vp-cat"></select></div>
+        </div>
+        <div class="tablewrap" style="margin-top:8px"><table id="vp-table" class="props vp"><thead></thead><tbody></tbody></table></div>
+        <div class="pager" id="vp-pager"></div>
+        <div class="vp-fonte small" id="vp-note"></div>
       </div>
       <div class="grid-2" style="margin-top:16px">
         <div class="card" style="grid-column: 1 / -1"><div class="card-head"><h3>Composição do gabinete</h3><span class="small muted" id="pf-gab-sub"></span></div><div class="bars" id="pf-gab-bars"></div><p class="small muted" id="pf-gab-note" style="margin:10px 0 0"></p><div class="lei" id="pf-gab-lei">
@@ -699,6 +698,17 @@
         <li>Suplentes aparecem com a vigência do período em que ocuparam a cadeira; os gabinetes seguem o centro de custo, que não muda com a suplência.</li>
       </ul>
     </div>
+    <div class="method-dados">
+      <div class="card">
+        <div class="card-head"><h3>Até quando vai cada dado</h3><span class="small muted" id="res-upd"></span></div>
+        <table class="plain" id="res-fontes"><tbody></tbody></table>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3 id="cob-title">Cobertura dos dados, mês a mês</h3><div class="legend cob-legend"><span class="ok">completo</span><span class="parcial">parcial ou reconstruído</span><span class="ausente">sem dado</span></div></div>
+        <div class="tablewrap" style="margin-top:8px"><table class="cob" id="res-cob"><thead></thead><tbody></tbody></table></div>
+        <p class="small muted" style="margin:10px 0 0" id="cob-note"></p>
+      </div>
+    </div>
   </footer>
 </div>
 
@@ -731,7 +741,8 @@
   const fmtData = d => { if (!d) return "—"; const [y, m, dd] = String(d).slice(0, 10).split("-"); return `${dd}/${m}/${y}`; };
   const fmtComp = c => { const [y, m] = c.split("-"); return `${MESES[+m - 1]}/${y}`; };
   const TABS = ["resumo", "perfil"];
-  // Presença, Produtividade e Custo são subabas de A Câmara; o hash usa o nome da subaba no lugar de "resumo".
+  // Presença, Produtividade e Custo são seções da página corrida A Câmara; os atalhos rolam até elas e o hash usa
+  // o nome da seção no lugar de "resumo" (links antigos #presenca, #custo… continuam abrindo na seção).
   const SUBS = { geral: "sec-geral", presenca: "sec-presenca", produtividade: "sec-producao", custo: "sec-custo" };
   // Período: 0 = legislatura inteira (2025–2028, até onde há dado); 2025/2026 = um ano. Tabelas agregadas têm linhas
   // com ano 0; tabelas mensais/por sessão são filtradas por competência com inComp/inAno.
@@ -741,7 +752,7 @@
   const mesLbl = c => state.ano === 0 ? fmtComp(c).replace("/20", "/") : fmtComp(c).slice(0, 3);
 
   const state = { tab: "resumo", sub: "geral", ano: 0, partido: "", ver: "", modo: "bruto", prodGrupo: null, custoSeg: null, custoView: "gab", funcOnde: "todas",
-                  showAll: { equipe: false, prod: false, pres: false, custo: false, verba: false, vcat: false, vnf: false, vteto2: false, "cam-funcao": false },
+                  showAll: { equipe: false, prod: false, pres: false, custo: false, verba: false, vcat: false, vteto2: false, "cam-funcao": false },
                   sort: { prod: { key: "n_total", dir: -1 }, pres: { key: "ausentes", dir: -1 }, custo: { key: "custo", dir: -1 }, camsetor: { key: "media", dir: -1 }, camfuncao: { key: "media", dir: -1 } } };
   // Estado na URL: #<aba>-<ano>-<partido sem acento ou "todos">-<gab|cam|x>[-<vereador_id>]. Só letras, dígitos e hífens.
   const fold = s => String(s || "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
@@ -943,11 +954,19 @@
     sv.append(grid);
     // rótulos de mês: com muitas colunas, só o mês (3 letras) e o ano numa segunda linha em janeiro e na primeira coluna
     const parts = c => { const mm = String(c.label).match(/^([a-zç]{3})\/?(\d{2,4})?$/i); return mm ? [mm[1], mm[2] ? (mm[2].length === 2 ? "20" + mm[2] : mm[2]) : ""] : [String(c.label), ""]; };
+    if (opts.onClick) sv.classList.add("clicavel");
     cols.forEach((c, i) => {
       let acc = 0; const x = sx(i);
+      const apagada = opts.sel && c.key !== opts.sel;
+      if (opts.onClick) {
+        // área de clique da coluna inteira (inclusive acima da barra), para meses com valor pequeno
+        const hit = svg("rect", { class: "hit", x: m.l + slot * i, y: m.t, width: slot, height: ih, fill: "transparent" });
+        hit.addEventListener("click", () => opts.onClick(c)); sv.append(hit);
+      }
       c.segs.filter(sg => sg.v > 0).forEach(sg => {
         const yTop = sy(acc + sg.v), h = Math.max(0, sy(acc) - yTop - 1.5);
-        const r = svg("rect", { x, y: yTop, width: bw, height: h, rx: 2, fill: sg.color });
+        const r = svg("rect", { x, y: yTop, width: bw, height: h, rx: 2, fill: sg.color, opacity: apagada ? 0.3 : 1 });
+        if (opts.onClick) r.addEventListener("click", () => opts.onClick(c));
         tipOn(r, `<b>${c.full || c.label}</b><br>${sg.label}: ${sg.text}<br>Total ${fmtBRL.format(tot(c))}${c.tip ? "<br>" + c.tip : ""}`);
         sv.append(r); acc += sg.v;
       });
@@ -1512,41 +1531,70 @@
       cobTxt = `Cobertura em ${anoLabel(state.ano)}: ${fmtInt.format(cob.processos)} processos lidos, ${fmtInt.format(cob.com_categorias)} com despesas por categoria.` +
         (cob.sem_categorias ? ` Os ${fmtInt.format(cob.sem_categorias)} processos de ${meses.join(" e ")} só trazem o total autorizado, sem categorias, e ficam fora destes gráficos.` : "");
     }
-    $("#vcat-note").textContent = `Fonte: processos de pagamento da verba compensatória enviados pela Câmara ao TCM-BA (e-TCM, Consulta Pública). De junho de 2025 em diante eles trazem o resumo das despesas por inciso da Lei 9.828/2025, art. 14; em janeiro e fevereiro, uma linha por documento fiscal (tabela abaixo). As notas fiscais em si não acompanham o processo. ${cobTxt}`;
+    $("#vcat-note").textContent = `Fonte: processos de pagamento da verba compensatória enviados pela Câmara ao TCM-BA (e-TCM, Consulta Pública). De junho de 2025 em diante eles trazem o resumo das despesas por inciso da Lei 9.828/2025, art. 14; em janeiro e fevereiro, uma linha por documento fiscal, agrupada aqui pela categoria da lei. As notas fiscais em si não acompanham o processo. ${cobTxt}`;
   }
 
-  // ---------- Notas fiscais declaradas (formulário antigo, competências jan–fev/2025) ----------
-  function renderVerbaNotas(VC) {
-    const wrap = $("#vnf-wrap");
-    const all = (VC.notas || []).filter(r => inAno(r.ano, state.ano) && (r.vereador_id ? inScope(r.vereador_id) : !(state.partido || state.ver)));
-    if (!all.length) { wrap.hidden = true; return; }
+  // ---------- Reembolsos da verba por mês e categoria (Perfil) ----------
+  // Uma linha por categoria de cada processo de pagamento; processos sem divisão por categoria entram com o total.
+  // O e-TCM não tem link direto para o documento (formulário JSF com sessão), então o link abre a consulta pública
+  // e a linha diz em qual prestação mensal e com que nome o processo está.
+  const ETCM_URL = "https://e.tcm.ba.gov.br/epp/ConsultaPublica/listView.seam";
+  const MESES_LONGOS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+  let vpPage = 0;
+  const vpFiltro = { mes: "", cat: "" };
+  function renderVerbaPedidos(VC) {
+    const wrap = $("#vp-wrap"), id = state.ver;
+    const procs = (VC.processos || []).filter(p => p.vereador_id === id && inComp(p.competencia, state.ano));
+    if (!id || !procs.length) { wrap.hidden = true; return; }
     wrap.hidden = false;
+    const proc = Object.fromEntries(procs.map(p => [`${p.ano_processo}-${p.pp}`, p]));
     const desc = Object.fromEntries((VC.categorias || []).map(c => [c.romano, c.descricao]));
-    const rows = all.slice().sort((a, b) => a.competencia.localeCompare(b.competencia) || V(a.vereador_id).nome_parlamentar.localeCompare(V(b.vereador_id).nome_parlamentar, "pt-BR") || (a.pp_numero - b.pp_numero) || (a.item || "99").localeCompare(b.item || "99"));
-    const LIM = 25, shown = state.showAll.vnf || state.ver ? rows : rows.slice(0, LIM);
-    $("#vnf-more-wrap").hidden = rows.length <= LIM || !!state.ver;
-    $("#vnf-more").textContent = state.showAll.vnf ? `Mostrar as ${LIM} primeiras` : `Mostrar todas (${fmtInt.format(rows.length)})`;
-    const meses = [...new Set(rows.map(r => r.competencia))].sort();
-    const tot = rows.reduce((a, r) => a + (r.valor_compensado || 0), 0), glosa = rows.reduce((a, r) => a + (r.valor_glosa || 0), 0);
-    $("#vnf-title").textContent = `Notas fiscais declaradas · ${meses.map(fmtComp).join(" e ")} · ${scopeLabel()}`;
-    $("#vnf-sub").textContent = `${fmtInt.format(rows.length)} documentos · ${fmtBRL.format(tot)} reembolsados${glosa ? ` · ${fmtBRL.format(glosa)} glosados` : ""}`;
-    const t = $("#vnf-table");
-    const comNome = !state.ver;
-    t.querySelector("thead").replaceChildren(el("tr", {}, ...[...(comNome ? ["Vereador"] : []), "Competência", "Categoria (lei)", "Despesa declarada", "Documento", "Emissão", "Apresentado", "Glosa", "Reembolsado"].map((h, i) => el("th", { scope: "col", class: ["Apresentado", "Glosa", "Reembolsado"].includes(h) ? "num" : "" }, h))));
-    t.querySelector("tbody").replaceChildren(...shown.map(r => {
-      const v = r.vereador_id ? V(r.vereador_id) : null;
-      return el("tr", {},
-        !comNome ? null : v ? el("td", { class: "v name", onclick: () => selectVer(r.vereador_id) }, v.nome_parlamentar, el("span", { class: "pt", text: v.partido })) : el("td", { class: "v", text: "não identificado" }),
-        el("td", { class: "num", text: fmtComp(r.competencia) }),
-        el("td", { title: desc[r.categoria] || "" }, r.categoria ? `${r.categoria} · ${(desc[r.categoria] || "").split(/[(,/]/)[0].trim()}` : "—"),
-        el("td", { class: "desc" }, r.descricao || "—", r.inciso_fonte && r.inciso_fonte !== r.categoria ? el("span", { class: "tag", title: "Inciso que o gabinete escreveu no formulário", text: `declarado como ${r.inciso_fonte}` }) : null),
-        el("td", { class: "num", text: r.documento || "—" }),
-        el("td", { class: "num", text: r.data ? fmtDate(r.data) : "—" }),
-        el("td", { class: "num", text: fmtBRL.format(r.valor_apresentado || 0) }),
-        el("td", { class: "num", text: r.valor_glosa ? fmtBRL.format(r.valor_glosa) : "—" }),
-        el("td", { class: "num", text: fmtBRL.format(r.valor_compensado || 0) }));
-    }));
-    $("#vnf-note").textContent = "Formulário \"Detalhamento / Resumo\" usado pela Controladoria nas prestações de fevereiro e março de 2025 (despesas de janeiro e fevereiro): número e data do documento fiscal, valor apresentado e glosa, sem o nome do fornecedor. A categoria da lei é inferida da descrição; quando o gabinete escreveu outro inciso no formulário, ele aparece ao lado. A partir de abril a Câmara deixou de publicar esse nível de detalhe.";
+    const ordem = Object.fromEntries((VC.categorias || []).map(c => [c.romano, c.ordem]));
+    const todas = [
+      ...(VC.por_vereador || []).filter(r => r.vereador_id === id && proc[`${r.ano_processo}-${r.pp}`]).map(r => ({ competencia: r.competencia, cat: r.categoria, valor: r.valor, p: proc[`${r.ano_processo}-${r.pp}`] })),
+      ...procs.filter(p => p.layout === "nenhum").map(p => ({ competencia: p.competencia, cat: "-", valor: p.total, p })),
+    ].sort((a, b) => b.competencia.localeCompare(a.competencia) || (b.valor - a.valor));
+    const catLbl = c => c === "-" ? "Sem divisão por categoria" : `${c} · ${(desc[c] || "").split(/[(,/]/)[0].trim()}`;
+    // filtros: só opções que existem para este vereador no período
+    const meses = [...new Set(todas.map(r => r.competencia))].sort().reverse();
+    const cats = [...new Set(todas.map(r => r.cat))].sort((a, b) => (ordem[a] ?? 99) - (ordem[b] ?? 99));
+    const mesSemProc = vpFiltro.mes && !meses.includes(vpFiltro.mes) && inComp(vpFiltro.mes, state.ano) ? vpFiltro.mes : "";
+    if (!meses.includes(vpFiltro.mes) && !mesSemProc) vpFiltro.mes = "";
+    if (mesSemProc) meses.unshift(mesSemProc);
+    if (!cats.includes(vpFiltro.cat)) vpFiltro.cat = "";
+    $("#vp-mes").replaceChildren(el("option", { value: "", text: "Todos os meses" }), ...meses.map(m => el("option", { value: m, text: fmtComp(m) + (m === mesSemProc ? " (sem processo)" : ""), selected: m === vpFiltro.mes })));
+    $("#vp-cat").replaceChildren(el("option", { value: "", text: "Todas as categorias" }), ...cats.map(c => el("option", { value: c, text: catLbl(c), selected: c === vpFiltro.cat })));
+    const rows = todas.filter(r => (!vpFiltro.mes || r.competencia === vpFiltro.mes) && (!vpFiltro.cat || r.cat === vpFiltro.cat));
+    const tot = rows.reduce((a, r) => a + r.valor, 0);
+    $("#vp-title").textContent = `Reembolsos da verba por mês e categoria · ${V(id).nome_parlamentar}`;
+    $("#vp-sub").textContent = `${fmtInt.format(rows.length)} ${rows.length === 1 ? "linha" : "linhas"} · ${fmtBRL.format(tot)} · ${fmtInt.format(new Set(rows.map(r => r.p.pp + "-" + r.p.ano_processo)).size)} processos`;
+    // paginação de 10
+    const SIZE = 10, pages = Math.max(1, Math.ceil(rows.length / SIZE));
+    if (vpPage >= pages) vpPage = pages - 1;
+    const shown = rows.slice(vpPage * SIZE, (vpPage + 1) * SIZE);
+    const pager = $("#vp-pager"); pager.replaceChildren();
+    if (rows.length > SIZE) {
+      pager.append(el("span", { text: `${vpPage * SIZE + 1}–${Math.min(rows.length, (vpPage + 1) * SIZE)} de ${rows.length}` }));
+      pager.append(el("div", { class: "pg" },
+        el("button", { type: "button", class: "btn", disabled: vpPage === 0, onclick: () => { vpPage--; renderVerbaPedidos(VC); } }, "Anterior"),
+        el("span", { class: "muted", style: "align-self:center", text: `página ${vpPage + 1} de ${pages}` }),
+        el("button", { type: "button", class: "btn", disabled: vpPage >= pages - 1, onclick: () => { vpPage++; renderVerbaPedidos(VC); } }, "Próxima")));
+    }
+    const caminho = p => { const [a, m] = p.mes_prestacao.split("-"); return `Consulta pública do e-TCM: Mensal → ${a} → ${MESES_LONGOS[+m - 1]} → SALVADOR → Câmara Municipal de Salvador → documento "${p.arquivo}"`; };
+    const t = $("#vp-table");
+    t.querySelector("thead").replaceChildren(el("tr", {}, ...["Mês", "Categoria (Lei 9.828/2025, art. 14)", "Valor", "Processo no TCM-BA"].map(h => el("th", { scope: "col", class: h === "Valor" ? "num" : "", style: h.startsWith("Categoria") || h.startsWith("Processo") ? "text-align:left" : "", text: h }))));
+    t.querySelector("tbody").replaceChildren(...(shown.length ? shown.map(r => el("tr", { class: r.cat === "-" ? "sem" : "" },
+      el("td", { class: "num", text: fmtComp(r.competencia).replace("/20", "/") }),
+      el("td", { class: "cat", title: r.cat === "-" ? "O processo traz só o total autorizado, sem dizer em que foi gasto" : desc[r.cat] || "" }, catLbl(r.cat)),
+      el("td", { class: "num", text: fmtBRL.format(r.valor) }),
+      el("td", { class: "proc" },
+        el("a", { href: ETCM_URL, target: "_blank", rel: "noopener", title: caminho(r.p) }, `PP ${r.p.pp}/${String(r.p.ano_processo).slice(2)} ↗`),
+        el("span", { class: "muted", text: `prestação ${fmtComp(r.p.mes_prestacao).replace("/20", "/")}` })))) : [el("tr", {}, el("td", { colspan: 4, class: "muted", style: "text-align:left;white-space:normal", text: mesSemProc ? `O processo de pagamento de ${fmtComp(mesSemProc)} ainda não está na consulta do TCM-BA. A Câmara envia a prestação cerca de 40 dias depois do fim do mês; o valor do gráfico vem dos empenhos.` : "Nenhum reembolso com esses filtros." }))]));
+    const ex = shown[0] ? shown[0].p : procs[0];
+    $("#vp-note").replaceChildren(
+      el("p", {}, el("b", { text: "De onde vem: " }), "processos de pagamento da verba compensatória que a Câmara envia todo mês ao Tribunal de Contas dos Municípios (TCM-BA), publicados na consulta pública do e-TCM. Cada processo traz o total autorizado ao gabinete e, na maioria dos meses, a divisão por categoria da Lei 9.828/2025 (em janeiro e fevereiro de 2025, a categoria vem da descrição de cada despesa declarada). Alguns processos, sobretudo de fevereiro a junho de 2025, só trazem o total e aparecem como \"sem divisão por categoria\". As notas fiscais não acompanham o processo."),
+      el("p", {}, el("b", { text: "Como abrir o documento: " }), "o portal do TCM não permite link direto para um arquivo. O link abre a consulta pública; lá, siga o caminho do processo (passe o mouse sobre o número para ver). Por exemplo, para ", el("b", { text: `PP ${ex.pp}/${ex.ano_processo}` }), ":"),
+      el("ol", {}, ...["Período: Mensal", `Ano ${ex.mes_prestacao.slice(0, 4)}, mês ${MESES_LONGOS[+ex.mes_prestacao.slice(5, 7) - 1]} (o mês da prestação, não o da despesa)`, "Município SALVADOR, entidade Câmara Municipal de Salvador, e Pesquisar", `Abra a prestação e procure o documento "${ex.arquivo}"`].map(x => el("li", { text: x }))));
   }
 
   // ---------- CUSTO · visão Câmara ----------
@@ -1664,7 +1712,7 @@
     let t = 0; for (let y = y0; y <= y1; y++) for (let m = (y === y0 ? m0 : 1); m <= (y === y1 ? m1 : 12); m++) t += tetoMes(`${y}-${String(m).padStart(2, "0")}`); return t;
   }
   // ---------- RESUMO (aba inicial) ----------
-  const goTo = (tab, id, extra) => { if (SUBS[tab]) { state.sub = tab; tab = "resumo"; } state.tab = tab; state.ver = id || ""; if (extra) Object.assign(state, extra); renderAll(); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const goTo = (tab, id, extra) => { const sec = SUBS[tab] ? tab : ""; if (sec) { state.sub = sec; tab = "resumo"; } state.tab = tab; state.ver = id || ""; if (extra) Object.assign(state, extra); renderAll(); if (sec) irSecao(sec, true); else window.scrollTo({ top: 0, behavior: "smooth" }); };
   function topList(title, sub, rows, fmt, tab, extra) {
     // rows: [{id, v}] ordenado do maior para o menor; mostra os 5 maiores e os 5 menores
     const li = r => el("li", {}, el("span", { class: "n", text: V(r.id).nome_parlamentar, title: `${V(r.id).partido} · abrir perfil`, onclick: () => goTo("perfil", r.id) }), el("span", { class: "v", text: fmt(r.v) }));
@@ -1731,41 +1779,14 @@
   }
   function renderResumo() {
     renderComposicao();
-    const ano = state.ano, scopeF = r => inScope(r.vereador_id);
-    const pres = presRows(ano).filter(scopeF), prod = prodRows(ano).filter(scopeF);
-    const P = pres.reduce((a, r) => a + r.presentes, 0), A = pres.reduce((a, r) => a + r.ausentes, 0);
-    const nProp = prod.reduce((a, r) => a + r.n_total, 0), nPL = prod.reduce((a, r) => a + grp(r, GRUPOS[0]), 0);
-    const anual = D.custo.anual.filter(r => (r.ano ?? 2025) === ano && scopeF(r));
-    const idsC = new Set(anual.map(r => r.vereador_id)), porMes = {};
-    D.custo.mensal.filter(m => inComp(m.competencia, ano) && m.competencia >= "2025-02" && idsC.has(m.vereador_id)).forEach(m => { porMes[m.competencia] = (porMes[m.competencia] || 0) + (m.custo_observado || 0); });
-    const mesesC = Object.keys(porMes).length, custoMes = mesesC ? Object.values(porMes).reduce((a, b) => a + b, 0) / mesesC : 0;
-    const vb = D.custo.verba.filter(v => inComp(v.competencia, ano) && v.vereador_id && scopeF(v));
-    const verbaAno = vb.reduce((a, v) => a + v.verba_compensatoria_observada, 0), verbaMeses = new Set(vb.map(v => v.competencia)).size;
-    const camMensal = (D.custo_camara.mensal || []).filter(m => inAno(m.ano ?? +m.competencia.slice(0, 4), ano));
-    const camFd = camMensal.filter(m => m.competencia >= "2025-02"), camMed = camFd.length ? camFd.reduce((a, m) => a + (m.custo_total || 0), 0) / camFd.length : null;
+    const ano = state.ano;
     const esc = scopeLabel();
     $("#res-h2").textContent = state.ver ? `${esc} em ${anoLabel(ano)}` : state.partido ? `${esc} em ${anoLabel(ano)}` : `A Câmara em ${anoLabel(ano)}`;
-    // alertas
-    const al = [];
-    const nome = id => el("span", { class: "n", text: V(id).nome_parlamentar, onclick: () => goTo(al_tab(id), id) });
-    const al_tab = () => "presenca";
-    presRows(ano).filter(r => r.alerta_lom27 && (!state.partido || V(r.vereador_id).partido === state.partido)).forEach(r =>
-      al.push(el("li", {}, el("span", { class: "tag", text: "LOM 27" }), el("span", {}, el("span", { class: "n", text: V(r.vereador_id).nome_parlamentar, onclick: () => goTo("perfil", r.vereador_id) }), ` faltou a ${fmtPct(r.fracao_faltas_lom27)} das sessões ordinárias do ano; a Lei Orgânica prevê perda de mandato a partir de um terço.`))));
-    if (ano === 2026) presRows(ano).filter(r => !r.alerta_lom27 && !r.sem_dado && r.fracao_faltas_lom27 >= 0.25 && (!state.partido || V(r.vereador_id).partido === state.partido)).forEach(r =>
-      al.push(el("li", {}, el("span", { class: "tag", text: "ritmo" }), el("span", {}, el("span", { class: "n", text: V(r.vereador_id).nome_parlamentar, onclick: () => goTo("perfil", r.vereador_id) }), ` faltou a ${fmtPct(r.fracao_faltas_lom27)} das sessões ordinárias realizadas até agora; a Lei Orgânica prevê perda de mandato a partir de um terço no ano.`))));
-    const byV = {}; D.custo.verba.filter(v => inComp(v.competencia, ano) && v.vereador_id && (!state.partido || V(v.vereador_id).partido === state.partido)).forEach(v => { const o = byV[v.vereador_id] ||= { t: 0, teto: 0, acima: 0 }; o.t += v.verba_compensatoria_observada; o.teto += v.verba_compensatoria_teto; o.acima += v.acima_do_teto ? 1 : 0; });
-    const tetoAno = tetoAnual(ano);
-    Object.entries(byV).filter(([, o]) => o.t > tetoAno + 0.5).sort((a, b) => b[1].t - a[1].t).forEach(([id, o]) =>
-      al.push(el("li", {}, el("span", { class: "tag", text: "verba" }), el("span", {}, el("span", { class: "n", text: V(id).nome_parlamentar, onclick: () => goTo("perfil", id) }), ` recebeu ${fmtBRL.format(o.t)} de verba no ano, ${fmtBRL.format(o.t - tetoAno)} acima da soma dos tetos mensais até agora (${fmtBRL.format(tetoAno)}; a validar: pode ser empenho atribuído ao mês errado).`))));
-    const nAcima = Object.values(byV).filter(o => o.acima >= 3).length;
-    if (nAcima) al.push(el("li", {}, el("span", { class: "tag neutral", text: "verba" }), el("span", { text: `${nAcima} vereadores tiveram 3 ou mais meses acima do teto mensal da verba; a lei permite usar saldo não gasto de meses anteriores.` })));
-    const cob = (D.custo_camara.lotacao_cobertura || []).filter(c => inComp(c.competencia, ano));
-    if (cob.length) { const u = cob[cob.length - 1]; al.push(el("li", {}, el("span", { class: "tag neutral", text: "folha" }), el("span", { text: `A Câmara não publica a relação de servidores de ${anoLabel(ano)}. Em ${fmtComp(u.competencia)}, ${u.n_sem_lotacao} servidores (${fmtPct(u.pct_sem_lotacao / 100)}) não têm gabinete conhecido.` }))); }
-    const vc = D.verba_cat && D.verba_cat.cobertura && D.verba_cat.cobertura[String(ano)];
-    if (vc && vc.sem_categorias) al.push(el("li", {}, el("span", { class: "tag neutral", text: "verba" }), el("span", { text: `${vc.sem_categorias} processos de verba de ${anoLabel(ano)} (${(vc.meses_sem_categorias || []).map(fmtComp).join(", ")}) só informam o total, sem as categorias de despesa.` })));
-    $("#res-alert-sub").textContent = `${al.length} ${al.length === 1 ? "item" : "itens"}`;
-    $("#res-alerts").replaceChildren(...(al.length ? al : [el("li", {}, el("span", { class: "tag neutral", text: "ok" }), el("span", { text: "Nenhum alerta neste recorte." }))]));
-    // cobertura das fontes
+  }
+  // Rodapé: até quando vai cada fonte e cobertura mês a mês, para o período escolhido (vale para todas as abas).
+  function renderDados() {
+    const ano = state.ano;
+    const camMensal = (D.custo_camara.mensal || []).filter(m => inAno(m.ano ?? +m.competencia.slice(0, 4), ano));
     const last = arr => arr.length ? arr[arr.length - 1] : null;
     const sess = D.presenca.sessoes.filter(s => inAno(s.ano, ano));
     const folha = camMensal.filter(m => m.fonte !== "folha_sintetica_etcm"), sint = camMensal.filter(m => m.fonte === "folha_sintetica_etcm");
@@ -1837,11 +1858,16 @@
     const meta = [v.partido, v.situacao && v.situacao !== "titular" ? v.situacao : "", cargo ? `${cargo} da Mesa` : "", v.gabinete_numero ? `gabinete ${v.gabinete_numero}` : "", an ? `${an} anos` : "", v.licenca_data ? `licenciado desde ${v.licenca_data.length >= 10 ? fmtDate(v.licenca_data) : v.licenca_data}${v.suplente_nome ? ` (suplente: ${v.suplente_nome})` : ""}` : ""].filter(Boolean).join(" · ");
     const links = [v.instagram ? el("a", { href: v.instagram, target: "_blank", rel: "noopener", text: "Instagram" }) : null, v.x ? el("a", { href: v.x, target: "_blank", rel: "noopener", text: "X (Twitter)" }) : null, v.fonte_url ? el("a", { href: v.fonte_url, target: "_blank", rel: "noopener", text: "Perfil na Câmara" }) : null].filter(Boolean);
     const bio = (v.bio || "").trim();
+    // Selo de mandato: quantas vezes foi eleito vereador de Salvador (TSE); suplência exercida não entra na conta.
+    const el_ = v.eleicoes || [], eleito24 = el_.includes(2024);
+    const anosTxt = el_.length ? el_.slice(0, -1).join(", ") + (el_.length > 1 ? " e " : "") + el_[el_.length - 1] : "";
+    const tag = eleito24 ? `${el_.length}º mandato` : (el_.length ? `suplente · ${el_.length} mandato${el_.length > 1 ? "s" : ""} anterior${el_.length > 1 ? "es" : ""}` : "suplente · 1º exercício");
+    const tagTip = (el_.length ? `Eleito vereador de Salvador em ${anosTxt}` : "Nunca foi eleito titular; está no cargo como suplente") + ". Fonte: TSE, candidaturas de 1996 a 2024. Períodos como suplente em exercício não entram na conta.";
     const bioEl = el("div", { class: "pf-bio" + (bio.length > 520 ? " clip" : ""), text: bio || "Sem biografia no perfil da Câmara." });
     const more = bio.length > 520 ? el("div", { class: "pf-more" }, el("button", { type: "button", text: "Ler a biografia completa", onclick: e => { const c = bioEl.classList.toggle("clip"); e.target.textContent = c ? "Ler a biografia completa" : "Recolher"; } })) : null;
     $("#pf-head").replaceChildren(
       v.foto ? el("img", { class: "pf-foto", src: v.foto, alt: `Foto de ${v.nome_parlamentar}`, loading: "lazy" }) : el("div", { class: "pf-foto ini", text: ini }),
-      el("div", {}, el("h2", { text: v.nome_parlamentar }), el("div", { class: "pf-meta", text: meta }), el("div", { class: "pf-links" }, ...links), bioEl, more));
+      el("div", {}, el("h2", {}, v.nome_parlamentar, el_.length || v.situacao === "suplente" ? el("span", { class: "pf-tag", text: tag, title: tagTip, tabindex: 0 }) : null), el("div", { class: "pf-meta", text: meta }), el("div", { class: "pf-links" }, ...links), bioEl, more));
     // fatos
     const pres = presRows(ano), pr = pres.find(r => r.vereador_id === state.ver);
     const casaP = pres.reduce((a, r) => a + r.presentes, 0), casaA = pres.reduce((a, r) => a + r.ausentes, 0);
@@ -1857,7 +1883,24 @@
     const posC = cu ? posicao(anual, state.ver, "media_mensal_custo_observado") : null;
     const tile = (label, value, pos, cmp) => el("div", { class: "fact" }, el("div", { class: "label", text: label }), el("div", { class: "value", text: value }), el("div", { class: "pos", text: pos || "" }), el("div", { class: "sub", text: cmp || "" }));
     const prodCasa = prod.filter(r => r.n_total > 0);
+    // último mês com dado no período: subsídio (valor da lei vigente no mês) e verba ressarcida (empenhos)
+    // Subsídio: o que a folha do TCM-BA mostra pago no último mês com folha no período. A consulta não traz todos os
+    // vereadores todo mês; sem linha, mostra o valor da lei (ou licença) e diz isso.
+    const lei = D.custo.mensal.filter(m => m.subsidio && inComp(m.competencia, ano)).sort((a, b) => b.competencia.localeCompare(a.competencia))[0];
+    const mSub = D.vereadores.flatMap(x => (x.subsidios || []).map(r => r.c)).filter(c => inComp(c, ano)).sort().pop();
+    const sPago = mSub ? (v.subsidios || []).find(r => r.c === mSub) : null;
+    const licNoMes = c => { if (!v.licenca_data || !c) return false; const ini = v.licenca_data.slice(0, 10), fimMes = c + "-31", iniMes = c + "-01";
+      if (ini > fimMes) return false; if (!v.licenca_dias) return true; const f = new Date(ini); f.setDate(f.getDate() + v.licenca_dias); return f.toISOString().slice(0, 10) >= iniMes; };
+    const subTile = !mSub ? tile("Subsídio", "—", "", `sem folha do TCM-BA em ${anoLabel(ano)}`)
+      : sPago ? tile(`Subsídio em ${fmtComp(mSub)}`, fmtBRL.format(sPago.bruto), "", sPago.d13 ? `inclui ${fmtBRL.format(sPago.d13)} de 13º · folha do TCM-BA` : lei && sPago.bruto < lei.subsidio - 1 ? `proporcional aos dias no cargo · folha do TCM-BA` : "pago, segundo a folha do TCM-BA")
+      : licNoMes(mSub) ? tile(`Subsídio em ${fmtComp(mSub)}`, "—", "", "licenciado no mês; não aparece na folha do TCM-BA")
+      : tile(`Subsídio em ${fmtComp(mSub)}`, lei ? fmtBRL.format(lei.subsidio) : "—", "", `valor da lei (Lei 9.825/2024): a folha do TCM-BA de ${fmtComp(mSub)} não traz este vereador`);
+    const vUlt = vb.slice().sort((a, b) => b.competencia.localeCompare(a.competencia))[0];
+    const vMesCasa = vUlt ? D.custo.verba.filter(x => x.vereador_id && x.competencia === vUlt.competencia) : [];
+    const pvMes = vUlt ? posicao(vMesCasa, state.ver, "verba_compensatoria_observada") : null;
     $("#pf-facts").replaceChildren(
+      subTile,
+      tile(vUlt ? `Verba ressarcida em ${fmtComp(vUlt.competencia)}` : "Verba ressarcida", vUlt ? fmtBRL.format(vUlt.verba_compensatoria_observada) : "—", pvMes ? `${pvMes[0]}º de ${pvMes[1]} no mês` : "", vUlt ? `${fmtPct(vUlt.verba_compensatoria_teto ? vUlt.verba_compensatoria_observada / vUlt.verba_compensatoria_teto : 0)} do teto de ${fmtBRL.format(vUlt.verba_compensatoria_teto)}` : `sem ressarcimento em ${anoLabel(ano)}`),
       tile("Presença", pr ? (pr.sem_dado ? "menos de 10 sessões" : fmtPct(pr.taxa_presenca)) : "—", posP ? `${posP[0]}º de ${posP[1]} (do mais presente)` : "", `Casa ${fmtPct(casaP / (casaP + casaA))}`),
       tile("Faltas", pr ? String(pr.ausentes) : "—", posF ? `${posF[0]}º de ${posF[1]} em faltas` : "", pr ? `de ${pr.em_exercicio} sessões em exercício${alertaPres(pr, ano) ? " · " + alertaPres(pr, ano) : ""}` : ""),
       tile("Produção ponderada", pd ? fmt1(pd.vol_ponderado_12m) : "—", posPd ? `${posPd[0]}º de ${posPd[1]}` : "", pd ? `${pd.n_total} proposições em ${pd.meses_exercicio} meses · média da Casa ${fmt1(prodCasa.reduce((a, r) => a + r.vol_ponderado_12m, 0) / Math.max(1, prodCasa.length))}` : ""),
@@ -1893,11 +1936,14 @@
       const segs = VGRUPOS.filter(g => byG[g.label]).map(g => ({ v: byG[g.label], color: g.color, label: g.label, text: fmtBRL.format(byG[g.label]) }));
       if (resto > 0.5) segs.push({ v: resto, color: "var(--line-2)", label: somaCat ? "diferença entre empenho e categorias" : "sem detalhamento por categoria", text: fmtBRL.format(resto) });
       const teto = tetoMes(c);
-      return { label: mesLbl(c), full: fmtComp(c), segs, ref: teto, refLabel: `teto ${fmtMil(teto)}`, flag: emp > teto + 0.5 ? "acima do teto" : "",
+      return { key: c, label: mesLbl(c), full: fmtComp(c), segs, ref: teto, refLabel: `teto ${fmtMil(teto)}`, flag: emp > teto + 0.5 ? "acima do teto" : "",
         tip: `${fmtPct((emp || somaCat) / teto)} do teto do mês (${fmtBRL.format(teto)})${Object.keys(cats).length ? ` · ${Object.keys(cats).length} categorias declaradas` : " · prestação sem categorias"}` };
-    }), { aria: `Verba compensatória recebida por mês em ${anoLabel(ano)}, por categoria, com a linha do teto` });
-    if (D.verba_cat) renderVerbaNotas(D.verba_cat); else $("#vnf-wrap").hidden = true;
-    $("#pf-verba-note").textContent = `Barras: valor ressarcido por mês (empenhos da Câmara), dividido pelas categorias da Lei 9.828/2025 declaradas na prestação de contas enviada ao TCM-BA (${mesesCat} de ${comps.length} meses com categorias). Meses sem detalhamento mostram só o total. As notas fiscais em si não são publicadas, salvo janeiro e fevereiro de 2025.`;
+    }), { aria: `Verba compensatória recebida por mês em ${anoLabel(ano)}, por categoria, com a linha do teto`, sel: vpFiltro.mes,
+      // clique numa coluna filtra a tabela de reembolsos pelo mês; clicar de novo no mesmo mês limpa o filtro
+      onClick: c => { vpFiltro.mes = vpFiltro.mes === c.key ? "" : c.key; vpFiltro.cat = ""; vpPage = 0; renderTab();
+        if (vpFiltro.mes) requestAnimationFrame(() => $("#vp-wrap").scrollIntoView({ block: "start", behavior: "smooth" })); } });
+    if (D.verba_cat) renderVerbaPedidos(D.verba_cat); else $("#vp-wrap").hidden = true;
+    $("#pf-verba-note").textContent = `Barras: valor ressarcido por mês (empenhos da Câmara), dividido pelas categorias da Lei 9.828/2025 declaradas na prestação de contas enviada ao TCM-BA (${mesesCat} de ${comps.length} meses com categorias). Meses sem detalhamento mostram só o total. As notas fiscais em si não são publicadas. A tabela abaixo mostra cada reembolso e o processo do TCM-BA de onde ele vem; clique numa coluna para ver só aquele mês.`;
     // gabinete: composição e graus
     if (cu) {
       const m = cu.meses_com_folha || 1;
@@ -1939,12 +1985,32 @@
     if (state.tab === "perfil") { renderPerfil(); return; }
     // A Câmara é a visão da Casa: o vereador selecionado só vale no Perfil.
     const ver = state.ver; state.ver = "";
-    Object.entries(SUBS).forEach(([k, id]) => { $(`#sub-${k}`).setAttribute("aria-selected", String(k === state.sub)); $("#" + id).hidden = k !== state.sub; });
-    $("#sec-dados").hidden = state.sub !== "geral";
-    const render = { geral: renderResumo, presenca: renderPres, produtividade: renderProd, custo: renderCusto }[state.sub];
-    try { render(); } finally { state.ver = ver; }
+    try { renderResumo(); renderPres(); renderProd(); renderCusto(); } finally { state.ver = ver; }
+    marcarSecao(state.sub);
   }
-  function renderAll() { pp.page = 0; pp.etapa = ""; equipePage = 0; fillFilters(); renderTab(); writeHash(); }
+  // Atalhos das seções: rolam até a seção; ao rolar a página, o atalho da seção visível fica marcado.
+  function medirFixos() {
+    const f = document.querySelector(".filters"), fh = f && getComputedStyle(f).position === "sticky" ? f.offsetHeight : 0;
+    document.documentElement.style.setProperty("--filters-h", fh + "px");
+    document.documentElement.style.setProperty("--sticky-h", fh + $(".subtabs").offsetHeight + "px");
+  }
+  function marcarSecao(k) { Object.keys(SUBS).forEach(x => $(`#sub-${x}`).setAttribute("aria-current", String(x === k))); }
+  function irSecao(k, suave) {
+    state.sub = k; marcarSecao(k); writeHash(); medirFixos();
+    requestAnimationFrame(() => document.getElementById(SUBS[k]).scrollIntoView({ block: "start", behavior: suave ? "smooth" : "auto" }));
+  }
+  let spyRaf = 0;
+  function espiarSecao() {
+    if (state.tab !== "resumo" || spyRaf) return;
+    spyRaf = requestAnimationFrame(() => {
+      spyRaf = 0;
+      const lim = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sticky-h")) + 40 || 100;
+      let atual = "geral";
+      Object.entries(SUBS).forEach(([k, id]) => { if (document.getElementById(id).getBoundingClientRect().top <= lim) atual = k; });
+      if (atual !== state.sub) { state.sub = atual; marcarSecao(atual); writeHash(); }
+    });
+  }
+  function renderAll() { pp.page = 0; pp.etapa = ""; equipePage = 0; vpPage = 0; vpFiltro.mes = ""; vpFiltro.cat = ""; fillFilters(); renderTab(); renderDados(); writeHash(); }
   function selectVer(id) { goTo("perfil", id); }
   function setTab(t) { state.tab = t; renderTab(); writeHash(); }
 
@@ -1953,8 +2019,12 @@
     $("#status").hidden = true; $("#tabs").hidden = false; $("#method").hidden = false;
     resolveHashState(); renderMethod(); renderAll();
     TABS.forEach(t => $(`#tab-${t}`).addEventListener("click", () => setTab(t)));
-    Object.keys(SUBS).forEach(k => $(`#sub-${k}`).addEventListener("click", () => { state.sub = k; setTab("resumo"); }));
-    window.addEventListener("hashchange", () => { if (readHash()) { resolveHashState(); renderAll(); } else { const t = location.hash.slice(1); if (SUBS[t]) { state.sub = t; setTab("resumo"); } else if (TABS.includes(t)) { if (t === "resumo") state.sub = "geral"; setTab(t); } } });
+    Object.keys(SUBS).forEach(k => $(`#sub-${k}`).addEventListener("click", () => irSecao(k, true)));
+    window.addEventListener("scroll", espiarSecao, { passive: true });
+    window.addEventListener("resize", medirFixos);
+    medirFixos();
+    if (state.tab === "resumo" && state.sub !== "geral") irSecao(state.sub, false);
+    window.addEventListener("hashchange", () => { if (readHash()) { resolveHashState(); renderAll(); if (state.tab === "resumo") irSecao(state.sub, false); } else { const t = location.hash.slice(1); if (SUBS[t]) { setTab("resumo"); irSecao(t, false); } else if (TABS.includes(t)) { setTab(t); if (t === "resumo") irSecao("geral", false); } } });
     $("#f-link").addEventListener("click", () => {
       const b = $("#f-link"), done = () => { b.textContent = "Link copiado"; setTimeout(() => { b.textContent = "Copiar link"; }, 1800); };
       const fallback = () => { const i = el("input", { value: location.href, readonly: true, style: "position:fixed;left:-9999px" }); document.body.append(i); i.select(); try { document.execCommand("copy"); done(); } catch (_) { b.textContent = "Copie da barra de endereço"; } i.remove(); };
@@ -1981,7 +2051,8 @@
     ["todas", "gab", "estr"].forEach(k => $(`#cf-${k}`).addEventListener("click", () => { state.funcOnde = k; renderTab(); }));
     $("#cam-funcao-more").addEventListener("click", () => { state.showAll["cam-funcao"] = !state.showAll["cam-funcao"]; renderTab(); });
     $("#vcat-more").addEventListener("click", () => { state.showAll.vcat = !state.showAll.vcat; renderTab(); });
-    $("#vnf-more").addEventListener("click", () => { state.showAll.vnf = !state.showAll.vnf; renderTab(); });
+    $("#vp-mes").addEventListener("change", e => { vpFiltro.mes = e.target.value; vpPage = 0; const y = scrollY; renderTab(); scrollTo(0, y); });
+    $("#vp-cat").addEventListener("change", e => { vpFiltro.cat = e.target.value; vpPage = 0; renderVerbaPedidos(D.verba_cat); });
     $("#verba-more").addEventListener("click", () => { state.showAll.verba = !state.showAll.verba; renderTab(); });
     $("#vteto2-more").addEventListener("click", () => { state.showAll.vteto2 = !state.showAll.vteto2; renderTab(); });
     $("#custo-more").addEventListener("click", () => { state.showAll.custo = !state.showAll.custo; renderTab(); });
