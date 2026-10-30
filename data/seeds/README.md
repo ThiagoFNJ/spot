@@ -120,6 +120,20 @@ Pesos por tipo de proposição usados no índice de produtividade (`metrics/prod
 editorial do projeto, não um dado de fonte; a justificativa de cada peso está na coluna `observacao` e no spike §4.2.
 Mudar um peso é decisão a discutir em PR.
 
+## mesa_diretora.csv (14 linhas)
+
+Mesa Diretora do biênio em curso: 11 titulares (Presidente, vice-presidentes, secretários, Ouvidor) e 3 suplentes,
+na ordem da página oficial `https://www.cms.ba.gov.br/mesa-diretora` (cópia em
+`data/bronze/vereadores/mesa-diretora_2026-10-29.html`). `consultado_em` é a data da consulta. Atualizar quando a
+Mesa mudar (eleição do biênio ou substituição).
+
+## vereador_bloco.csv (44 linhas)
+
+Bloco de cada vereador em exercício (`base` ou `oposicao`) e as lideranças de governo e de oposição, referência
+2026-10. A Câmara não publica lista oficial de base e oposição: a bancada de oposição (10 vereadores) vem de
+votações e notícias citadas em `fonte` e `fonte_url` (bahia.ba 15/10/2026, Bahia Notícias 28/10/2026); quem não
+aparece nelas é marcado como base, e a coluna `fonte` diz isso. É decisão editorial: mudar um bloco se discute em PR.
+
 ## Não resolvido / atenção
 
 - Nenhum dos 50 nomes da grade nem dos rótulos `GAB. VER.` de set/dez 2025 ficou sem mapa.
