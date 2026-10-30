@@ -250,9 +250,10 @@ def verba_categorias(con: duckdb.DuckDBPyConnection) -> dict[str, Any]:
     ``{categorias: [{romano, descricao, ordem}],
     por_vereador: [{vereador_id, ano, competencia, categoria, valor, pp, ano_processo}],
     cobertura: {ano: {processos, com_categorias, sem_categorias, meses_sem_categorias}},
-    processos: [{vereador_id, ano, competencia, pp, ano_processo, mes_prestacao, arquivo, total, layout}]}``.
-    ``processos`` dá a origem de cada linha (documento do e-TCM e mês da prestação em que está) e o total dos
-    processos sem categorias (``layout = 'nenhum'``). As notas fiscais do formulário antigo (só jan–fev/2025) ficam
+    processos: [{vereador_id, ano, competencia, pp, ano_processo, mes_prestacao, arquivo, total, pago, layout}]}``.
+    ``processos`` dá a origem de cada linha (documento do e-TCM e mês da prestação em que está), o total declarado
+    e o valor pago (empenhos do processo). As linhas de ``por_vereador`` de um processo somam o pago; a categoria
+    ``-`` é a parte sem divisão por categoria (processo ``layout = 'nenhum'`` ou incisos que não fecham). As notas fiscais do formulário antigo (só jan–fev/2025) ficam
     no silver/gold (``metrica_verba_nf``) e não vão para o painel, por cobrirem só parte dos reembolsos.
     Sem as tabelas (métrica ainda não rodou), listas/dicionário vazios."""
     categorias = (
@@ -284,7 +285,7 @@ def verba_categorias(con: duckdb.DuckDBPyConnection) -> dict[str, Any]:
             "processos": r["processos"],
             "com_categorias": r["com_categorias"],
             "sem_categorias": r["sem_categorias"],
-            "meses_sem_categorias": [m for m in (r["meses_sem"] or "").split(",") if m],
+            "meses_sem_categorias": sorted(m for m in (r["meses_sem"] or "").split(",") if m),
         }
         for r in rows(
             con,
@@ -297,11 +298,12 @@ def verba_categorias(con: duckdb.DuckDBPyConnection) -> dict[str, Any]:
             """,
         )
     }
+    pago = "valor_pago" if _has_column(con, "metrica_verba_processo", "valor_pago") else "total_declarado"
     processos = rows(
         con,
         f"""
         select vereador_id, ano, competencia, pp_numero as pp, ano_processo, mes_prestacao, arquivo,
-               total_declarado as total, {layout} as layout
+               total_declarado as total, {pago} as pago, {layout} as layout
         from metrica_verba_processo where vereador_id is not null order by competencia, vereador_id, pp_numero
         """,
     )

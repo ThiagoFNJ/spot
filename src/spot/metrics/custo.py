@@ -14,7 +14,10 @@ Definições:
 - ``verba_compensatoria_observada`` = Σ empenhos de verba compensatória do ocupante do gabinete no mês
   (``empenho.categoria = 'verba_compensatoria'`` do ``gridRegistroEmpenho``, credor → ``vereador_alias`` com
   ``fonte = 'empenho'``), líquidos de anulações; o mês é ``competencia_ref`` ("MÊS/ANO" do objeto) ou, se vazio,
-  o mês da emissão. Tabela auxiliar ``metrica_verba_vereador`` (vereador × mês, 2025 e 2026, inclusive credores
+  a competência do processo do e-TCM de mesmo número (``verba_processo``) e, por último, o mês da emissão. Quando o
+  mesmo processo tem mais de um empenho original sem anulação publicada, vale só o que o processo do e-TCM cita; os
+  outros ficam em ``metrica_verba_empenho`` com ``descartado = true`` (um empenho por linha, com a origem do mês).
+  Tabela auxiliar ``metrica_verba_vereador`` (vereador × mês, 2025 e 2026, inclusive credores
   sem alias com ``vereador_id`` NULL) e conciliação com o SIGA (elemento 3.3.90.93.01 Indenizações) só em log;
 - ``verba_compensatoria_teto`` é o TETO legal (Lei 9.828/2025 → 9.922/2025) e só entra em ``custo_com_teto_verba``
   (comparação); ``diarias`` fica NULL até ser coletada;
@@ -25,7 +28,7 @@ Definições:
 - folha sintética do e-TCM por rubrica e por tipo de folha (b13): ``metrica_folha_sintetica_rubrica`` e
   ``metrica_folha_sintetica_tipo``, cada folha (competência, nº, tipo, grupo) contada uma vez.
 
-Grava ``custo_gabinete_ocupante``, ``metrica_verba_vereador``, ``metrica_custo_gabinete``, ``metrica_custo_anual``,
+Grava ``custo_gabinete_ocupante``, ``metrica_verba_empenho``, ``metrica_verba_vereador``, ``metrica_custo_gabinete``, ``metrica_custo_anual``,
 ``custo_institucional`` e as tabelas acima no DuckDB e o relatório ``docs/relatorios/custo-2025.md``.
 CLI: ``uv run python -m spot.metrics.custo [--db FILE] [--out FILE] [--parametros CSV]``.
 """
@@ -58,7 +61,7 @@ CADEIRAS = 43
 SIGA_INDENIZACOES = {"2025-06": 1_430_000.00, "2025-11": 1_539_369.63}
 EMPENHO_COLS = (
     "numero VARCHAR, tipo VARCHAR, data VARCHAR, ano INTEGER, valor DOUBLE, credor VARCHAR, categoria VARCHAR, "
-    "anulacao BOOLEAN, competencia_ref VARCHAR"
+    "anulacao BOOLEAN, competencia_ref VARCHAR, processo VARCHAR, anula_numero VARCHAR"
 )
 
 GAB = "coalesce(gabinete_vereador, '') <> ''"
@@ -115,33 +118,87 @@ def ensure_empenho(con: duckdb.DuckDBPyConnection) -> bool:
     return False
 
 
-SQL_VERBA = """
-CREATE OR REPLACE TABLE metrica_verba_vereador AS
-WITH e AS (
-    SELECT e.numero, e.data, e.valor, e.anulacao, e.credor, a.vereador_id,
-           coalesce(nullif(e.competencia_ref, ''), strftime(try_cast(e.data AS DATE), '%Y-%m')) AS competencia,
-           nullif(e.competencia_ref, '') IS NULL AS fallback_mes_emissao
+# Processos do e-TCM (``verba_processo``, de ``parse/etcm_vc.py``): empenho citado e competência de cada processo.
+SQL_VERBA_PROCESSO = """
+SELECT pp_numero::VARCHAR || '/' || ano_processo::VARCHAR AS processo,
+       mode(nullif(empenho_numero, '')) AS empenho_citado, mode(nullif(competencia, '')) AS competencia
+FROM verba_processo GROUP BY 1
+"""
+SQL_VERBA_PROCESSO_VAZIO = "SELECT NULL::VARCHAR AS processo, NULL::VARCHAR AS empenho_citado, NULL::VARCHAR AS competencia WHERE false"
+
+SQL_VERBA_EMPENHO = """
+CREATE OR REPLACE TABLE metrica_verba_empenho AS
+WITH pr AS ({processos}),
+ev AS (
+    SELECT e.numero, e.data, e.valor, e.anulacao, e.credor, a.vereador_id, e.competencia_ref,
+           nullif(e.anula_numero, '') AS anula_numero,
+           -- a anulação não traz o processo no objeto: herda o do empenho anulado
+           coalesce(nullif(e.processo, ''), (SELECT nullif(o.processo, '') FROM empenho o WHERE o.numero = e.anula_numero
+                                              LIMIT 1)) AS processo
     FROM empenho e
     LEFT JOIN vereador_alias a ON a.fonte = 'empenho' AND a.alias = e.credor
     WHERE e.categoria = 'verba_compensatoria'
-      AND coalesce(nullif(e.competencia_ref, ''), strftime(try_cast(e.data AS DATE), '%Y-%m')) IS NOT NULL
 ),
-g AS (
+anulados AS (
+    -- originais anulados por inteiro: já se resolvem pela anulação
+    SELECT o.numero FROM ev o JOIN ev a ON a.anulacao AND a.anula_numero = o.numero
+    WHERE NOT o.anulacao GROUP BY o.numero, o.valor HAVING sum(a.valor) >= o.valor - 0.01
+),
+-- empenhos originais ainda de pé
+orig AS (
+    SELECT processo, count(*) AS n FROM ev
+    WHERE NOT anulacao AND processo IS NOT NULL AND numero NOT IN (SELECT numero FROM anulados) GROUP BY 1
+),
+dup AS (
+    -- mesmo processo com mais de um empenho original e sem anulação publicada (PP 780/2025: NE 289, 302 e 303):
+    -- vale o empenho que o processo do e-TCM cita; os outros ficam marcados e fora da soma
+    SELECT ev.numero, pr.empenho_citado
+    FROM ev JOIN orig USING (processo) JOIN pr USING (processo)
+    WHERE NOT ev.anulacao AND orig.n > 1 AND ev.numero <> pr.empenho_citado
+      AND ev.numero NOT IN (SELECT numero FROM anulados)
+      AND EXISTS (SELECT 1 FROM ev c WHERE c.numero = pr.empenho_citado AND NOT c.anulacao AND c.processo = ev.processo)
+)
+SELECT ev.numero, ev.data, ev.credor, ev.vereador_id, ev.processo, ev.anulacao, ev.anula_numero,
+       CASE WHEN ev.anulacao THEN -ev.valor ELSE ev.valor END AS valor_liquido,
+       coalesce(nullif(ev.competencia_ref, ''), pr.competencia, strftime(try_cast(ev.data AS DATE), '%Y-%m'))
+           AS competencia,
+       CASE WHEN nullif(ev.competencia_ref, '') IS NOT NULL THEN 'objeto'
+            WHEN pr.competencia IS NOT NULL THEN 'processo_etcm'
+            ELSE 'mes_emissao' END AS origem_competencia,
+       d.numero IS NOT NULL OR da.numero IS NOT NULL AS descartado,
+       coalesce(d.empenho_citado, da.empenho_citado) AS empenho_citado
+FROM ev
+LEFT JOIN pr USING (processo)
+LEFT JOIN dup d ON d.numero = ev.numero
+LEFT JOIN dup da ON da.numero = ev.anula_numero
+ORDER BY competencia, ev.vereador_id NULLS LAST, ev.numero
+"""
+
+SQL_VERBA = """
+CREATE OR REPLACE TABLE metrica_verba_vereador AS
+WITH g AS (
     SELECT vereador_id, competencia, any_value(credor) AS credor,
            count(*) AS n_empenhos,
            sum(CASE WHEN anulacao THEN 1 ELSE 0 END)::BIGINT AS n_anulacoes,
-           sum(CASE WHEN fallback_mes_emissao THEN 1 ELSE 0 END)::BIGINT AS n_fallback_mes_emissao,
-           round(sum(CASE WHEN anulacao THEN -valor ELSE valor END), 2) AS verba_compensatoria_observada,
+           sum(CASE WHEN origem_competencia = 'mes_emissao' THEN 1 ELSE 0 END)::BIGINT AS n_fallback_mes_emissao,
+           sum(CASE WHEN origem_competencia = 'processo_etcm' THEN 1 ELSE 0 END)::BIGINT AS n_competencia_processo,
+           round(sum(valor_liquido), 2) AS verba_compensatoria_observada,
            string_agg(numero, '|' ORDER BY data, numero) AS empenhos,
            strptime(competencia, '%Y-%m')::DATE AS d
-    FROM e GROUP BY 1, 2
+    FROM metrica_verba_empenho WHERE NOT descartado AND competencia IS NOT NULL GROUP BY 1, 2
+),
+x AS (
+    SELECT vereador_id, competencia, string_agg(numero, '|' ORDER BY numero) AS empenhos_descartados
+    FROM metrica_verba_empenho WHERE descartado GROUP BY 1, 2
 )
 SELECT g.vereador_id, g.competencia, v.nome_parlamentar, g.credor, g.n_empenhos, g.n_anulacoes,
-       g.n_fallback_mes_emissao, g.verba_compensatoria_observada,
+       g.n_fallback_mes_emissao, g.n_competencia_processo, g.verba_compensatoria_observada,
        (SELECT valor FROM parametros_custo p WHERE p.parametro = 'verba_compensatoria_teto'
          AND p.vigencia_de <= g.d AND (p.vigencia_ate IS NULL OR p.vigencia_ate >= g.d)) AS verba_compensatoria_teto,
-       g.empenhos
-FROM g LEFT JOIN vereador_dim v USING (vereador_id)
+       g.empenhos, x.empenhos_descartados
+FROM g
+LEFT JOIN x ON x.vereador_id IS NOT DISTINCT FROM g.vereador_id AND x.competencia = g.competencia
+LEFT JOIN vereador_dim v ON v.vereador_id = g.vereador_id
 ORDER BY g.competencia, g.vereador_id NULLS LAST, g.credor
 """
 
@@ -749,7 +806,16 @@ def compute(con: duckdb.DuckDBPyConnection, parametros: Path = PARAMS_DEFAULT) -
     tem_empenho = ensure_empenho(con)
     reconstruir_folha(con)
     con.execute(SQL_OCUPANTE)
+    tem_processo = "verba_processo" in _tables(con)
+    con.execute(
+        SQL_VERBA_EMPENHO.format(processos=SQL_VERBA_PROCESSO if tem_processo else SQL_VERBA_PROCESSO_VAZIO)
+    )
     con.execute(SQL_VERBA)
+    for d in empenhos_descartados(con):
+        log.warning(
+            "processo %s: empenho %s (%s) descartado — o e-TCM cita o %s e não há anulação publicada",
+            d["processo"], d["numero"], _brl(d["valor_liquido"]), d["empenho_citado"],
+        )  # fmt: skip
     con.execute(SQL_GABINETE)
     con.execute(SQL_ANUAL)
     con.execute(SQL_INSTITUCIONAL)
@@ -820,6 +886,7 @@ def compute(con: duckdb.DuckDBPyConnection, parametros: Path = PARAMS_DEFAULT) -
         t: con.execute(f"SELECT count(*) FROM {t}").fetchone()[0]
         for t in (
             "custo_gabinete_ocupante",
+            "metrica_verba_empenho",
             "metrica_verba_vereador",
             "metrica_custo_gabinete",
             "metrica_custo_anual",
@@ -867,6 +934,15 @@ def reconciliar_verba(con: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
             _brl(d["fora_do_gabinete"]),
         )
     return diff
+
+
+def empenhos_descartados(con: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
+    """Empenhos originais repetidos para o mesmo processo que ficaram fora da soma (ver ``SQL_VERBA_EMPENHO``)."""
+    return _rows(
+        con,
+        "SELECT processo, numero, vereador_id, competencia, valor_liquido, empenho_citado "
+        "FROM metrica_verba_empenho WHERE descartado AND NOT anulacao ORDER BY competencia, processo, numero",
+    )
 
 
 def verba_nao_mapeada(con: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
@@ -1370,8 +1446,10 @@ def render_report(con: duckdb.DuckDBPyConnection, hoje: date | None = None) -> s
             "- `verba_compensatoria_observada`: Σ dos empenhos de verba compensatória (`https://cmsalvador.sys.inf.br/ca/gridRegistroEmpenho/`, "
             "`data/silver/empenho.csv`, `categoria = verba_compensatoria`) cujo credor (nome civil ou parlamentar, "
             "`vereador_alias` com `fonte = empenho`) é o ocupante do gabinete no mês, líquidos de anulações. O mês é o "
-            'citado no objeto ("MÊS DE X/ANO"); quando o objeto não cita mês (lote de 26/02/2025), vale o mês da emissão. '
-            "Meses sem nenhum empenho de verba na fonte ficam NULL e aparecem em `componentes_faltantes`."
+            'citado no objeto ("MÊS DE X/ANO"); quando o objeto não cita mês (lote de 26/02/2025), vale a competência do '
+            "processo do e-TCM de mesmo número e, sem processo, o mês da emissão. Processo com mais de um empenho original "
+            "sem anulação publicada conta só o empenho que o processo do e-TCM cita (os demais: `metrica_verba_empenho`, "
+            "`descartado`). Meses sem nenhum empenho de verba na fonte ficam NULL e aparecem em `componentes_faltantes`."
         ),
         (
             "- `verba_compensatoria_teto` é o **teto legal** da cota mensal (Lei 9.828/2025, R$ 34.000; Lei 9.922/2025, "

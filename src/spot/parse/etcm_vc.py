@@ -637,6 +637,17 @@ def parse_processo(
     # incisos não localizados sem valor não derrubam a confiança (só geram warning em parse_itens_*).
     confianca = "alta"
     imputado = ""
+    if layout == LAYOUT_RESUMO and total is not None and total > 0 and soma == 2 * total:
+        # Sem a palavra "TOTAL" legível no OCR, o valor da linha do total cai no último inciso da coluna e a soma
+        # dobra (PP 1277/2025: 90.441,18 = 2 × 45.220,59). Tira o total do último inciso que o comporta.
+        alvo = next((k for k in reversed(list(itens)) if itens[k] >= total), None)
+        if alvo is not None:
+            itens[alvo] -= total
+            if not itens[alvo]:
+                del itens[alvo]
+            soma = total
+            imputado = alvo
+            log.warning("%s: linha do total lida como item do inciso %s; descontada", arquivo, alvo)
     if total is not None and soma != total and len(ilegiveis) == 1 and total - soma > 0:
         # Um único inciso com número ilegível: o resíduo é dele (documentado em `observacao`).
         itens[ilegiveis[0]] = total - soma
