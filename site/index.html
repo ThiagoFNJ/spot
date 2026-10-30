@@ -10,7 +10,7 @@
     --bg: #f6f5f0; --surface: #ffffff; --surface-2: #efede6;
     --fg: #18181b; --fg-2: #5b5a55; --fg-3: #6b6a63;
     --line: #e2e0d8; --line-2: #cfcdc4;
-    --accent: #1c5cab; --accent-ink: #ffffff; --hl: #fff3c4;
+    --accent: #1c5cab; --accent-ink: #ffffff; --hl: #fff3c4; --luz: #f0b445;
     --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4;
     --display: "Fraunces", "Iowan Old Style", Georgia, serif;
     --sans: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
@@ -19,7 +19,7 @@
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --bg: #15161a; --surface: #1e1f24; --surface-2: #26272d; --fg: #f0efec; --fg-2: #b4b3ab; --fg-3: #9c9b93;
-      --line: #2e2f36; --line-2: #3d3e46; --accent: #5598e7; --accent-ink: #0b0b0b; --hl: #3a3420;
+      --line: #2e2f36; --line-2: #3d3e46; --accent: #5598e7; --accent-ink: #0b0b0b; --hl: #3a3420; --luz: #ffcf70;
       --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
       --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
       color-scheme: dark;
@@ -27,7 +27,7 @@
   }
   :root[data-theme="dark"] {
     --bg: #15161a; --surface: #1e1f24; --surface-2: #26272d; --fg: #f0efec; --fg-2: #b4b3ab; --fg-3: #9c9b93;
-    --line: #2e2f36; --line-2: #3d3e46; --accent: #5598e7; --accent-ink: #0b0b0b; --hl: #3a3420;
+    --line: #2e2f36; --line-2: #3d3e46; --accent: #5598e7; --accent-ink: #0b0b0b; --hl: #3a3420; --luz: #ffcf70;
     --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
     --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
     color-scheme: dark;
@@ -46,8 +46,35 @@
   .muted { color: var(--fg-2); } .small { font-size: 13px; } .num { font-variant-numeric: tabular-nums; }
   button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-  header.top { padding-block: 26px 14px; display: flex; flex-wrap: wrap; gap: 8px 32px; align-items: flex-end; justify-content: space-between; }
+  header.top { padding-block: 22px 14px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px 36px; align-items: center; }
   header.top p { margin: 6px 0 0; max-width: 64ch; color: var(--fg-2); font-size: 14px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  /* marca: luminária animada (sprite de 13 quadros, tinta na cor do texto e luz em amarelo) + nome */
+  .marca { display: flex; align-items: center; gap: 18px; }
+  .cab-texto { min-width: 0; padding-left: 36px; border-left: 1px solid var(--line); }
+  .cab-texto h1 { font-size: 30px; margin-top: 4px; }
+  .spot-anim { position: relative; flex: none; width: 97px; height: 100px; cursor: pointer; border: 0; padding: 0; background: none; }
+  .spot-anim i { position: absolute; inset: 0; --q: 0; -webkit-mask-size: 1300% 100%; mask-size: 1300% 100%;
+                 -webkit-mask-position: calc(var(--q) * 100% / 12) 0; mask-position: calc(var(--q) * 100% / 12) 0;
+                 -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; }
+  .spot-anim .tinta { background: var(--fg); -webkit-mask-image: url(img/spot-tinta.png); mask-image: url(img/spot-tinta.png); }
+  .spot-anim .luz { background: var(--luz); opacity: .55; -webkit-mask-image: url(img/spot-luz.png); mask-image: url(img/spot-luz.png); }
+  .spot-nome { font-family: var(--display); font-weight: 600; font-size: 46px; line-height: 1; letter-spacing: .08em; }
+  @media (max-width: 720px) {
+    header.top { grid-template-columns: minmax(0, 1fr); }
+    .cab-texto { padding-left: 0; border-left: 0; }
+    .spot-anim { width: 68px; height: 70px; } .spot-nome { font-size: 34px; } .cab-texto h1 { font-size: 24px; }
+  }
+  /* Sobre o Spot */
+  .sobre { max-width: 720px; padding-block: 28px 8px; }
+  .sobre h2 { font-size: 30px; }
+  .sobre .abre { font-family: var(--display); font-size: 21px; line-height: 1.45; margin: 14px 0 6px; color: var(--fg); }
+  .sobre h3 { margin: 28px 0 6px; font-size: 15px; letter-spacing: .02em; }
+  .sobre p, .sobre li { color: var(--fg-2); font-size: 15.5px; line-height: 1.65; }
+  .sobre p { margin: 8px 0 0; }
+  .sobre ul { margin: 8px 0 0; padding-left: 20px; }
+  .sobre strong { color: var(--fg); font-weight: 600; }
+  .sobre .assina { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13.5px; }
 
   /* Barra de filtros fixa */
   .filters { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding-block: 10px; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-end; }
@@ -331,9 +358,13 @@
 
 <div class="wrap">
   <header class="top">
-    <div>
+    <div class="marca">
+      <button type="button" class="spot-anim" id="spot-anim" aria-label="Spot: a luminária pisca, se vira e ilumina um vereador (toque para repetir)"><i class="luz"></i><i class="tinta"></i></button>
+      <div class="spot-nome" aria-hidden="true">SPOT</div>
+    </div>
+    <div class="cab-texto">
       <div class="eyebrow">Câmara Municipal de Salvador · legislatura 2025–2028</div>
-      <h1>Vereadores de Salvador</h1>
+      <h1><span class="sr-only">Spot · </span>Vereadores de Salvador</h1>
       <p id="lede">Produtividade, presença e custo dos gabinetes dos 43 vereadores, a partir dos sistemas públicos da própria Câmara.</p>
     </div>
   </header>
@@ -352,6 +383,7 @@
   <div class="tabs" role="tablist" id="tabs" hidden>
     <button type="button" role="tab" id="tab-resumo" aria-selected="true" aria-controls="panel-resumo">A Câmara</button>
     <button type="button" role="tab" id="tab-perfil" aria-selected="false" aria-controls="panel-perfil">Perfil</button>
+    <button type="button" role="tab" id="tab-sobre" aria-selected="false" aria-controls="panel-sobre">Sobre o Spot</button>
   </div>
 
   <!-- ===== Resumo ===== -->
@@ -676,6 +708,41 @@
 
 
 
+  <!-- ===== Sobre ===== -->
+  <section class="panel" id="panel-sobre" role="tabpanel" aria-labelledby="tab-sobre" hidden>
+    <article class="sobre">
+      <div class="eyebrow">Manifesto</div>
+      <h2>Sobre o Spot</h2>
+      <p class="abre">O Spot é uma iniciativa de inovação cívica para que qualquer pessoa em Salvador possa acompanhar e fiscalizar o trabalho da Câmara Municipal: quem vai às sessões, o que cada vereador propõe e quanto custa cada gabinete.</p>
+      <p>O nome vem de <em>spotlight</em>: a luminária do símbolo se vira para jogar luz sobre o que já é público, mas fica escondido em sistemas difíceis de consultar. Inspirado no <strong>Parlametria</strong>, que acompanha o Congresso Nacional, o Spot une dados e inteligência artificial para levar o mesmo tipo de acompanhamento à Câmara de Salvador.</p>
+
+      <h3>Todos os dados são públicos</h3>
+      <p>Nada aqui vem de fonte privada, de pedido especial ou de vazamento. Tudo sai de sistemas que a própria Câmara e o Tribunal de Contas dos Municípios (TCM-BA) publicam:</p>
+      <ul>
+        <li>a grade de frequência das sessões;</li>
+        <li>o sistema legislativo, com as proposições e a tramitação;</li>
+        <li>a folha de pessoal e os empenhos do portal da transparência da Câmara;</li>
+        <li>as prestações de contas mensais enviadas ao TCM-BA, com os processos da verba compensatória;</li>
+        <li>a consulta de pessoal do TCM-BA e os dados abertos do TSE sobre as eleições.</li>
+      </ul>
+      <p>A lista completa, com link para cada fonte e a data até onde cada dado vai, está no rodapé desta página.</p>
+
+      <h3>O papel do Spot: tratar e cruzar</h3>
+      <p>O Spot não produz dado novo e não faz juízo sobre ninguém. O trabalho é transformar dado em informação. Ele coleta o que está espalhado em planilhas, telas de consulta e PDFs escaneados, padroniza nomes e datas e cruza as fontes. Assim, a presença de um vereador fica ao lado do que ele propôs e do custo do seu gabinete. Os números do painel saem de regras fixas e testadas, aplicadas sempre da mesma forma a todos os 43 vereadores.</p>
+
+      <h3>Onde entra a inteligência artificial</h3>
+      <p>A inteligência artificial é ferramenta de construção. Ela ajudou a escrever o código que coleta, lê e cruza os documentos, a encontrar inconsistências entre as fontes e a desenhar este painel. Os números exibidos não são gerados por IA: cada valor tem um caminho rastreável até o documento oficial de onde veio.</p>
+
+      <h3>Aberto para conferir</h3>
+      <p>O código é aberto (licença AGPL-3.0) e os dados tratados podem ser reutilizados (CC BY-SA 4.0). Quem quiser pode refazer cada conta, apontar um erro ou usar os dados em outro projeto. Quando uma fonte tem buraco ou muda um dado depois de publicado, o painel diz isso em vez de esconder.</p>
+
+      <h3>Limites</h3>
+      <p>O Spot só mostra o que as fontes publicam, no ritmo em que publicam. Há meses que chegam com atraso, documentos escaneados difíceis de ler e registros que a Câmara corrige depois. Presença e produção medem atividade registrada, não a qualidade do mandato. Os números são um ponto de partida para perguntar, não um veredito.</p>
+
+      <p class="assina">Código, dados e histórico de mudanças: <a href="https://github.com/ThiagoFNJ/spot" target="_blank" rel="noopener">github.com/ThiagoFNJ/spot</a>. Achou um erro? Abra uma issue no repositório.</p>
+    </article>
+  </section>
+
   <footer class="method" id="method" hidden>
     <div>
       <h3>Como as métricas são calculadas</h3>
@@ -740,7 +807,7 @@
   const escH = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const fmtData = d => { if (!d) return "—"; const [y, m, dd] = String(d).slice(0, 10).split("-"); return `${dd}/${m}/${y}`; };
   const fmtComp = c => { const [y, m] = c.split("-"); return `${MESES[+m - 1]}/${y}`; };
-  const TABS = ["resumo", "perfil"];
+  const TABS = ["resumo", "perfil", "sobre"];
   // Presença, Produtividade e Custo são seções da página corrida A Câmara; os atalhos rolam até elas e o hash usa
   // o nome da seção no lugar de "resumo" (links antigos #presenca, #custo… continuam abrindo na seção).
   const SUBS = { geral: "sec-geral", presenca: "sec-presenca", produtividade: "sec-producao", custo: "sec-custo" };
@@ -1983,6 +2050,9 @@
   function renderTab() {
     TABS.forEach(t => { $(`#tab-${t}`).setAttribute("aria-selected", String(t === state.tab)); $(`#panel-${t}`).hidden = t !== state.tab; });
     $("#tab-perfil").textContent = state.ver ? `Perfil · ${V(state.ver).nome_parlamentar.split(" ")[0]}` : "Perfil";
+    $("#filters").hidden = state.tab === "sobre";  // o manifesto não depende de período, partido ou vereador
+    medirFixos();
+    if (state.tab === "sobre") return;
     if (state.tab === "perfil") { renderPerfil(); return; }
     // A Câmara é a visão da Casa: o vereador selecionado só vale no Perfil.
     const ver = state.ver; state.ver = "";
@@ -2014,6 +2084,21 @@
   function renderAll() { pp.page = 0; pp.etapa = ""; equipePage = 0; vpPage = 0; vpFiltro.mes = ""; vpFiltro.cat = ""; fillFilters(); renderTab(); renderDados(); writeHash(); }
   function selectVer(id) { goTo("perfil", id); }
   function setTab(t) { state.tab = t; renderTab(); writeHash(); }
+
+  // ---------- marca animada ----------
+  // 13 quadros (pisca, olha para o vereador, a cúpula gira, acende, ele aparece); toca uma vez e para no último.
+  const SPOT_MS = [600, 120, 500, 500, 90, 90, 90, 90, 350, 120, 300, 150];
+  let spotTimer = null;
+  function tocarSpot() {
+    const camadas = document.querySelectorAll("#spot-anim i"), ir = q => camadas.forEach(c => c.style.setProperty("--q", q));
+    clearTimeout(spotTimer);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { ir(12); return; }
+    let q = 0; ir(0);
+    const passo = () => { if (q >= 12) return; spotTimer = setTimeout(() => { ir(++q); passo(); }, SPOT_MS[q]); };
+    passo();
+  }
+  tocarSpot();
+  $("#spot-anim").addEventListener("click", tocarSpot);
 
   load().then(d => {
     D = d;
