@@ -146,17 +146,21 @@ anulados AS (
 ),
 -- empenhos originais ainda de pé
 orig AS (
-    SELECT processo, count(*) AS n FROM ev
-    WHERE NOT anulacao AND processo IS NOT NULL AND numero NOT IN (SELECT numero FROM anulados) GROUP BY 1
+    SELECT processo, vereador_id, count(*) AS n FROM ev
+    WHERE NOT anulacao AND processo IS NOT NULL AND numero NOT IN (SELECT numero FROM anulados) GROUP BY 1, 2
 ),
 dup AS (
-    -- mesmo processo com mais de um empenho original e sem anulação publicada (PP 780/2025: NE 289, 302 e 303):
-    -- vale o empenho que o processo do e-TCM cita; os outros ficam marcados e fora da soma
+    -- mesmo processo e mesmo credor com mais de um empenho original sem anulação publicada (PP 780/2025: NE 289,
+    -- 302 e 303): vale o empenho que o processo do e-TCM cita; os outros ficam marcados e fora da soma. Só dentro do
+    -- mesmo vereador: há objetos que citam o nº de processo de outro gabinete (NE 652/2025, de Felipe Santana, cita o
+    -- PP 2116/2025, de André Fraga), e esse empenho é pagamento legítimo de quem o recebeu.
     SELECT ev.numero, pr.empenho_citado
-    FROM ev JOIN orig USING (processo) JOIN pr USING (processo)
+    FROM ev JOIN orig ON orig.processo = ev.processo AND orig.vereador_id IS NOT DISTINCT FROM ev.vereador_id
+    JOIN pr ON pr.processo = ev.processo
     WHERE NOT ev.anulacao AND orig.n > 1 AND ev.numero <> pr.empenho_citado
       AND ev.numero NOT IN (SELECT numero FROM anulados)
-      AND EXISTS (SELECT 1 FROM ev c WHERE c.numero = pr.empenho_citado AND NOT c.anulacao AND c.processo = ev.processo)
+      AND EXISTS (SELECT 1 FROM ev c WHERE c.numero = pr.empenho_citado AND NOT c.anulacao AND c.processo = ev.processo
+                                         AND c.vereador_id IS NOT DISTINCT FROM ev.vereador_id)
 )
 SELECT ev.numero, ev.data, ev.credor, ev.vereador_id, ev.processo, ev.anulacao, ev.anula_numero,
        CASE WHEN ev.anulacao THEN -ev.valor ELSE ev.valor END AS valor_liquido,
@@ -166,13 +170,37 @@ SELECT ev.numero, ev.data, ev.credor, ev.vereador_id, ev.processo, ev.anulacao, 
             WHEN pr.competencia IS NOT NULL THEN 'processo_etcm'
             ELSE 'mes_emissao' END AS origem_competencia,
        d.numero IS NOT NULL OR da.numero IS NOT NULL AS descartado,
-       coalesce(d.empenho_citado, da.empenho_citado) AS empenho_citado
+       coalesce(d.empenho_citado, da.empenho_citado) AS empenho_citado, 'portal' AS fonte
 FROM ev
 LEFT JOIN pr USING (processo)
 LEFT JOIN dup d ON d.numero = ev.numero
 LEFT JOIN dup da ON da.numero = ev.anula_numero
 ORDER BY competencia, ev.vereador_id NULLS LAST, ev.numero
 """
+
+# Processo do e-TCM pago (com data de pagamento) cujo empenho citado não está no portal financeiro da Câmara e sem
+# nenhum outro empenho do vereador naquela competência (24 processos de set/2025 a jul/2026, ex.: 2026NE000549..556):
+# o pagamento entra pelo total do processo, com ``fonte = 'processo_etcm'``.
+SQL_VERBA_SO_TCM = """
+INSERT INTO metrica_verba_empenho
+SELECT p.empenho_numero, p.data_pagamento::VARCHAR, NULL, p.vereador_id,
+       p.pp_numero::VARCHAR || '/' || p.ano_processo::VARCHAR, false, NULL, p.total_declarado, p.competencia,
+       'processo_etcm', false, NULL, 'processo_etcm'
+FROM (
+    SELECT *, row_number() OVER (
+        PARTITION BY pp_numero, ano_processo
+        ORDER BY CASE confianca WHEN 'alta' THEN 0 WHEN 'media' THEN 1 ELSE 2 END, arquivo) AS rn
+    FROM verba_processo
+) p
+WHERE p.rn = 1 AND p.vereador_id IS NOT NULL AND nullif(p.competencia, '') IS NOT NULL AND p.total_declarado > 0
+  AND p.data_pagamento IS NOT NULL AND nullif(p.empenho_numero, '') IS NOT NULL
+  AND p.empenho_numero NOT IN (SELECT numero FROM empenho)
+  AND NOT EXISTS (SELECT 1 FROM metrica_verba_empenho x
+                  WHERE x.vereador_id = p.vereador_id AND x.competencia = p.competencia AND NOT x.descartado)
+"""
+COLS_VERBA_SO_TCM = {
+    "vereador_id", "competencia", "total_declarado", "data_pagamento", "empenho_numero", "confianca", "arquivo",
+}  # fmt: skip
 
 SQL_VERBA = """
 CREATE OR REPLACE TABLE metrica_verba_vereador AS
@@ -182,6 +210,7 @@ WITH g AS (
            sum(CASE WHEN anulacao THEN 1 ELSE 0 END)::BIGINT AS n_anulacoes,
            sum(CASE WHEN origem_competencia = 'mes_emissao' THEN 1 ELSE 0 END)::BIGINT AS n_fallback_mes_emissao,
            sum(CASE WHEN origem_competencia = 'processo_etcm' THEN 1 ELSE 0 END)::BIGINT AS n_competencia_processo,
+           sum(CASE WHEN fonte = 'processo_etcm' THEN 1 ELSE 0 END)::BIGINT AS n_pagos_so_etcm,
            round(sum(valor_liquido), 2) AS verba_compensatoria_observada,
            string_agg(numero, '|' ORDER BY data, numero) AS empenhos,
            strptime(competencia, '%Y-%m')::DATE AS d
@@ -192,7 +221,7 @@ x AS (
     FROM metrica_verba_empenho WHERE descartado GROUP BY 1, 2
 )
 SELECT g.vereador_id, g.competencia, v.nome_parlamentar, g.credor, g.n_empenhos, g.n_anulacoes,
-       g.n_fallback_mes_emissao, g.n_competencia_processo, g.verba_compensatoria_observada,
+       g.n_fallback_mes_emissao, g.n_competencia_processo, g.n_pagos_so_etcm, g.verba_compensatoria_observada,
        (SELECT valor FROM parametros_custo p WHERE p.parametro = 'verba_compensatoria_teto'
          AND p.vigencia_de <= g.d AND (p.vigencia_ate IS NULL OR p.vigencia_ate >= g.d)) AS verba_compensatoria_teto,
        g.empenhos, x.empenhos_descartados
@@ -225,7 +254,9 @@ n_cand AS (
 grade AS (
     SELECT c.centro_custo_codigo, strftime(p.data_sessao, '%Y-%m') AS competencia, c.vereador_id,
            count(*) AS n_sessoes
+    -- sessão em licença não conta: a grade lista o titular licenciado (e o suplente que saiu) com status Licenciado
     FROM cand c JOIN presenca_mvp p ON p.vereador_id = c.vereador_id AND p.em_exercicio
+                                     AND coalesce(p.status, '') <> 'Licenciado'
     GROUP BY 1, 2, 3
 ),
 grade_pick AS (
@@ -272,8 +303,9 @@ SQL_GABINETE = f"""
 CREATE OR REPLACE TABLE metrica_custo_gabinete AS
 WITH f AS (
     SELECT centro_custo_codigo, competencia,
-           count(*) AS n_servidores,
-           sum(CASE WHEN {ASSESSOR} THEN 1 ELSE 0 END)::BIGINT AS n_assessores_parlamentares,
+           -- pessoas, não linhas: na folha reconstruída de 2026 a mesma matrícula aparece em mais de uma rubrica
+           count(DISTINCT matricula) AS n_servidores,
+           count(DISTINCT CASE WHEN {ASSESSOR} THEN matricula END)::BIGINT AS n_assessores_parlamentares,
            round(sum(CASE WHEN {ASSESSOR} THEN proventos ELSE 0 END), 2) AS folha_assessores,
            round(sum(CASE WHEN {ASSESSOR} THEN 0 ELSE proventos END), 2) AS folha_outros
     FROM folha WHERE {GAB} GROUP BY 1, 2
@@ -345,7 +377,7 @@ WITH a AS (
         count(*) AS meses_com_folha,
         count(subsidio) AS meses_com_subsidio,
         count(bolsas_estagiarios) AS meses_com_estagiarios,
-        count(verba_compensatoria_observada) AS meses_com_verba,
+        count(*) FILTER (WHERE verba_compensatoria_observada > 0) AS meses_com_verba,
         min(competencia) AS primeiro_mes, max(competencia) AS ultimo_mes,
         round(avg(n_servidores), 1) AS media_servidores,
         round(avg(n_assessores_parlamentares), 1) AS media_assessores_parlamentares,
@@ -370,7 +402,7 @@ ORDER BY a.ano, ranking, a.centro_custo_codigo
 SQL_INSTITUCIONAL = f"""
 CREATE OR REPLACE TABLE custo_institucional AS
 SELECT centro_custo_codigo, centro_custo_label, competencia, 'folha' AS fonte,
-       count(*) AS n, round(sum(proventos), 2) AS total
+       count(DISTINCT matricula) AS n, round(sum(proventos), 2) AS total
 FROM folha WHERE NOT ({GAB}) GROUP BY 1, 2, 3
 UNION ALL
 SELECT centro_custo_codigo, centro_custo_label, competencia, 'estagiarios',
@@ -438,13 +470,14 @@ CREATE OR REPLACE TABLE metrica_folha_sintetica (
 SQL_CAMARA_MENSAL = f"""
 CREATE OR REPLACE TABLE metrica_custo_camara_mensal AS
 WITH a AS (
-    SELECT competencia, count(*) AS n_servidores, round(sum(proventos), 2) AS folha_total,
+    SELECT competencia, count(DISTINCT matricula) AS n_servidores, round(sum(proventos), 2) AS folha_total,
            round(sum(CASE WHEN {GAB} THEN proventos ELSE 0 END), 2) AS folha_gabinetes,
            round(sum(CASE WHEN {GAB} OR centro_custo_label = '{CC_SEM_LOTACAO}' THEN 0 ELSE proventos END), 2) AS folha_estrutura,
            round(sum(CASE WHEN centro_custo_label = '{CC_SEM_LOTACAO}' THEN proventos ELSE 0 END), 2) AS folha_sem_lotacao,
-           sum(CASE WHEN {GAB} THEN 1 ELSE 0 END) AS n_gabinetes,
-           sum(CASE WHEN {GAB} OR centro_custo_label = '{CC_SEM_LOTACAO}' THEN 0 ELSE 1 END) AS n_estrutura,
-           sum(CASE WHEN centro_custo_label = '{CC_SEM_LOTACAO}' THEN 1 ELSE 0 END) AS n_sem_lotacao,
+           count(DISTINCT CASE WHEN {GAB} THEN matricula END) AS n_gabinetes,
+           count(DISTINCT CASE WHEN {GAB} OR centro_custo_label = '{CC_SEM_LOTACAO}' THEN NULL ELSE matricula END)
+               AS n_estrutura,
+           count(DISTINCT CASE WHEN centro_custo_label = '{CC_SEM_LOTACAO}' THEN matricula END) AS n_sem_lotacao,
            max(CASE WHEN coalesce(fonte, 'rh_site') = 'rh_site' THEN 1 ELSE 0 END) AS tem_rh_site
     FROM folha GROUP BY 1
 ),
@@ -783,7 +816,11 @@ def reconciliar(con: duckdb.DuckDBPyConnection, fonte: str) -> None:
     col = "folha_assessores + folha_outros" if fonte == "folha" else "coalesce(bolsas_estagiarios, 0)"
     diff = con.execute(
         f"""
-        WITH tot AS (SELECT competencia, count(*) AS n, round(sum(proventos), 2) AS total FROM {fonte} GROUP BY 1),
+        -- folha: pessoas por centro de custo (a mesma matrícula pode ter mais de uma rubrica); estagiários: linhas
+        WITH tot AS (SELECT competencia, sum(n) AS n, round(sum(total), 2) AS total FROM (
+                         SELECT competencia, {"count(DISTINCT matricula)" if fonte == "folha" else "count(*)"} AS n,
+                                sum(proventos) AS total
+                         FROM {fonte} GROUP BY competencia, centro_custo_codigo, centro_custo_label) GROUP BY 1),
         gab AS (SELECT competencia, sum({"n_servidores" if fonte == "folha" else "coalesce(n_estagiarios, 0)"}) AS n,
                        round(sum({col}), 2) AS total FROM metrica_custo_gabinete GROUP BY 1),
         inst AS (SELECT competencia, sum(n) AS n, round(sum(total), 2) AS total FROM custo_institucional
@@ -810,6 +847,14 @@ def compute(con: duckdb.DuckDBPyConnection, parametros: Path = PARAMS_DEFAULT) -
     con.execute(
         SQL_VERBA_EMPENHO.format(processos=SQL_VERBA_PROCESSO if tem_processo else SQL_VERBA_PROCESSO_VAZIO)
     )
+    cols_processo = {
+        r[0]
+        for r in con.execute(
+            "SELECT column_name FROM information_schema.columns WHERE table_name = 'verba_processo'"
+        ).fetchall()
+    }
+    if cols_processo >= COLS_VERBA_SO_TCM:
+        con.execute(SQL_VERBA_SO_TCM)
     con.execute(SQL_VERBA)
     for d in empenhos_descartados(con):
         log.warning(

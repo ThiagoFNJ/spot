@@ -27,6 +27,7 @@ from spot.config import ROOT, SEEDS, SILVER
 from spot.parse.empenhos import RE_CPF_EM_TEXTO, mascarar_cpf
 
 log = logging.getLogger(__name__)
+LEGISLATURA_INICIO = "2025-01-01"
 
 DB_DEFAULT = SILVER / "spot.duckdb"
 OUT_DEFAULT = ROOT / "site" / "data"
@@ -495,6 +496,10 @@ def export(db: Path = DB_DEFAULT, out: Path = OUT_DEFAULT, hoje: date | None = N
         r = redes.get(v["vereador_id"], {})
         v["instagram"] = r.get("instagram") or None
         v["x"] = r.get("x") or None
+        # A biografia do perfil guarda licenças de mandatos anteriores (2013, 2014, 2021…): só vale como licença atual
+        # a que começou nesta legislatura.
+        if v["licenca_data"] and str(v["licenca_data"])[:10] < LEGISLATURA_INICIO:
+            v["licenca_data"] = v["licenca_dias"] = v["suplente_nome"] = None
     cargos: dict[str, dict[str, str | None]] = {}
     for r in rows(
         con,

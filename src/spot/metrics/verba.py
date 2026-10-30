@@ -91,9 +91,9 @@ def sql_processo(
     ``detalhamento`` (formulário antigo, item a item, prestações de fev–mar/2025) ou ``nenhum`` (abr–mai/2025:
     só o total autorizado — não entra nas tabelas por categoria).
 
-    ``valor_pago``: Σ líquido dos empenhos cujo objeto cita o processo (``metrica_verba_empenho``, sem os
-    descartados por duplicidade); sem empenho com o nº do processo, o empenho de mesmo número
-    (``valor_empenho_numero``)."""
+    ``valor_pago``: Σ líquido dos empenhos do mesmo vereador cujo objeto cita o processo (``metrica_verba_empenho``,
+    sem os descartados por duplicidade, inclusive os pagos só no e-TCM); sem esses, o empenho do mesmo vereador
+    com o nº citado pelo processo. Sem ``metrica_verba_empenho``, o empenho de mesmo número."""
     mes_prestacao = "p.mes_prestacao" if tem_mes_prestacao else "NULL::VARCHAR"
     layout = "d.layout" if tem_layout else "CASE WHEN it.n_itens > 0 THEN 'resumo' ELSE 'nenhum' END"
     verba_emp = (
@@ -108,12 +108,19 @@ def sql_processo(
         if tem_empenho
         else "NULL::DOUBLE"
     )
+    # só empenhos do próprio vereador: há objetos que citam o nº de processo (ou o processo cita o nº de empenho)
+    # de outro gabinete
     pago = (
-        "(SELECT round(sum(x.valor_liquido), 2) FROM metrica_verba_empenho x"
-        " WHERE NOT x.descartado AND x.processo = d.pp_numero::VARCHAR || '/' || d.ano_processo::VARCHAR)"
+        "coalesce((SELECT round(sum(x.valor_liquido), 2) FROM metrica_verba_empenho x"
+        " WHERE NOT x.descartado AND x.vereador_id IS NOT DISTINCT FROM d.vereador_id"
+        " AND x.processo = d.pp_numero::VARCHAR || '/' || d.ano_processo::VARCHAR),"
+        " (SELECT round(sum(x.valor_liquido), 2) FROM metrica_verba_empenho x"
+        " WHERE NOT x.descartado AND x.vereador_id IS NOT DISTINCT FROM d.vereador_id"
+        " AND (x.numero = d.empenho_numero OR x.anula_numero = d.empenho_numero)))"
         if tem_verba_empenho
         else "NULL::DOUBLE"
     )
+    pago_fallback = "NULL::DOUBLE" if tem_verba_empenho else emp_num
     return f"""
     CREATE OR REPLACE TABLE metrica_verba_processo AS
     WITH p AS (
@@ -141,7 +148,7 @@ def sql_processo(
            {layout} AS layout,
            {verba_emp} AS verba_empenhada_competencia,
            {emp_num} AS valor_empenho_numero,
-           coalesce({pago}, {emp_num}) AS valor_pago,
+           coalesce({pago}, {pago_fallback}) AS valor_pago,
            round(d.total_declarado - {verba_emp}, 2) AS dif_empenho_competencia,
            round(d.total_declarado - {emp_num}, 2) AS dif_empenho_numero
     FROM d

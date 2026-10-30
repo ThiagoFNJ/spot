@@ -534,7 +534,7 @@
         <div class="card">
           <div class="card-head"><h3 id="custo-tl-title">Custo observado por mês</h3><span class="small muted" id="custo-tl-sub"></span></div>
           <div id="custo-timeline"></div>
-          <p class="small muted" style="margin:8px 0 0">Janeiro sem subsídio: a lei do subsídio vigora a partir de fevereiro de 2025. Estagiários só publicados de abril a novembro.</p>
+          <p class="small muted" style="margin:8px 0 0">Janeiro de 2025 sem subsídio: a lei do subsídio vigora a partir de fevereiro de 2025. Estagiários por gabinete só publicados de abril a novembro de 2025; em 2026 as bolsas não têm lotação e ficam só na visão Câmara.</p>
         </div>
       </div>
       <div class="grid-2" style="margin-top:16px">
@@ -670,7 +670,7 @@
     <dl class="gloss">
       <dt>Competência</dt><dd>O mês a que a despesa se refere, que pode ser diferente do mês em que foi paga. Um ressarcimento de verba pago em março pode ter competência fevereiro.</dd>
       <dt>Empenho</dt><dd>Primeiro passo do pagamento público: a Câmara reserva o valor para um credor e um objeto. É o registro que usamos para a verba compensatória e as despesas da Casa.</dd>
-      <dt>Verba compensatória</dt><dd>Ressarcimento mensal ao vereador por despesas do mandato (Lei 9.828/2025): combustível, consultorias, gráfica, divulgação, impulsionamento etc. Teto de R$ 34 mil por mês em 2025 e R$ 39 mil a partir de dezembro de 2025; o saldo não usado pode ser gasto nos meses seguintes (art. 22).</dd>
+      <dt>Verba compensatória</dt><dd>Ressarcimento mensal ao vereador por despesas do mandato (Lei 9.828/2025): combustível, consultorias, gráfica, divulgação, impulsionamento etc. Teto de R$ 34 mil por mês em 2025 e R$ 39 mil em 2026 (Lei 9.922/2025, vigente desde 30/12/2025); o saldo não usado pode ser gasto nos meses seguintes (art. 22).</dd>
       <dt>Glosa</dt><dd>Parte de uma despesa apresentada que a Controladoria não aceitou ressarcir.</dd>
       <dt>Subsídio</dt><dd>A remuneração mensal do vereador: R$ 26.080,98 na legislatura 2025–2028 (Lei 9.825/2024).</dd>
       <dt>Centro de custo</dt><dd>A unidade da Câmara onde o servidor está lotado. Cada gabinete de vereador tem o seu; é como ligamos cada assessor a um vereador.</dd>
@@ -1429,7 +1429,7 @@
       { key: "presentes", label: "Presenças", get: r => r.presentes, text: r => fmtInt.format(r.presentes) },
       { key: "licenciado", label: "Licenças", get: r => r.licenciado, text: r => fmtInt.format(r.licenciado) },
       { key: "em_exercicio", label: "Sessões em exercício", get: r => r.em_exercicio, text: r => fmtInt.format(r.em_exercicio) },
-      { key: "lom", label: "% das sessões do ano com falta", get: r => r.lom, text: r => fmtPct(r.lom) },
+      { key: "lom", label: state.ano ? "% das sessões do ano com falta" : "% das sessões do período com falta", get: r => r.lom, text: r => fmtPct(r.lom) },
     ];
     table("pres-table", cols, scope.map(r => { const v = V(r.vereador_id); return { id: r.vereador_id, nome: v.nome_parlamentar, partido: v.partido, situacao: v.situacao, pills: [alertaPres(r, ano)].filter(Boolean), ausentes: r.ausentes, taxa: r.sem_dado ? null : r.taxa_presenca, sem_dado: r.sem_dado, presentes: r.presentes, licenciado: r.licenciado, em_exercicio: r.em_exercicio, lom: r.fracao_faltas_lom27 }; }), "pres");
   }
@@ -1462,7 +1462,7 @@
     const assMed = fevDez.reduce((a, c) => a + c.ass, 0) / Math.max(1, fevDez.length);
     const casaSerie = D.custo.casa.filter(c => inComp(c.competencia, state.ano) && c.competencia >= "2025-02");
     const casaMedia = casaSerie.reduce((a, c) => a + c.custo_observado, 0) / Math.max(1, casaSerie.length);
-    const periodo = fevDez.length ? `${mesLbl(fevDez[0].competencia)}–${mesLbl(fevDez[fevDez.length - 1].competencia)}${state.ano ? "/" + state.ano : ""}` : anoLabel(state.ano);
+    const periodo = periodoDe(fevDez.map(c => c.competencia), state.ano);
     $("#custo-kpis").replaceChildren(
       state.ver ? kpi(`Custo mensal · ${scopeLabel()}`, (() => { const r = anualAno.find(x => x.vereador_id === state.ver); return r ? fmtBRL.format(r.media_mensal_custo_observado) : "—"; })(), `Casa (todos os gabinetes): ${fmtBRL.format(casaMedia)}`)
                 : kpi(`Custo mensal · ${scopeLabel()}`, fmtBRL.format(media), state.partido ? `Casa: ${fmtBRL.format(casaMedia)}` : `média ${periodo}, ${anual.length} vereadores`),
@@ -1494,18 +1494,18 @@
     const mil = serieVer.length && Math.max(...serieVer.map(c => c.tot)) < 2e6;
     lineChart($("#custo-timeline"), serieVer.map(c => ({ y: mil ? c.tot / 1e3 : c.tot / 1e6, label: mesLbl(c.competencia),
       tip: `<b>${fmtComp(c.competencia)}</b>${c.parcial ? " · <i>mês com dado incompleto</i>" : ""}<br>Assessores ${fmtBRL.format(c.folha)} (${c.ass})<br>Subsídios ${fmtBRL.format(c.sub)}<br>Estagiários ${fmtBRL.format(c.bol)}<br>Verba compensatória ${fmtBRL.format(c.verba)}<br>Total ${fmtBRL.format(c.tot)}` })),
-      { fmtY: v => mil ? `R$ ${Math.round(v)} mil` : `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mi`, y0: 0, nice: mil ? 50 : 1, ticks: 4, xLabels: 12, aria: "Custo observado por mês de 2025" });
+      { fmtY: v => mil ? `R$ ${Math.round(v)} mil` : `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mi`, y0: 0, nice: mil ? 50 : 1, ticks: 4, xLabels: 12, aria: `Custo observado por mês em ${anoLabel(state.ano)}` });
     const det = $("#custo-detail"); det.replaceChildren();
     if (state.ver) {
       const cs = anualAno.filter(r => r.vereador_id === state.ver);
       if (cs.length) detailBox(det, cs.map(c => el("div", { class: "facts" },
         fact("Média mensal", fmtBRL.format(c.media_mensal_custo_observado), `${c.meses_com_folha} meses com folha · ${c.ranking}º de ${anualAno.length}`),
         fact("Assessores", fmt1(c.media_assessores_parlamentares), fmtBRL.format(c.folha_assessores / (c.meses_com_folha || 1)) + " por mês"),
-        fact("Subsídio", fmtBRL.format(26080.98), `${c.meses_com_subsidio} meses no ano`),
+        fact("Subsídio", fmtBRL.format(26080.98), `${c.meses_com_subsidio} meses ${state.ano ? "no ano" : "na legislatura"}`),
         fact("Verba compensatória", fmtBRL.format((c.verba_compensatoria_observada || 0) / (c.meses_com_verba || 1)), `por mês, ${c.meses_com_verba || 0} meses com ressarcimento · teto ${fmtBRL.format(c.verba_compensatoria_teto / (c.meses_com_folha || 12))}`),
         fact("Estagiários", c.bolsas_estagiarios == null ? "—" : fmtBRL.format(c.bolsas_estagiarios / (c.meses_com_estagiarios || 1)), c.meses_com_estagiarios ? `por mês, ${c.meses_com_estagiarios} meses publicados` : "não publicado"),
         fact(`Total ${anoLabel(state.ano)}`, fmtBRL.format(c.custo_observado), `verba no ano: ${fmtBRL.format(c.verba_compensatoria_observada || 0)}`))));
-      else detailBox(det, [el("p", { class: "muted", text: "Sem gabinete próprio na folha de 2025 (ocupou cadeira por suplência curta ou entrou em 2026)." })]);
+      else detailBox(det, [el("p", { class: "muted", text: `Sem gabinete próprio na folha de ${anoLabel(state.ano)} (ocupou cadeira por suplência curta, ou a lotação do gabinete não foi publicada).` })]);
     }
     const cols = [
       { key: "nome", label: "Vereador", left: true, get: r => r.nome },
@@ -1527,7 +1527,8 @@
     const vrows = Object.values(byV).sort((a, b) => b.total - a.total);
     const nMeses = new Set(vb.map(v => v.competencia)).size, tetoAno = tetoAnual(state.ano);
     $("#verba-title").textContent = `Verba compensatória ressarcida em ${anoLabel(state.ano)} · ${scopeLabel()}`;
-    $("#verba-sub").textContent = `${vrows.length} vereadores · ${nMeses} meses · ${fmtBRL.format(vrows.reduce((a, r) => a + r.total, 0))}`;
+    const semId = vrows.filter(r => !r.id);
+    $("#verba-sub").textContent = `${vrows.length - semId.length} vereadores${semId.length ? ` + ${semId.length} credor${semId.length > 1 ? "es" : ""} sem vereador identificado` : ""} · ${nMeses} meses · ${fmtBRL.format(vrows.reduce((a, r) => a + r.total, 0))}`;
     barsChart($("#verba-bars"), rankingRows(vrows.map(r => ({ id: r.id, label: r.id ? V(r.id).nome_parlamentar : r.credor, sub: r.id ? V(r.id).partido : "não identificado", value: r.total,
       pill: r.total > tetoAno + 0.5 ? "acima do teto anual" : r.acima ? `${r.acima} ${r.acima === 1 ? "mês" : "meses"} acima do teto` : null,
       pillTitle: r.total > tetoAno + 0.5 ? `Ressarcido no ano acima da soma dos tetos mensais decorridos (${fmtBRL.format(tetoAno)}); a validar: pode ser empenho atribuído ao mês errado` : "Meses acima do teto mensal; a lei permite usar saldo não gasto de meses anteriores (art. 22)",
@@ -1545,7 +1546,7 @@
     columnChart($("#vteto-bars"), serieV.map(c => ({ label: mesLbl(c.comp), full: fmtComp(c.comp), ref: c.teto, refLabel: "teto", flag: c.verba > c.teto + 0.5 ? "acima" : "",
       segs: [{ v: Math.min(c.verba, c.teto), color: "var(--s4)", label: "Ressarcido", text: fmtBRL.format(c.verba) }, ...(c.verba > c.teto ? [{ v: c.verba - c.teto, color: "var(--s1)", label: "Acima do teto", text: fmtBRL.format(c.verba - c.teto) }] : [])],
       tip: `${c.n} vereador${c.n > 1 ? "es" : ""} · ${fmtPct(c.teto ? c.verba / c.teto : 0)} do teto (${fmtBRL.format(c.teto)})${c.acima ? ` · ${c.acima} acima do teto mensal` : ""}` })), { aria: `Verba ressarcida por mês em ${anoLabel(state.ano)} e o teto` });
-    $("#vteto-note").textContent = "A linha tracejada é o teto do mês (R$ 34 mil por vereador em 2025, R$ 39 mil a partir de dezembro de 2025; na Casa, a soma dos tetos de quem teve ressarcimento). A parte vermelha é o que passou do teto: permitido com saldo de meses anteriores (Lei 9.828, art. 22); o teto anual é a soma dos mensais.";
+    $("#vteto-note").textContent = "A linha tracejada é o teto do mês (R$ 34 mil por vereador em 2025, R$ 39 mil em 2026; na Casa, a soma dos tetos de quem teve ressarcimento). A parte azul é o que passou do teto: permitido com saldo de meses anteriores (Lei 9.828, art. 22); o teto anual é a soma dos mensais.";
     const acimaRows = vrows.filter(r => r.id && r.acima > 0).sort((a, b) => b.acima - a.acima || b.total - a.total);
     $("#vteto2-sub").textContent = `${acimaRows.length} de ${vrows.filter(r => r.id).length} vereadores em ${anoLabel(state.ano)}`;
     barsChart($("#vteto2-bars"), rankingRows(acimaRows.map(r => ({ id: r.id, label: V(r.id).nome_parlamentar, sub: V(r.id).partido, value: r.acima,
@@ -1681,7 +1682,7 @@
     const folhaMed = avg(mensal, "folha_total"), custoMed = avg(fd, "custo_total"), nMed = avg(mensal, "n_servidores");
     const totalAno = mensal.reduce((a, m) => a + (m.custo_total || 0), 0);
     const ult = mensal[mensal.length - 1];
-    const periodo = nMeses ? `${mesLbl(mensal[0].competencia)}–${mesLbl(ult.competencia)}${ano ? "/" + ano : ""}` : anoLabel(ano);
+    const periodo = periodoDe(mensal.map(m => m.competencia), ano);
     $("#cam-note").textContent = reconstruida
       ? `Em ${anoLabel(ano)} a Câmara não publicou a relação de servidores. Esta visão usa a consulta de pessoal do TCM-BA (servidor, cargo, grau e remuneração, exportada manualmente mês a mês) e recupera a lotação pela matrícula na última folha publicada pela Câmara em 2025. Quem foi contratado em 2026 ainda não tem lotação publicada (até ${fmtPct(semLot / 100)} dos servidores no mês) e aparece como "Lotação não publicada". Os filtros de partido e vereador não se aplicam aqui.`
       : analitica
@@ -1692,8 +1693,12 @@
       kpi("Folha de pessoal", fmtBRL.format(folhaMed), `${fmtN(nMed)} servidores em média${analitica ? "" : " · folha sintética (e-TCM)"}`),
     ];
     if (analitica) {
-      kpis.push(kpi("Em gabinetes de vereadores", fmtPct(avg(mensal, "folha_gabinetes") / folhaMed), `${fmtN(avg(mensal, "n_gabinetes"))} assessores · ${fmtBRL.format(avg(mensal, "folha_gabinetes"))}/mês`),
-        kpi("Na estrutura administrativa", fmtPct(avg(mensal, "folha_estrutura") / folhaMed), `${fmtN(avg(mensal, "n_estrutura"))} servidores · ${fmtBRL.format(avg(mensal, "folha_estrutura"))}/mês`));
+      // só os meses com folha por lotação (o mês só com folha sintética não tem gabinete × estrutura); a fatia sem
+      // lotação conhecida fecha os 100%
+      const lot = mensal.filter(m => m.folha_gabinetes != null), folhaLot = avg(lot, "folha_total") || 1;
+      const semLotPct = avg(lot, "folha_sem_lotacao") / folhaLot;
+      kpis.push(kpi("Em gabinetes de vereadores", fmtPct(avg(lot, "folha_gabinetes") / folhaLot), `${fmtN(avg(lot, "n_gabinetes"))} assessores · ${fmtBRL.format(avg(lot, "folha_gabinetes"))}/mês`),
+        kpi("Na estrutura administrativa", fmtPct(avg(lot, "folha_estrutura") / folhaLot), `${fmtN(avg(lot, "n_estrutura"))} servidores · ${fmtBRL.format(avg(lot, "folha_estrutura"))}/mês${semLotPct > 0.0005 ? ` · ${fmtPct(semLotPct)} sem lotação conhecida` : ""}${lot.length < mensal.length ? ` · ${lot.length} de ${mensal.length} meses` : ""}`));
     } else {
       const comSub = mensal.filter(m => m.subsidios_pagos != null);
       kpis.push(kpi("Subsídios pagos", fmtBRL.format(avg(comSub, "subsidios_pagos")), `${fmtN(avg(comSub, "n_subsidios"))} vereadores por mês em média`),
@@ -1768,11 +1773,21 @@
       { key: "pp", label: "Por servidor / mês", get: r => r.pp, text: r => fmtBRL.format(r.pp) },
       { key: "media", label: "Folha / mês", get: r => r.media, text: r => fmtBRL.format(r.media) },
       { key: "ano", label: `Total ${anoLabel(state.ano)}`, get: r => r.ano, text: r => fmtBRL.format(r.ano) },
-    ], C.funcao.map(f => ({ id: null, nome: tc(f.funcao), partido: "", regime: f.regime, onde: f.em_gabinete ? "Gabinetes" : "Estrutura", n: f.n_medio, pessoas: f.pessoas, pp: f.media_por_servidor_mes, media: f.media_mensal, ano: f.total_ano })), "camfuncao");
+    ], C.funcao.filter(f => (f.ano ?? 2025) === ano).map(f => ({ id: null, nome: tc(f.funcao), partido: "", regime: f.regime, onde: f.em_gabinete ? "Gabinetes" : "Estrutura", n: f.n_medio, pessoas: f.pessoas, pp: f.media_por_servidor_mes, media: f.media_mensal, ano: f.total_ano })), "camfuncao");
   }
 
-  // Teto anual da verba: soma dos tetos mensais dos meses já decorridos no ano (R$ 34 mil até nov/2025, R$ 39 mil depois).
-  const tetoMes = c => c >= "2025-12" ? 39000 : 34000;
+  // Teto anual da verba: soma dos tetos mensais dos meses já decorridos no ano. R$ 34 mil em 2025; R$ 39 mil em 2026
+  // (Lei 9.922/2025, vigente desde 30/12/2025: dezembro de 2025 ainda é de R$ 34 mil, como em parametros_custo).
+  const tetoMes = c => c >= "2026-01" ? 39000 : 34000;
+  // "jan–set/2026 (8 meses, sem jul)": rótulo de período a partir dos meses que de fato têm dado.
+  function periodoDe(comps, ano) {
+    if (!comps.length) return anoLabel(ano);
+    const cs = [...new Set(comps)].sort(), [y0, m0] = cs[0].split("-").map(Number), [y1, m1] = cs[cs.length - 1].split("-").map(Number);
+    const falta = [];
+    for (let y = y0, m = m0; y < y1 || (y === y1 && m <= m1); m === 12 ? (y++, m = 1) : m++) { const c = `${y}-${String(m).padStart(2, "0")}`; if (!cs.includes(c)) falta.push(mesLbl(c)); }
+    const faixa = `${mesLbl(cs[0])}${y0 !== y1 ? "/" + y0 : ""}–${mesLbl(cs[cs.length - 1])}/${y1}`;
+    return falta.length ? `${faixa} (${cs.length} meses, sem ${falta.join(", ")})` : faixa;
+  }
   function tetoAnual(ano) {
     const comps = [...new Set(D.custo.verba.filter(v => inComp(v.competencia, ano)).map(v => v.competencia))].sort();
     if (!comps.length) return 0;
@@ -1974,9 +1989,9 @@
       tile("Produção ponderada", pd ? fmt1(pd.vol_ponderado_12m) : "—", posPd ? `${posPd[0]}º de ${posPd[1]}` : "", pd ? `${pd.n_total} proposições em ${pd.meses_exercicio} meses · média da Casa ${fmt1(prodCasa.reduce((a, r) => a + r.vol_ponderado_12m, 0) / Math.max(1, prodCasa.length))}` : ""),
       tile("Projetos de lei e afins", pd ? String(grp(pd, GRUPOS[0])) : "—", "", pd ? `${pd.n_excluidas_regex} homenagens/nomes de rua fora da ponderação` : ""),
       tile("Custo do gabinete / mês", cu ? fmtBRL.format(cu.media_mensal_custo_observado) : "—", posC ? `${posC[0]}º de ${posC[1]} (do mais caro)` : "", cu ? `${fmt1(cu.media_assessores_parlamentares)} assessores em média · Casa ${fmtBRL.format(anual.reduce((a, r) => a + r.media_mensal_custo_observado, 0) / Math.max(1, anual.length))}` : `sem folha de gabinete em ${anoLabel(ano)}`),
-      tile("Verba compensatória no ano", fmtBRL.format(verbaAno), pv ? `${pv[0]}º de ${pv[1]}` : "", `${vb.length} meses · ${fmtPct(tetoAno ? verbaAno / tetoAno : 0)} do teto até agora (${fmtBRL.format(tetoAno)})`),
+      tile(ano ? "Verba compensatória no ano" : "Verba compensatória na legislatura", fmtBRL.format(verbaAno), pv ? `${pv[0]}º de ${pv[1]}` : "", `${vb.length} meses · ${fmtPct(tetoAno ? verbaAno / tetoAno : 0)} do teto até agora (${fmtBRL.format(tetoAno)})`),
     );
-    $("#pf-facts-note").textContent = `Posições entre os vereadores com dado em ${anoLabel(ano)} (titulares e suplentes). Verba: valor ressarcido pela Câmara (empenhos); teto de R$ 34 mil por mês em 2025 e R$ 39 mil desde dezembro de 2025.`;
+    $("#pf-facts-note").textContent = `Posições entre os vereadores com dado em ${anoLabel(ano)} (titulares e suplentes). Verba: valor ressarcido pela Câmara (empenhos); teto de R$ 34 mil por mês em 2025 e R$ 39 mil em 2026.`;
     // presença sessão a sessão
     const sessAll = D.presenca.sessoes.filter(x => inAno(x.ano, ano));
     $("#pf-pres-sub").textContent = pr ? `${pr.presentes} presenças · ${pr.ausentes} faltas · ${pr.licenciado} licenças` : "";
@@ -2000,12 +2015,16 @@
     columnChart($("#pf-verba-bars"), comps.map(c => {
       const emp = vb.filter(x => x.competencia === c).reduce((a, x) => a + x.verba_compensatoria_observada, 0);
       const cats = porCat[c] || {}; const byG = {}; Object.entries(cats).forEach(([cat, val]) => { const g = grupoDe(cat).label; byG[g] = (byG[g] || 0) + val; });
+      // a altura da coluna é sempre o pago no mês (o mesmo do número grande); se as categorias do processo passam do
+      // pago (processo e empenho em meses diferentes), o mês fica sem divisão em vez de somar os dois
       const somaCat = Object.values(byG).reduce((a, b) => a + b, 0), resto = Math.max(0, emp - somaCat);
-      const segs = VGRUPOS.filter(g => byG[g.label]).map(g => ({ v: byG[g.label], color: g.color, label: g.label, text: fmtBRL.format(byG[g.label]) }));
-      if (resto > 0.5) segs.push({ v: resto, color: "var(--line-2)", label: somaCat ? "Sem divisão por categoria" : "Sem prestação de contas no TCM-BA ainda", text: fmtBRL.format(resto) });
+      const fecha = somaCat <= emp + 1;
+      const segs = fecha ? VGRUPOS.filter(g => byG[g.label]).map(g => ({ v: byG[g.label], color: g.color, label: g.label, text: fmtBRL.format(byG[g.label]) })) : [];
+      if (fecha && resto > 0.5) segs.push({ v: resto, color: "var(--line-2)", label: somaCat ? "Sem divisão por categoria" : "Sem prestação de contas no TCM-BA ainda", text: fmtBRL.format(resto) });
+      if (!fecha && emp > 0.5) segs.push({ v: emp, color: "var(--line-2)", label: "Sem divisão por categoria (processo do TCM-BA em outro mês)", text: fmtBRL.format(emp) });
       const teto = tetoMes(c);
       return { key: c, label: mesLbl(c), full: fmtComp(c), segs, ref: teto, refLabel: `teto ${fmtMil(teto)}`, flag: emp > teto + 0.5 ? "acima do teto" : "",
-        tip: `${fmtPct((emp || somaCat) / teto)} do teto do mês (${fmtBRL.format(teto)})${Object.keys(cats).length ? ` · ${Object.keys(cats).length} categorias declaradas` : " · prestação sem categorias"}` };
+        tip: `${fmtPct(emp / teto)} do teto do mês (${fmtBRL.format(teto)})${!fecha ? ` · o processo do TCM-BA deste mês (${fmtBRL.format(somaCat)}) não fecha com o pago` : Object.keys(cats).length ? ` · ${Object.keys(cats).length} categorias declaradas` : " · prestação sem categorias"}` };
     }), { aria: `Verba compensatória recebida por mês em ${anoLabel(ano)}, por categoria, com a linha do teto`, sel: vpFiltro.mes,
       // clique numa coluna filtra a tabela de reembolsos pelo mês; clicar de novo no mesmo mês limpa o filtro
       onClick: c => { vpFiltro.mes = vpFiltro.mes === c.key ? "" : c.key; vpFiltro.cat = ""; vpPage = 0; renderTab();
@@ -2042,7 +2061,7 @@
     const items = [["Frequência em sessões (LEG_SYS, Câmara)", F.frequencia], ["Catálogo de sessões e atas", F.sessoes], ["Proposições e tramitação", F.proposicoes],
       ["Produtividade parlamentar (resumo oficial)", F.resumo_proposicoes], ["Relação de servidores por centro de custo (RH)", F.rh], ["Lista de vereadores", F.vereadores], ["Lei 9.825/2024 (subsídio)", F.subsidio], ["Empenhos do portal financeiro (verba compensatória)", F.empenhos]];
     $("#fontes").replaceChildren(...[...items, ...extras].filter(([, u]) => u).map(([t, u]) => el("li", {}, el("a", { href: u, target: "_blank", rel: "noopener", text: t }))));
-    $("#gerado").textContent = `Dados coletados e processados em ${fmtDate(D.meta.gerado_em)}. Sessões de 2026 até ${fmtDate(D.meta.ultima_sessao_2026)}. Base de ${fmtInt.format(D.meta.n_proposicoes_base)} proposições desde 2004; o total de 2025 confere com o resumo oficial da Câmara.`;
+    $("#gerado").textContent = `Dados coletados e processados em ${fmtDate(D.meta.gerado_em)}. Sessões de 2026 até ${fmtDate(D.meta.ultima_sessao_2026)}. Base de ${fmtInt.format(D.meta.n_proposicoes_base)} proposições desde 2004; o total de 2025 difere em 1 proposição do resumo oficial da Câmara (2.038 × 2.037).`;
     $("#lede").textContent = `Produtividade, presença e custo dos gabinetes dos 43 vereadores, a partir dos sistemas públicos da própria Câmara. Dados até ${fmtDate(D.meta.ultima_sessao_2026)}.`;
   }
 

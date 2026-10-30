@@ -259,15 +259,23 @@ def test_categorias_somam_o_pago() -> None:
     _load(c)
     c.execute("INSERT INTO verba_processo_item VALUES (10, 2025, '2025-07', 'XV', 'x', 150.0)")
     c.execute(
-        "CREATE TABLE metrica_verba_empenho (numero VARCHAR, processo VARCHAR, valor_liquido DOUBLE, descartado BOOLEAN)"
+        "CREATE TABLE metrica_verba_empenho (numero VARCHAR, vereador_id VARCHAR, processo VARCHAR, anula_numero VARCHAR, "
+        "valor_liquido DOUBLE, descartado BOOLEAN)"
     )
     c.executemany(
-        "INSERT INTO metrica_verba_empenho VALUES (?, ?, ?, ?)",
-        [("NE1", "10/2025", 150.0, False), ("NE2", "11/2025", 190.0, False), ("NE9", "11/2025", 190.0, True)],
+        "INSERT INTO metrica_verba_empenho VALUES (?, ?, ?, NULL, ?, ?)",
+        [
+            ("NE1", "ana", "10/2025", 150.0, False),
+            ("NE2", "ana", "11/2025", 190.0, False),
+            ("NE9", "ana", "11/2025", 190.0, True),
+            # empenho de outro vereador citando o processo de ana: não conta no pago dela
+            ("NE7", "bob", "11/2025", 999.0, False),
+        ],
     )
     mv.compute(c)
     pago = dict(c.execute("SELECT pp_numero, valor_pago FROM metrica_verba_processo").fetchall())
-    assert pago == {10: 150.0, 11: 190.0, 12: 300.0, 13: None}
+    # PP 12: o NE3 não está em metrica_verba_empenho -> sem pago; as categorias usam o total declarado (300)
+    assert pago == {10: 150.0, 11: 190.0, 12: None, 13: None}
     rows = c.execute(
         "SELECT pp_numero, categoria_romano, valor FROM metrica_verba_vereador_categoria_mes ORDER BY 1, 2"
     ).fetchall()
